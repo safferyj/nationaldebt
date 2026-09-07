@@ -14,7 +14,7 @@
       - Keep the page readable on a phone, while retaining a dense data table on
         larger screens.
       - Use a high-contrast dark navy canvas with warm amber debt highlights.
-      - Prefer native controls and visible focus states for keyboard users.
+      - Prefer native controls and preserve keyboard interactions.
     */
     /*
       Final measure palette: directional spectra with brighter cool tones.
@@ -87,13 +87,9 @@
 
     button:hover { border-color: #7491a5; }
 
-    button:focus-visible,
-    select:focus-visible,
-    input:focus-visible,
-    a:focus-visible,
-    tr:focus-visible {
-      outline: 3px solid rgba(96, 199, 222, 0.65);
-      outline-offset: 2px;
+    :focus,
+    :focus-visible {
+      outline: none !important;
     }
 
     .skip-link {
@@ -104,8 +100,6 @@
       background: #fff;
       padding: 0.7rem 1rem;
     }
-
-    .skip-link:focus { left: 1rem; top: 1rem; }
 
     .topbar {
       background: var(--navy);
@@ -294,14 +288,13 @@
     .measure-row {
       display: grid;
       gap: 0.7rem;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
     .measure-cluster {
       align-items: stretch;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
+      /* Let every lozenge use one equal track while retaining the data groups. */
+      display: contents;
       min-width: 0;
     }
 
@@ -314,19 +307,15 @@
       color: var(--navy);
       cursor: pointer;
       display: flex;
-      flex: 1 1 0;
+      flex: none;
       font: inherit;
       gap: 0.45rem;
-      min-height: 4.55rem;
+      height: 4.4rem;
       min-width: 0;
       padding: 0.6rem 0.7rem;
       text-align: left;
       transition: filter 160ms ease, opacity 160ms ease, transform 160ms ease;
-    }
-
-    .measure-lozenge:focus-visible {
-      outline: 3px solid rgba(185, 242, 255, 0.9);
-      outline-offset: 2px;
+      width: 100%;
     }
 
     .measure-lozenge:not(:disabled):not(.is-selected) {
@@ -365,7 +354,7 @@
     }
 
     .measure-lozenge-value {
-      font-size: clamp(0.78rem, 1vw, 0.95rem);
+      font-size: clamp(0.88rem, 1.1vw, 1.05rem);
       font-weight: 750;
       letter-spacing: -0.02em;
       line-height: 1.15;
@@ -377,7 +366,24 @@
       display: block;
       font-size: clamp(0.68rem, 0.9vw, 0.82rem);
       letter-spacing: 0;
-      white-space: nowrap;
+      overflow-wrap: anywhere;
+    }
+
+    .measure-lozenge-result {
+      display: inline;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: inherit;
+      line-height: inherit;
+      margin-left: 0.35rem;
+    }
+
+    .measure-lozenge-result.is-surplus {
+      color: #087f5b;
+    }
+
+    .measure-lozenge-result.is-deficit {
+      color: #a34f5a;
     }
 
     .chart-card {
@@ -545,7 +551,7 @@
     }
 
     .chart-wrap {
-      min-height: 520px;
+      min-height: 552px;
       position: relative;
     }
 
@@ -597,10 +603,13 @@
 
     .chart-year-picker output {
       color: #fff;
+      flex: 0 0 7ch;
       font-size: clamp(1.35rem, 2.4vw, 1.75rem);
       font-weight: 850;
       letter-spacing: -0.055em;
       line-height: 1;
+      text-align: center;
+      width: 7ch;
     }
 
     .chart-year-picker button {
@@ -620,8 +629,8 @@
     }
 
     .chart-year-picker button:hover {
-      background: var(--amber);
-      border-color: var(--amber);
+      background: var(--cyan);
+      border-color: #b9f2ff;
       color: var(--navy);
       box-shadow: 0 9px 20px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     }
@@ -652,7 +661,7 @@
     #chart {
       display: block;
       height: auto;
-      min-height: 520px;
+      min-height: 552px;
       overflow: visible;
       touch-action: none;
       width: 100%;
@@ -670,6 +679,8 @@
 
     #chart:not(.dragging) { cursor: crosshair; }
     #chart.dragging { cursor: ew-resize; }
+
+    .chart-inline-legend { cursor: pointer; }
 
     .chart-tooltip {
       background: #071522;
@@ -1024,7 +1035,7 @@
       .term-definitions { grid-template-columns: 1fr; }
       .source-grid { grid-template-columns: 1fr; }
       .chart-wrap,
-      #chart { min-height: 420px; }
+      #chart { min-height: 452px; }
       .measure-row { grid-template-columns: 1fr; }
       .chart-controls-row {
         align-items: flex-start;
@@ -1175,7 +1186,7 @@
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"></div>
-          <svg id="chart" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
+          <svg id="chart" viewBox="0 0 1000 552" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1751,8 +1762,13 @@
     });
 
     const defaultVisibleForMode = () => ({
+      gross: true,
+      net: false,
+      ucb: false,
       fiscal: false,
+      grossChange: false,
       grossGrowth: false,
+      netChange: false,
       agsInterest: false,
       interest: false
     });
@@ -1765,7 +1781,8 @@
       debtView: "pctGdp",
       dollarBasis: "nominal",
       dollarMeasure: "absolute",
-      showGovernment: true,
+      showGovernment: false,
+      legendSide: "left",
       visible: defaultVisibleForMode()
     };
 
@@ -1897,23 +1914,23 @@
               { key: "gross", label: perCapita ? "Gross debt per capita" : "Gross debt", color: "#f4b942", get: (row) => getValue(row, "gross"), suffix },
               { key: "net", label: perCapita ? "Net debt per capita" : "Net debt", color: "#5a8fbd", get: (row) => getValue(row, "net"), suffix },
               { key: "ucb", label: perCapita ? "Underlying cash per capita" : "Underlying cash balance", color: "#3fb39f", get: (row) => getValue(row, "ucb"), suffix },
-              { key: "fiscal", label: perCapita ? "Fiscal balance per capita" : "Fiscal balance", color: "#83d6b7", dash: "7 5", get: (row) => getValue(row, "fiscal"), suffix },
-              { key: "grossChange", label: perCapita ? "Gross debt change per capita" : "Change in gross debt", color: "#e67845", dash: "2 4", get: (row) => getDebtChangeDollars(row, "gross", perCapita), suffix },
-              { key: "netChange", label: perCapita ? "Net debt change per capita" : "Change in net debt", color: "#666faf", dash: "9 4", get: (row) => getDebtChangeDollars(row, "net", perCapita), suffix },
-              { key: "agsInterest", label: perCapita ? "Interest paid (PBO series) per capita" : "Interest paid (PBO series)", color: "#c95f67", dash: "12 4", get: (row) => getValue(row, "agsInterest"), suffix },
-              { key: "interest", label: perCapita ? "Net interest payments per capita" : "Net interest payments", color: "#986fba", dash: "4 4", get: (row) => getValue(row, "interest"), suffix }
+              { key: "fiscal", label: perCapita ? "Fiscal balance per capita" : "Fiscal balance", color: "#83d6b7", get: (row) => getValue(row, "fiscal"), suffix },
+              { key: "grossChange", label: perCapita ? "Gross debt change per capita" : "Change in gross debt", color: "#e67845", get: (row) => getDebtChangeDollars(row, "gross", perCapita), suffix },
+              { key: "netChange", label: perCapita ? "Net debt change per capita" : "Change in net debt", color: "#666faf", get: (row) => getDebtChangeDollars(row, "net", perCapita), suffix },
+              { key: "agsInterest", label: perCapita ? "Interest paid (PBO series) per capita" : "Interest paid (PBO series)", color: "#c95f67", get: (row) => getValue(row, "agsInterest"), suffix },
+              { key: "interest", label: perCapita ? "Net interest payments per capita" : "Net interest payments", color: "#986fba", get: (row) => getValue(row, "interest"), suffix }
             ];
           }
           return [
             { key: "gross", label: "Gross debt / GDP", color: "#f4b942", get: (row) => row.grossPct, suffix: "%" },
             { key: "net", label: "Net debt / GDP", color: "#5a8fbd", get: (row) => row.netPct, suffix: "%" },
             { key: "ucb", label: "Underlying cash / GDP", color: "#3fb39f", get: (row) => row.ucbPct, suffix: "%" },
-            { key: "fiscal", label: "Fiscal balance / GDP", color: "#83d6b7", dash: "7 5", get: (row) => row.fiscalPct, suffix: "%" },
-            { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#e67845", dash: "2 4", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
-            { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#f26b5e", dash: "10 3", get: (row) => row.grossChange, suffix: "%" },
-            { key: "netChange", label: "Change in net debt / GDP (%)", color: "#666faf", dash: "9 4", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
-            { key: "agsInterest", label: "Interest paid (PBO series) / GDP", color: "#c95f67", dash: "12 4", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
-            { key: "interest", label: "Net interest payments / GDP", color: "#986fba", dash: "4 4", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
+            { key: "fiscal", label: "Fiscal balance / GDP", color: "#83d6b7", get: (row) => row.fiscalPct, suffix: "%" },
+            { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#e67845", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
+            { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#f26b5e", get: (row) => row.grossChange, suffix: "%" },
+            { key: "netChange", label: "Change in net debt / GDP (%)", color: "#666faf", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
+            { key: "agsInterest", label: "Interest paid (PBO series) / GDP", color: "#c95f67", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
+            { key: "interest", label: "Net interest payments / GDP", color: "#986fba", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
           ];
         }
       }
@@ -1925,11 +1942,21 @@
       ucb: "Underlying cash balance",
       fiscal: "Fiscal balance",
       grossChange: "Gross debt change",
-      grossGrowth: "Gross debt growth vs prior debt (%)",
+      grossGrowth: "Gross debt growth vs prior",
       netChange: "Net debt change",
-      agsInterest: "Interest paid (PBO series; includes AGS)",
+      agsInterest: "Interest paid",
       interest: "Net interest payments",
       government: "Government"
+    };
+    const seriesSelectorShortLabels = {
+      ucb: "Cash balance",
+      grossGrowth: "Gross debt growth",
+      interest: "Net interest"
+    };
+    const getSurname = (name) => {
+      if (!name || name === "Not available") return name;
+      const parts = name.trim().split(/\s+/);
+      return parts[parts.length - 1];
     };
 
     // These explanations are deliberately static so the term's meaning does
@@ -2000,10 +2027,11 @@
     const dollarBasisButtons = Array.from(document.querySelectorAll("[data-basis]"));
     const chartLayout = {
       width: 1000,
-      height: 520,
+      height: 552,
       // Reserve room for long tick labels and the vertical axis title.
-      margin: { top: 24, right: 22, bottom: 72, left: 75 }
+      margin: { top: 16, right: 22, bottom: 72, left: 75 }
     };
+    let legendAnimationFrame = null;
     const dragState = {
       active: false,
       mode: null,
@@ -2206,6 +2234,7 @@
 
     function handleViewportResize() {
       hideTooltip();
+      fitMeasureLozengeText();
       if (chartIsFullscreen()) renderAll();
     }
 
@@ -2296,6 +2325,7 @@
                         ? "Liberal"
                         : political.government;
                     const governmentValue = `${governmentLabel}, ${political.pm}, ${political.treasurer}`;
+                    const governmentShortValue = `${governmentLabel}, ${getSurname(political.pm)}, ${getSurname(political.treasurer)}`;
                     const ariaLabel = `${label}: ${governmentValue}. ${explanation}`;
                     return `
                       <button type="button"
@@ -2307,7 +2337,7 @@
                         title="${esc(explanation)}">
                         <span class="measure-lozenge-content">
                           <span class="measure-lozenge-name" title="${esc(explanation)}">${esc(label)}</span>
-                          <span class="measure-lozenge-value measure-lozenge-government-value">${esc(governmentValue)}</span>
+                          <span class="measure-lozenge-value measure-lozenge-government-value" data-full-value="${esc(governmentValue)}" data-short-value="${esc(governmentShortValue)}">${esc(governmentValue)}</span>
                         </span>
                       </button>
                     `;
@@ -2315,17 +2345,27 @@
                   const series = seriesByKey.get(key);
                   const available = Boolean(series);
                   const label = seriesSelectorLabels[key] || key;
+                  const shortLabel = seriesSelectorShortLabels[key];
+                  const labelAttributes = shortLabel
+                    ? ` data-full-label="${esc(label)}" data-short-label="${esc(shortLabel)}"`
+                    : "";
                   const selected = available && state.visible[key] !== false;
                   const value = available
                     ? formatLozengeValue(series.get(row), series.suffix)
                     : key === "grossGrowth"
                       ? formatPct(row.grossChange, true)
                       : "n/a";
+                  const ucbResult = row.ucb >= 0 ? "Surplus" : "Deficit";
+                  const ucbResultClass = row.ucb >= 0 ? "is-surplus" : "is-deficit";
+                  const valueMarkup = key === "ucb"
+                    ? `<span class="measure-lozenge-value">${esc(value)}<span class="measure-lozenge-result ${ucbResultClass}">${ucbResult}</span></span>`
+                    : `<span class="measure-lozenge-value">${esc(value)}</span>`;
                   const note = getMeasureSupportingText(key, row, available);
                   const explanation = measureExplanations[key] || "This measure is defined in the detailed Definitions section below.";
                   const selectedClass = selected ? " is-selected" : "";
                   const disabled = available ? "" : 'disabled aria-disabled="true"';
-                  const ariaLabel = `${label}: ${value}. ${note}. ${explanation}`;
+                  const ariaValue = key === "ucb" ? `${value}; ${ucbResult}` : value;
+                  const ariaLabel = `${label}: ${ariaValue}. ${note}. ${explanation}`;
                   return `
                     <button type="button"
                       class="measure-lozenge${selectedClass}"
@@ -2336,8 +2376,8 @@
                       title="${esc(explanation)}"
                       ${disabled}>
                       <span class="measure-lozenge-content">
-                        <span class="measure-lozenge-name" title="${esc(explanation)}">${esc(label)}</span>
-                        <span class="measure-lozenge-value">${esc(value)}</span>
+                        <span class="measure-lozenge-name"${labelAttributes} title="${esc(explanation)}">${esc(label)}</span>
+                        ${valueMarkup}
                       </span>
                     </button>
                   `;
@@ -2348,6 +2388,7 @@
         </div>
       `).join("");
       measureRows.innerHTML = rowsMarkup;
+      fitMeasureLozengeText();
       measureRows.querySelectorAll("button[data-series]:not(:disabled), button[data-toggle]:not(:disabled)").forEach((button) => {
         button.addEventListener("click", () => {
           if (button.dataset.toggle === "government") {
@@ -2365,6 +2406,38 @@
           if (updatedButton) updatedButton.focus();
         });
       });
+    }
+
+    function fitMeasureLozengeLabels() {
+      // Restore full labels before measuring so they can return when space is available.
+      const showFullLabels = chartIsFullscreen();
+      measureRows.querySelectorAll(".measure-lozenge-name[data-short-label]").forEach((name) => {
+        name.textContent = name.dataset.fullLabel;
+        const lineHeight = Number.parseFloat(getComputedStyle(name).lineHeight);
+        if (!showFullLabels && Number.isFinite(lineHeight) && name.scrollHeight > lineHeight + 1) {
+          name.textContent = name.dataset.shortLabel;
+        }
+      });
+    }
+
+    function fitGovernmentLozengeValues() {
+      const showFullValues = chartIsFullscreen();
+      measureRows.querySelectorAll(".measure-lozenge-government-value[data-short-value]").forEach((value) => {
+        value.textContent = value.dataset.fullValue;
+        const lineHeight = Number.parseFloat(getComputedStyle(value).lineHeight);
+        if (!showFullValues && Number.isFinite(lineHeight) && value.scrollHeight > lineHeight + 1) {
+          value.textContent = value.dataset.shortValue;
+        }
+      });
+    }
+
+    function fitMeasureLozengeText() {
+      fitMeasureLozengeLabels();
+      fitGovernmentLozengeValues();
+    }
+
+    function scheduleMeasureLozengeLabelFit() {
+      window.requestAnimationFrame(fitMeasureLozengeText);
     }
 
     function toggleMeasureShortcut(key) {
@@ -2698,8 +2771,51 @@
       return `${sign}${formatNumber(Math.abs(value))}b`;
     };
 
-    const formatLozengeValue = (value, suffix) =>
-      formatChartValue(value, suffix).replace("A$", "$");
+    const formatLozengeValue = (value, suffix) => {
+      const formatted = formatChartValue(value, suffix).replace("A$", "$");
+      return suffix === "perPerson"
+        ? formatted.replace("/person", "")
+        : formatted;
+    };
+
+    function cancelLegendAnimation() {
+      if (legendAnimationFrame === null) return;
+      window.cancelAnimationFrame(legendAnimationFrame);
+      legendAnimationFrame = null;
+    }
+
+    function moveLegendToOtherSide() {
+      const legend = chart.querySelector(".chart-inline-legend");
+      if (!legend) return;
+      cancelLegendAnimation();
+
+      const currentOffset = Number(legend.dataset.legendOffset || 0);
+      const nextSide = state.legendSide === "left" ? "right" : "left";
+      const targetOffset = Number(legend.dataset[`${nextSide}Offset`]);
+      if (!Number.isFinite(targetOffset)) return;
+
+      state.legendSide = nextSide;
+      legend.setAttribute(
+        "aria-label",
+        `Chart legend. Click to move it to the ${nextSide === "left" ? "right" : "left"} side of the plot.`
+      );
+      const startedAt = performance.now();
+      const duration = 1000;
+      const animate = (now) => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = progress * progress * (3 - 2 * progress);
+        const offset = currentOffset + (targetOffset - currentOffset) * eased;
+        legend.setAttribute("transform", `translate(${offset} 0)`);
+        legend.dataset.legendOffset = String(offset);
+        if (progress < 1) {
+          legendAnimationFrame = window.requestAnimationFrame(animate);
+        } else {
+          legendAnimationFrame = null;
+          legend.dataset.legendOffset = String(targetOffset);
+        }
+      };
+      legendAnimationFrame = window.requestAnimationFrame(animate);
+    }
 
     function showTooltip(point, index) {
       const row = rows[index];
@@ -2743,13 +2859,20 @@
     }
 
     function renderChart() {
+      cancelLegendAnimation();
       const mode = chartModes[state.mode];
       const view = visibleRows();
       const activeSeries = mode.series.filter((series) => state.visible[series.key] !== false);
+      const seriesByKey = new Map(mode.series.map((series) => [series.key, series]));
+      const legendSeries = measureRowLayout
+        .flatMap((groups) => groups.flat())
+        .map((key) => seriesByKey.get(key))
+        .filter((series) => series && state.visible[series.key] !== false);
       updateChartLayout();
       const { width, height, margin } = chartLayout;
       const innerWidth = width - margin.left - margin.right;
-      const plotBottom = state.showGovernment ? height - margin.bottom : height - 36;
+      const bandY = height - 45;
+      const plotBottom = state.showGovernment ? bandY - 12 : height - 36;
       const innerHeight = plotBottom - margin.top;
       const xFor = (index) => margin.left + (view.length === 1 ? innerWidth / 2 : index * innerWidth / (view.length - 1));
       const allValues = activeSeries.flatMap((series) => view.map((row) => series.get(row)))
@@ -2803,7 +2926,6 @@
         svg += svgText(margin.left - 10, y + 4, tickLabel, 'fill="#a9c0d1" text-anchor="end" font-size="11"');
       }
 
-      const bandY = height - 45;
       if (state.showGovernment) {
         /* Political strip: contiguous runs are merged so party changes are
            easy to see without overwhelming the quantitative series. */
@@ -2838,8 +2960,7 @@
       activeSeries.forEach((series) => {
         const path = buildPath(view, series, xFor, yFor);
         if (path) {
-          const dashAttribute = series.dash ? ` stroke-dasharray="${series.dash}"` : "";
-          svg += `<path d="${path}" fill="none" stroke="${series.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"${dashAttribute}></path>`;
+          svg += `<path d="${path}" fill="none" stroke="${series.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>`;
         }
       });
 
@@ -2863,21 +2984,24 @@
       /*
         Keep an inline legend inside the SVG itself. It is appended after the
         grid and data so those lines cannot show through its solid background.
-        pointer-events keeps the key from blocking chart-point interaction.
+        The legend is interactive so it can be moved away from obscured lines.
       */
       const inlineLegendWidth = 290;
       const inlineLegendX = margin.left + 10;
       const inlineLegendY = margin.top + 8;
-      const inlineLegendHeight = activeSeries.length * 22 + 12;
+      const inlineLegendRightX = width - margin.right - inlineLegendWidth - 10;
+      const inlineLegendRightOffset = inlineLegendRightX - inlineLegendX;
+      const inlineLegendOffset = state.legendSide === "right" ? inlineLegendRightOffset : 0;
+      const otherLegendSide = state.legendSide === "left" ? "right" : "left";
+      const inlineLegendHeight = legendSeries.length * 22 + 12;
       svg += `
-        <g class="chart-inline-legend" aria-label="Chart legend" pointer-events="none">
-          <title>Chart legend</title>
+        <g class="chart-inline-legend" aria-label="Chart legend. Click to move it to the ${otherLegendSide} side of the plot." pointer-events="all" transform="translate(${inlineLegendOffset} 0)" data-legend-offset="${inlineLegendOffset}" data-left-offset="0" data-right-offset="${inlineLegendRightOffset}">
+          <title>Click the legend to move it to the other side of the plot</title>
           <rect x="${inlineLegendX}" y="${inlineLegendY}" width="${inlineLegendWidth}" height="${inlineLegendHeight}" rx="8" fill="#071522" stroke="#42637c"></rect>
       `;
-      activeSeries.forEach((series, index) => {
+      legendSeries.forEach((series, index) => {
         const legendY = inlineLegendY + 19 + index * 22;
-        const dashAttribute = series.dash ? ` stroke-dasharray="${series.dash}"` : "";
-        svg += `<line x1="${inlineLegendX + 12}" x2="${inlineLegendX + 30}" y1="${legendY - 4}" y2="${legendY - 4}" stroke="${series.color}" stroke-width="3" stroke-linecap="round"${dashAttribute}></line>`;
+        svg += `<line x1="${inlineLegendX + 12}" x2="${inlineLegendX + 30}" y1="${legendY - 4}" y2="${legendY - 4}" stroke="${series.color}" stroke-width="3" stroke-linecap="round"></line>`;
         svg += svgText(inlineLegendX + 40, legendY, series.label, 'fill="#fff" font-size="11.5"');
       });
       svg += "</g>";
@@ -2889,14 +3013,24 @@
         point.addEventListener("mouseleave", hideTooltip);
         point.addEventListener("focus", () => showTooltip(point, index));
         point.addEventListener("blur", hideTooltip);
-        point.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            state.selected = index;
-            renderAll();
-          }
-        });
       });
+      const legend = chart.querySelector(".chart-inline-legend");
+      if (legend) {
+        ["pointerdown", "pointermove", "pointerup"].forEach((eventName) => {
+          legend.addEventListener(eventName, (event) => {
+            event.stopPropagation();
+          });
+        });
+        legend.addEventListener("contextmenu", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        legend.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          moveLegendToOtherSide();
+        });
+      }
     }
 
     function renderTable() {
@@ -2935,12 +3069,6 @@
           renderAll();
         };
         tableRow.addEventListener("click", selectRow);
-        tableRow.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            selectRow();
-          }
-        });
       });
     }
 
@@ -3008,6 +3136,7 @@
       renderInsights();
       renderChart();
       renderTable();
+      scheduleMeasureLozengeLabelFit();
     }
 
     function showFullHistory() {
@@ -3064,48 +3193,45 @@
       setLens(nextNumber);
     }
 
-    function isEditableTarget(target) {
-      return target instanceof HTMLElement &&
-        (target.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName));
-    }
-
-    /* Keep global year shortcuts separate from Escape and other handled keys. */
+    /* All application keyboard shortcuts are handled at document level. */
     document.addEventListener("keydown", (event) => {
-      if (event.defaultPrevented) return;
+      if (event.key === " " || event.code === "Space") {
+        event.preventDefault();
+        if (!event.repeat) moveLegendToOtherSide();
+        return;
+      }
 
-      if (!isEditableTarget(event.target)) {
-        if (event.ctrlKey && !event.altKey && !event.metaKey && event.key === "Enter") {
+      if (event.ctrlKey && !event.altKey && !event.metaKey && event.key === "Enter") {
+        event.preventDefault();
+        toggleFullscreen();
+        return;
+      }
+
+      if (!event.ctrlKey && !event.altKey && !event.metaKey) {
+        if (event.key === "0") {
           event.preventDefault();
-          toggleFullscreen();
+          showFullHistory();
+          return;
+        }
+        if (event.key.toLowerCase() === "l") {
+          event.preventDefault();
+          shareCurrentView();
           return;
         }
 
-        if (!event.ctrlKey && !event.altKey && !event.metaKey) {
-          if (event.key === "0") {
-            event.preventDefault();
-            showFullHistory();
-            return;
-          }
-          if (event.key.toLowerCase() === "l") {
-            event.preventDefault();
-            shareCurrentView();
-            return;
-          }
-
-          if (/^[1-5]$/.test(event.key)) {
-            event.preventDefault();
-            setLens(Number(event.key));
-            return;
-          }
-          const measureKey = event.key.toLowerCase();
-          if (measureShortcutKeys[measureKey]) {
-            event.preventDefault();
-            toggleMeasureShortcut(measureShortcutKeys[measureKey]);
-            return;
-          }
-          if (event.key === "Tab") {
-            moveLens(event.shiftKey ? -1 : 1);
-          }
+        if (/^[1-5]$/.test(event.key)) {
+          event.preventDefault();
+          setLens(Number(event.key));
+          return;
+        }
+        const measureKey = event.key.toLowerCase();
+        if (measureShortcutKeys[measureKey]) {
+          event.preventDefault();
+          toggleMeasureShortcut(measureShortcutKeys[measureKey]);
+          return;
+        }
+        if (event.key === "Tab") {
+          moveLens(event.shiftKey ? -1 : 1);
         }
       }
 
