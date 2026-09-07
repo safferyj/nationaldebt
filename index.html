@@ -1234,8 +1234,8 @@
               <th scope="col">Net debt burden<br>change (pp)</th>
               <th scope="col">Underlying cash<br>(A$bn; + surplus / - deficit)</th>
               <th scope="col">Cash / GDP</th>
-              <th scope="col">Interest paid on AGS<br>(A$bn)</th>
-              <th scope="col">AGS interest<br>/ GDP</th>
+              <th scope="col">Interest paid<br>(PBO series; A$bn)</th>
+              <th scope="col">Interest paid<br>/ GDP</th>
               <th scope="col">Net interest payments<br>(A$bn)</th>
               <th scope="col">Net interest<br>/ GDP</th>
               <th scope="col">Government / Prime Minister</th>
@@ -1263,12 +1263,12 @@
         <summary>Definitions, choices and update notes</summary>
         <ul>
           <li><strong>Gross debt:</strong> face value of Australian Government Securities (AGS) on issue, often referred to as gross debt. The Parliamentary Budget Office (PBO) notes that total AGS on issue includes securities held on behalf of the states and Northern Territory.</li>
-          <li><strong>Net debt:</strong> interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook.</li>
-          <li><strong>Underlying cash balance:</strong> the Commonwealth's headline cash-based Budget result: broadly, cash receipts less cash payments over the financial year. Positive values are surpluses; negative values are deficits. It is a flow measure and is not the same as the stock of gross debt or its year-to-year change.</li>
+          <li><strong>Net debt:</strong> interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. The selected assets are cash and deposits, advances paid, investments, loans and placements.</li>
+          <li><strong>Underlying cash balance:</strong> the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses; negative values are deficits. It is a flow measure and is not the same as the stock of gross debt or its year-to-year change.</li>
           <li><strong>Fiscal balance:</strong> an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses; negative values are deficits. The embedded PBO series begins in 1996-97.</li>
           <li><strong>Budget result in public commentary:</strong> when Australian Commonwealth politicians and media refer without qualification to the Budget being in surplus or deficit, they usually mean the underlying cash balance. The fiscal balance is a separate measure and is normally identified by name.</li>
-          <li><strong>Interest paid on AGS:</strong> annual interest paid on Australian Government Securities (AGS) on issue, the securities underlying the page's gross-debt measure. It is a gross interest measure and is not reduced by interest receipts. In the chart's % of GDP view it is shown as a share of nominal GDP.</li>
-          <li><strong>Net interest payments:</strong> the PBO measure equal to interest paid minus interest receipts. Interest receipts can come from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets; they are not limited to income from debt-backed assets. This measure is broader than interest paid on AGS alone and is also shown as a share of nominal GDP in the chart's percentage view.</li>
+          <li><strong>Interest paid (PBO series; includes AGS):</strong> the PBO table calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is a gross interest measure and is not reduced by interest receipts. In the chart's % of GDP view it is shown as a share of nominal GDP.</li>
+          <li><strong>Net interest payments:</strong> the PBO measure equal to interest paid minus interest receipts. Interest receipts can come from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets; they are not limited to income from debt-backed assets. This is a net measure after interest receipts, whereas the PBO interest-paid series is a gross cash-interest measure; both are shown as shares of nominal GDP in the chart's percentage view.</li>
           <li><strong>Gross debt growth vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. The selected-year details, table and CSV retain this measure, including the 82.4% increase in 2008-09.</li>
           <li><strong>Debt burden:</strong> in this page, gross debt burden means gross debt as a percentage of nominal GDP, and net debt burden means net debt as a percentage of nominal GDP. “Debt burden” is descriptive shorthand for debt relative to the size of the economy; it does not mean interest cost or debt-service cost.</li>
           <li><strong>Debt burden change:</strong> the year-on-year change in the debt-to-GDP ratio, expressed in percentage points. This measure remains available in the selected-year details, table and CSV; the combined chart's % of GDP view instead uses debt-stock change divided by current-year GDP. It avoids unstable net-debt growth percentages when net debt is near zero or negative.</li>
@@ -1277,9 +1277,11 @@
           <li><strong>Nominal dollars:</strong> amounts are expressed in the Australian-dollar values recorded in each period, without adjusting for inflation. Comparing dollar levels across decades therefore reflects both economic growth and changes in prices.</li>
           <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2024-25 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
           <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
+          <li><strong>Source-audit exception:</strong> the PBO workbook's 2002-03 gross-debt and net-debt percentage-of-GDP cells repeat the 2000-01 ratios and do not reconcile with that workbook's own dollar and GDP cells. This page recalculates those two ratios from the reported amounts: 66,403 / 804,444 = 8.2545% and 46,802 / 804,444 = 5.8179%.</li>
+          <li><strong>2012-13 political transition:</strong> the end-of-year political fields use Kevin Rudd and Chris Bowen because they took office on 27 June 2013. The official archived Treasury portal linked below records that transition; the current Treasury history page displays a conflicting 27 July date for Chris Bowen.</li>
           <li><strong>Chart range:</strong> click and drag across the plot to zoom into a consecutive range of financial years. The reset button restores the full embedded history.</li>
           <li><strong>Year convention:</strong> debt and office-holders are aligned to 30 June. For a year with a change of government, this shows the PM, government and Treasurer in office at the end of the financial year.</li>
-          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political timeline, update the source metadata, and check the derived values. Keep only reported outcomes in the embedded series.</li>
+          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political timeline, update the source metadata, and check the derived values. Keep only reported outcomes in the 15 documented fields; do not add the legacy placeholder to new rows.</li>
         </ul>
       </details>
     </section>
@@ -1301,12 +1303,20 @@
        underlying cash balance ($m), underlying cash balance / GDP (%),
        headline cash balance ($m), headline cash balance / GDP (%),
        fiscal balance ($m), fiscal balance / GDP (%), net interest payments ($m),
-       interest paid on AGS ($m)]
+       PBO “interest paid on AGS on issue” series ($m)]
 
       The values below were transcribed from the official PBO workbook linked
-      in the Sources section. All retained observations are reported outcomes.
-      Keeping the source values in one clearly marked array makes a future
-      update straightforward and auditable.
+      in the Sources section. One source-audit exception is documented inline:
+      the workbook's 2002-03 gross-debt and net-debt percentage-of-GDP cells
+      repeat the 2000-01 ratios, so those two fields are recalculated from the
+      workbook's own reported dollar and GDP values. Keeping the source values
+      in one clearly marked array makes a future update straightforward and
+      auditable.
+
+      The legacy extraction also left a trailing false placeholder on each
+      row. It is not a reported PBO field and is ignored by the destructuring
+      assignment below; the 15 documented fields above are the complete data
+      used by the page.
     */
     const fiscalRows = [
       ["1970-71",40432,10887,26.9267,null,344,0.8508,901,2.2284,50,0.1237,null,null,-189,580,false],
@@ -1341,7 +1351,9 @@
       ["1999-00",663843,75536,11.3786,-11.4788,57661,8.6859,13007,1.9593,22507,3.3904,11645,1.7542,7514,8509,false],
       ["2000-01",708764,66403,9.3688,-12.0909,46802,6.6033,5872,0.8285,11545,1.6289,5820,0.8211,6195,7335,false],
       ["2001-02",757685,63004,8.3153,-5.1187,42263,5.5779,-1067,-0.1408,2355,0.3108,-3164,-0.4176,5352,6270,false],
-      ["2002-03",804444,66403,9.3688,5.3949,46802,6.6033,7370,0.9162,7141,0.8877,5088,0.6325,6195,7335,false],
+      // The PBO workbook repeats the 2000-01 ratios in these two cells. Use
+      // ratios recalculated from the same workbook's GDP and debt amounts.
+      ["2002-03",804444,66403,8.2545,5.3949,46802,5.8179,7370,0.9162,7141,0.8877,5088,0.6325,6195,7335,false],
       ["2003-04",865471,54750,6.326,-17.5489,26995,3.1191,7990,0.9232,7538,0.871,5749,0.6643,3040,4096,false],
       ["2004-05",926930,55151,5.9499,0.7324,15604,1.6834,13577,1.4647,12438,1.3418,11892,1.2829,2502,3902,false],
       ["2005-06",1001309,54070,5.3999,-1.9601,331,0.0331,15757,1.5736,14160,1.4141,16094,1.6073,2303,4628,false],
@@ -1524,22 +1536,27 @@
       --------------------------------------
       These ranges are keyed by the starting calendar year in the financial
       year label. They show the government and office-holders in place on
-      30 June of each financial year, matching the debt stock date.
+      30 June of each financial year, matching the debt stock date. The
+      startDate is the start of the displayed administration or PM segment
+      used in the political-band tooltip; it is not a separate start date for
+      every ministerial appointment.
     */
     const politicalTimeline = [
       { from: 1970, to: 1971, government: "Liberal-Country Coalition", party: "coalition", pm: "William McMahon", treasurer: "Billy Snedden", startDate: "1971-03-10" },
-      { from: 1972, to: 1972, government: "Australian Labor Party", party: "labor", pm: "Gough Whitlam", treasurer: "Frank Crean", startDate: "1972-12-05" },
-      { from: 1973, to: 1973, government: "Australian Labor Party", party: "labor", pm: "Gough Whitlam", treasurer: "Jim Cairns", startDate: "1972-12-05" },
-      { from: 1974, to: 1974, government: "Australian Labor Party", party: "labor", pm: "Gough Whitlam", treasurer: "Frank Crean", startDate: "1972-12-05" },
+      { from: 1972, to: 1972, government: "Australian Labor Party", party: "labor", pm: "Gough Whitlam", treasurer: "Francis Crean", startDate: "1972-12-05" },
+      { from: 1973, to: 1973, government: "Australian Labor Party", party: "labor", pm: "Gough Whitlam", treasurer: "Francis Crean", startDate: "1972-12-05" },
+      { from: 1974, to: 1974, government: "Australian Labor Party", party: "labor", pm: "Gough Whitlam", treasurer: "William Hayden", startDate: "1972-12-05" },
       { from: 1975, to: 1976, government: "Liberal-National Coalition", party: "coalition", pm: "Malcolm Fraser", treasurer: "Phillip Lynch", startDate: "1975-11-11" },
       { from: 1977, to: 1981, government: "Liberal-National Coalition", party: "coalition", pm: "Malcolm Fraser", treasurer: "John Howard", startDate: "1975-11-11" },
       { from: 1982, to: 1989, government: "Australian Labor Party", party: "labor", pm: "Bob Hawke", treasurer: "Paul Keating", startDate: "1983-03-11" },
       { from: 1990, to: 1990, government: "Australian Labor Party", party: "labor", pm: "Bob Hawke", treasurer: "John Kerin", startDate: "1983-03-11" },
       { from: 1991, to: 1991, government: "Australian Labor Party", party: "labor", pm: "Paul Keating", treasurer: "John Dawkins", startDate: "1991-12-20" },
-      { from: 1992, to: 1995, government: "Australian Labor Party", party: "labor", pm: "Paul Keating", treasurer: "Ralph Willis", startDate: "1991-12-20" },
-      { from: 1996, to: 2006, government: "Liberal-National Coalition", party: "coalition", pm: "John Howard", treasurer: "Peter Costello", startDate: "1996-03-11" },
+      { from: 1992, to: 1992, government: "Australian Labor Party", party: "labor", pm: "Paul Keating", treasurer: "John Dawkins", startDate: "1991-12-20" },
+      { from: 1993, to: 1994, government: "Australian Labor Party", party: "labor", pm: "Paul Keating", treasurer: "Ralph Willis", startDate: "1991-12-20" },
+      { from: 1995, to: 2006, government: "Liberal-National Coalition", party: "coalition", pm: "John Howard", treasurer: "Peter Costello", startDate: "1996-03-11" },
       { from: 2007, to: 2008, government: "Australian Labor Party", party: "labor", pm: "Kevin Rudd", treasurer: "Wayne Swan", startDate: "2007-12-03" },
-      { from: 2009, to: 2012, government: "Australian Labor Party", party: "labor", pm: "Julia Gillard", treasurer: "Wayne Swan", startDate: "2010-06-24" },
+      { from: 2009, to: 2011, government: "Australian Labor Party", party: "labor", pm: "Julia Gillard", treasurer: "Wayne Swan", startDate: "2010-06-24" },
+      { from: 2012, to: 2012, government: "Australian Labor Party", party: "labor", pm: "Kevin Rudd", treasurer: "Chris Bowen", startDate: "2013-06-27" },
       { from: 2013, to: 2013, government: "Liberal-National Coalition", party: "coalition", pm: "Tony Abbott", treasurer: "Joe Hockey", startDate: "2013-09-18" },
       { from: 2014, to: 2014, government: "Liberal-National Coalition", party: "coalition", pm: "Tony Abbott", treasurer: "Joe Hockey", startDate: "2013-09-18" },
       { from: 2015, to: 2017, government: "Liberal-National Coalition", party: "coalition", pm: "Malcolm Turnbull", treasurer: "Scott Morrison", startDate: "2015-09-15" },
@@ -1622,6 +1639,13 @@
         text: "Official Treasury ministerial history used for the Treasurer field.",
         url: "https://ministers.treasury.gov.au/ministers#previous",
         linkText: "Open previous Treasury ministers"
+      },
+      {
+        id: "treasurers2013",
+        title: "National Library of Australia Web Archive - Treasury Portfolio Ministers Portal, 28 June 2013",
+        text: "Official archived Treasury portal recording Wayne Swan's final day and Chris Bowen's appointment as Treasurer on 27 June 2013. This resolves the conflicting 27 July date displayed on the current Treasury history page.",
+        url: "https://webarchive.nla.gov.au/awa/20130628052212id_/http://pandora.nla.gov.au/pan/36695/20130628-1520/www.treasurer.gov.au/Default.html",
+        linkText: "Open the archived 2013 Treasury portal"
       },
       {
         id: "parliament",
@@ -1861,7 +1885,7 @@
       debt: {
         title: "Debt, budget, changes and interest (% of GDP)",
         axisLabel: "% of GDP",
-        note: "Gross and net debt, underlying cash balance, fiscal balance and the two interest series are shown relative to nominal GDP; positive budget-balance values are surpluses and negative values are deficits. Interest paid on AGS and net interest payments are annual flows, while debt is measured at 30 June. Debt-change lines show the difference between consecutive debt stocks divided by current-year nominal GDP, expressed as percentages, and are unavailable for the first year. The fiscal balance, direct gross-debt-growth and interest lines are off by default. Use the measure lozenges to show direct gross debt growth versus the previous year's debt, including the 82.4% increase in 2008-09; enabling it expands the chart's vertical scale. Percentage-point changes in the debt-to-GDP ratio remain available in the selected-year details, table and CSV.",
+        note: "Gross and net debt, underlying cash balance, fiscal balance and the two interest series are shown relative to nominal GDP; positive budget-balance values are surpluses and negative values are deficits. The PBO interest-paid series is an annual general-government cash-interest flow that includes interest relating to AGS on issue, while debt is measured at 30 June. Debt-change lines show the difference between consecutive debt stocks divided by current-year nominal GDP, expressed as percentages, and are unavailable for the first year. The fiscal balance, direct gross-debt-growth and interest lines are off by default. Use the measure lozenges to show direct gross debt growth versus the previous year's debt, including the 82.4% increase in 2008-09; enabling it expands the chart's vertical scale. Percentage-point changes in the debt-to-GDP ratio remain available in the selected-year details, table and CSV.",
         get series() {
           if (state.debtView === "dollars") {
             const perCapita = state.dollarMeasure === "perCapita";
@@ -1876,7 +1900,7 @@
               { key: "fiscal", label: perCapita ? "Fiscal balance per capita" : "Fiscal balance", color: "#83d6b7", dash: "7 5", get: (row) => getValue(row, "fiscal"), suffix },
               { key: "grossChange", label: perCapita ? "Gross debt change per capita" : "Change in gross debt", color: "#e67845", dash: "2 4", get: (row) => getDebtChangeDollars(row, "gross", perCapita), suffix },
               { key: "netChange", label: perCapita ? "Net debt change per capita" : "Change in net debt", color: "#666faf", dash: "9 4", get: (row) => getDebtChangeDollars(row, "net", perCapita), suffix },
-              { key: "agsInterest", label: perCapita ? "Interest paid on AGS per capita" : "Interest paid on AGS", color: "#c95f67", dash: "12 4", get: (row) => getValue(row, "agsInterest"), suffix },
+              { key: "agsInterest", label: perCapita ? "Interest paid (PBO series) per capita" : "Interest paid (PBO series)", color: "#c95f67", dash: "12 4", get: (row) => getValue(row, "agsInterest"), suffix },
               { key: "interest", label: perCapita ? "Net interest payments per capita" : "Net interest payments", color: "#986fba", dash: "4 4", get: (row) => getValue(row, "interest"), suffix }
             ];
           }
@@ -1888,7 +1912,7 @@
             { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#e67845", dash: "2 4", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
             { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#f26b5e", dash: "10 3", get: (row) => row.grossChange, suffix: "%" },
             { key: "netChange", label: "Change in net debt / GDP (%)", color: "#666faf", dash: "9 4", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
-            { key: "agsInterest", label: "Interest paid on AGS / GDP", color: "#c95f67", dash: "12 4", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
+            { key: "agsInterest", label: "Interest paid (PBO series) / GDP", color: "#c95f67", dash: "12 4", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
             { key: "interest", label: "Net interest payments / GDP", color: "#986fba", dash: "4 4", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
           ];
         }
@@ -1903,7 +1927,7 @@
       grossChange: "Gross debt change",
       grossGrowth: "Gross debt growth vs prior debt (%)",
       netChange: "Net debt change",
-      agsInterest: "Interest paid on AGS",
+      agsInterest: "Interest paid (PBO series; includes AGS)",
       interest: "Net interest payments",
       government: "Government"
     };
@@ -1913,12 +1937,12 @@
     const measureExplanations = {
       gross: "Gross debt is the face value of Australian Government Securities (AGS) on issue. It is a debt stock measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory.",
       net: "Net debt is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt stock measured at 30 June.",
-      ucb: "The underlying cash balance is the Commonwealth's headline cash-based Budget result: broadly, cash receipts less cash payments over the financial year. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt stock or debt-stock change.",
+      ucb: "The underlying cash balance is the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt stock or debt-stock change.",
       fiscal: "The fiscal balance is an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses and negative values are deficits. The embedded PBO series begins in 1996-97.",
       grossChange: "Gross debt change is the difference between consecutive gross-debt stocks. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar stock difference or per-capita equivalent. It is not the Budget surplus or deficit.",
       grossGrowth: "Gross debt growth versus prior debt is the derived percentage (current gross debt minus previous gross debt) divided by previous gross debt, multiplied by 100. It measures the percentage change in the gross-debt stock, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only.",
       netChange: "Net debt change is the difference between consecutive net-debt stocks. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar stock difference or per-capita equivalent. It is not the Budget surplus or deficit.",
-      agsInterest: "Interest paid on AGS is annual gross interest paid on Australian Government Securities on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP.",
+      agsInterest: "The PBO table calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP.",
       interest: "Net interest payments are the PBO measure of interest paid minus interest receipts. Interest receipts can include receipts from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets. It is an annual flow and is shown as a share of nominal GDP in the percentage view.",
       government: "Government shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the selected-year details, table or tooltips."
     };
@@ -2362,6 +2386,9 @@
       const populationSource = row.year <= 1979
         ? sourceLink("absPopulationHistorical", "ABS Historical Population")
         : sourceLink("absPopulationCurrent", "ABS population estimates");
+      const treasurerSource = row.year === 2012
+        ? `${sourceLink("treasurers", "Treasury minister history")}; ${sourceLink("treasurers2013", "archived 2013 transition record")}`
+        : sourceLink("treasurers", "Treasury minister history");
       detailGrid.innerHTML = `
         <dl class="detail-item">
           <dt>Gross debt</dt>
@@ -2429,9 +2456,9 @@
           <small>${formatPct(row.fiscalPct)} of GDP where available</small>
         </dl>
         <dl class="detail-item">
-          <dt>Interest paid on AGS</dt>
+          <dt>Interest paid (PBO series; includes AGS)</dt>
           <dd>${formatBillions(row.agsInterest)}</dd>
-          <small>${formatPct(getPercentOfGdp(row, "agsInterest"))} of nominal GDP; cash interest measured over the year</small>
+          <small>${formatPct(getPercentOfGdp(row, "agsInterest"))} of nominal GDP; all general-government cash interest measured over the year</small>
         </dl>
         <dl class="detail-item">
           <dt>Net interest payments</dt>
@@ -2451,7 +2478,7 @@
         <dl class="detail-item">
           <dt>Treasurer</dt>
           <dd>${esc(row.political.treasurer)}</dd>
-          <small>${sourceLink("treasurers", "Treasury minister history")}</small>
+          <small>${treasurerSource}</small>
         </dl>
       `;
     }
@@ -2791,7 +2818,7 @@
             const x1 = xFor(bandStart);
             const x2 = xFor(Math.max(bandStart, i - 1));
             const fill = previous.party === "labor" ? "#c85d73" : "#4f8fbe";
-            const title = `${previous.government}; government began ${formatDateDdMmYyyy(previous.startDate)}`;
+            const title = `${previous.government}; administration began ${formatDateDdMmYyyy(previous.startDate)}`;
             svg += `<g class="political-band"><title>${esc(title)}</title><rect x="${x1}" y="${bandY}" width="${Math.max(x2 - x1, 2)}" height="${bandHeight}" rx="3" fill="${fill}" opacity="0.72"></rect>`;
             svg += "</g>";
             bandStart = i;
@@ -2937,8 +2964,8 @@
         "underlying_cash_balance_m", "underlying_cash_balance_pct_gdp",
         "headline_cash_balance_m", "headline_cash_balance_pct_gdp",
         "fiscal_balance_m", "fiscal_balance_pct_gdp", "net_interest_payments_m",
-        "net_interest_payments_pct_gdp", "interest_paid_on_ags_m",
-        "interest_paid_on_ags_pct_gdp", "government", "prime_minister_at_30_june",
+        "net_interest_payments_pct_gdp", "interest_paid_pbo_series_m",
+        "interest_paid_pbo_series_pct_gdp", "government", "prime_minister_at_30_june",
         "treasurer_at_30_june"
       ];
       const csvRows = rows.map((row) => [
