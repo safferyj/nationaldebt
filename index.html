@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An interactive, source-linked history of Australian Commonwealth gross debt, budget balances, GDP, governments, prime ministers, treasurers and sovereign credit ratings from 1970-71 to 2024-25.">
+  <meta name="description" content="An interactive, source-linked history of Australian Commonwealth gross debt, budget balances, GDP, governments, prime ministers and treasurers from 1970-71 to 2024-25.">
   <title>Australia's national debt, in context</title>
 
   <style>
@@ -741,8 +741,7 @@
 
     .detail-heading h3 { margin-bottom: 0.2rem; }
 
-    .party-pill,
-    .rating-pill {
+    .party-pill {
       border-radius: 999px;
       display: inline-flex;
       font-size: 0.72rem;
@@ -765,16 +764,6 @@
     .party-pill.coalition {
       background: #deebf8;
       color: #285d8b;
-    }
-
-    .rating-pill {
-      background: #e8f5ee;
-      color: #237049;
-    }
-
-    .rating-pill.unknown {
-      background: #edf0f3;
-      color: #667685;
     }
 
     .detail-grid {
@@ -1251,7 +1240,6 @@
               <th scope="col">Net interest<br>/ GDP</th>
               <th scope="col">Government / Prime Minister</th>
               <th scope="col">Treasurer</th>
-              <th scope="col">S&P rating</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -1291,8 +1279,7 @@
           <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
           <li><strong>Chart range:</strong> click and drag across the plot to zoom into a consecutive range of financial years. The reset button restores the full embedded history.</li>
           <li><strong>Year convention:</strong> debt and office-holders are aligned to 30 June. For a year with a change of government, this shows the PM, government and Treasurer in office at the end of the financial year.</li>
-          <li><strong>Credit rating:</strong> the S&amp;P long-term sovereign rating timeline is a compact external-agency reference. It is not an Australian Government statistic; verify against the linked agency archive before using it for a formal publication.</li>
-          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political and rating timelines, update the source metadata, and check the derived values. Keep only reported outcomes in the embedded series.</li>
+          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political timeline, update the source metadata, and check the derived values. Keep only reported outcomes in the embedded series.</li>
         </ul>
       </details>
     </section>
@@ -1561,20 +1548,6 @@
     ];
 
     /*
-      DATA UPDATE POINT 3: ratingTimeline
-      ----------------------------------
-      A compact S&P long-term sovereign rating reference. The rating is included
-      as context, not as a government-produced fiscal aggregate. The source
-      section links to the rating agency archive and AOFM government material.
-    */
-    const ratingTimeline = [
-      { from: 1970, to: 1985, rating: "--", note: "Not shown in this compact S&P series" },
-      { from: 1986, to: 2002, rating: "AA+", note: "S&P long-term sovereign rating" },
-      { from: 2003, to: 2015, rating: "AAA", note: "S&P long-term sovereign rating" },
-      { from: 2016, to: 2024, rating: "AA+", note: "S&P long-term sovereign rating" }
-    ];
-
-    /*
       Source metadata is rendered in the visible Sources section and reused for
       source links in the selected-year panel. Keep these URLs current when
       the embedded data vintage changes.
@@ -1657,14 +1630,6 @@
         url: "https://www.aph.gov.au/About_Parliament/House_of_Representatives/Powers_practice_n_procedure/Practice7/HTML/Chapter3/2_-_Governments_and_Oppositions",
         linkText: "Open the parliamentary reference"
       },
-      {
-        id: "ratings",
-        title: "S&P Global Ratings - sovereign research",
-        text: "External agency reference for the compact S&P rating timeline shown here.",
-        url: "https://www.spglobal.com/ratings/en/research/sovereigns",
-        linkText: "Open sovereign ratings research",
-        external: true
-      }
     ];
 
     /*
@@ -1726,7 +1691,7 @@
 
     const lookup = (timeline, year) =>
       timeline.find((segment) => year >= segment.from && year <= segment.to) ||
-      { government: "Not available", party: "unknown", pm: "Not available", treasurer: "Not available", startDate: null, rating: "--", note: "" };
+      { government: "Not available", party: "unknown", pm: "Not available", treasurer: "Not available", startDate: null };
 
     const rows = fiscalRows.map((raw, index) => {
       const [fy, gdp, gross, grossPct, grossChange, net, netPct, ucb, ucbPct,
@@ -1757,8 +1722,7 @@
         agsInterest,
         cpiStockFactor: cpiBase.stockIndex / cpi.stockIndex,
         cpiFlowFactor: cpiBase.flowIndex / cpi.flowIndex,
-        political: lookup(politicalTimeline, year),
-        rating: lookup(ratingTimeline, year)
+        political: lookup(politicalTimeline, year)
       };
     });
 
@@ -2395,7 +2359,6 @@
       previousYear.disabled = row.index === 0;
       nextYear.disabled = row.index === rows.length - 1;
 
-      const ratingClass = row.rating.rating === "--" ? "rating-pill unknown" : "rating-pill";
       const populationSource = row.year <= 1979
         ? sourceLink("absPopulationHistorical", "ABS Historical Population")
         : sourceLink("absPopulationCurrent", "ABS population estimates");
@@ -2474,11 +2437,6 @@
           <dt>Net interest payments</dt>
           <dd>${formatBillions(row.interest)}</dd>
           <small>${formatPct(getPercentOfGdp(row, "interest"))} of nominal GDP; after interest receipts</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Credit rating</dt>
-          <dd><span class="${ratingClass}">${esc(row.rating.rating)}</span></dd>
-          <small>${esc(row.rating.note || "S&P reference")}</small>
         </dl>
         <dl class="detail-item wide">
           <dt>Government in power</dt>
@@ -2941,7 +2899,6 @@
           <td>${formatPct(getPercentOfGdp(row, "interest"))}</td>
           <td><span class="party-pill ${esc(row.political.party)}">${esc(row.political.government)}</span><span class="table-sub">${esc(row.political.pm)}</span></td>
           <td>${esc(row.political.treasurer)}</td>
-          <td><span class="${row.rating.rating === "--" ? "rating-pill unknown" : "rating-pill"}">${esc(row.rating.rating)}</span></td>
         </tr>
       `).join("");
 
@@ -2965,7 +2922,6 @@
         <article class="source">
           <h4>${esc(source.title)}</h4>
           <p>${esc(source.text)}</p>
-          ${source.external ? '<span class="external">External rating agency</span><br>' : ""}
           <a href="${source.url}" target="_blank" rel="noopener">${esc(source.linkText)}</a>
         </article>
       `).join("");
@@ -2983,7 +2939,7 @@
         "fiscal_balance_m", "fiscal_balance_pct_gdp", "net_interest_payments_m",
         "net_interest_payments_pct_gdp", "interest_paid_on_ags_m",
         "interest_paid_on_ags_pct_gdp", "government", "prime_minister_at_30_june",
-        "treasurer_at_30_june", "sp_rating"
+        "treasurer_at_30_june"
       ];
       const csvRows = rows.map((row) => [
         row.fy, row.population, getNominalDollarsPerCapita(row, "gross"),
@@ -2996,8 +2952,7 @@
         row.ucb, row.ucbPct, row.headline, row.headlinePct,
         row.fiscal, row.fiscalPct, row.interest, getPercentOfGdp(row, "interest"),
         row.agsInterest, getPercentOfGdp(row, "agsInterest"),
-        row.political.government, row.political.pm, row.political.treasurer,
-        row.rating.rating
+        row.political.government, row.political.pm, row.political.treasurer
       ]);
       const csv = [headers, ...csvRows].map((line) =>
         line.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")
