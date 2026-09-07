@@ -16,6 +16,14 @@
       - Use a high-contrast dark navy canvas with warm amber debt highlights.
       - Prefer native controls and visible focus states for keyboard users.
     */
+    /*
+      Final measure palette: directional spectra with brighter cool tones.
+      The first three top-row measures read from red at the third position
+      through orange to yellow at the first; the first three bottom-row
+      measures read from slightly brighter blue through indigo to violet.
+      All other colors remain from palette option 1c, including teal-green fourth measures
+      and the light-grey Government lozenge.
+    */
     :root {
       --ink: #182230;
       --muted: #617083;
@@ -350,26 +358,26 @@
     }
 
     .measure-lozenge-name {
-      font-size: 0.7rem;
+      font-size: clamp(0.95rem, 1.4vw, 1.2rem);
       font-weight: 850;
       letter-spacing: 0.02em;
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .measure-lozenge-value {
-      font-size: clamp(1rem, 1.6vw, 1.35rem);
-      font-weight: 850;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-      margin-top: 0.35rem;
+      font-size: clamp(0.78rem, 1vw, 0.95rem);
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-top: 0.3rem;
       overflow-wrap: anywhere;
     }
 
-    .measure-lozenge-note {
-      font-size: 0.68rem;
-      line-height: 1.2;
-      margin-top: 0.25rem;
-      opacity: 0.72;
+    .measure-lozenge-government-value {
+      display: block;
+      font-size: clamp(0.68rem, 0.9vw, 0.82rem);
+      letter-spacing: 0;
+      white-space: nowrap;
     }
 
     .chart-card {
@@ -409,7 +417,7 @@
       --chart-control-height: calc(3.15rem + 0.4rem + 2px);
       display: flex;
       gap: 1rem;
-      margin: -0.15rem 0 0.6rem;
+      margin: -0.8rem 0 0.6rem;
       padding-bottom: 0.35rem;
     }
 
@@ -433,7 +441,8 @@
       justify-self: end;
     }
 
-    .chart-controls-row #resetView {
+    .chart-controls-row #resetView,
+    .chart-controls-row #shareView {
       background: linear-gradient(145deg, #173650, #071522);
       border-color: rgba(185, 242, 255, 0.52);
       border-radius: 16px;
@@ -445,7 +454,8 @@
       padding: 0.55rem 0.85rem;
     }
 
-    .chart-controls-row #resetView:hover {
+    .chart-controls-row #resetView:hover,
+    .chart-controls-row #shareView:hover {
       background: linear-gradient(145deg, #285b7d, #122b42);
       border-color: var(--cyan);
       color: #fff;
@@ -457,12 +467,9 @@
 
     .dollar-basis-control {
       align-items: center;
-      background: linear-gradient(145deg, #173650, #071522);
-      border: 1px solid rgba(185, 242, 255, 0.42);
-      border-radius: 12px;
       display: flex;
       height: var(--chart-control-height);
-      padding: 0.28rem;
+      padding: 0;
     }
 
     .dollar-basis-control[hidden] {
@@ -497,11 +504,14 @@
     }
 
     .dollar-basis-switch {
+      align-items: stretch;
       background: rgba(7, 21, 34, 0.7);
       border: 1px solid #507189;
       border-radius: 9px;
+      box-sizing: border-box;
       display: inline-flex;
       gap: 0.18rem;
+      height: var(--chart-control-height);
       padding: 0.16rem;
     }
 
@@ -541,7 +551,7 @@
 
     .chart-axis-label {
       color: #dce9f3;
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       font-weight: 700;
       height: 2rem;
       left: 0;
@@ -1168,14 +1178,15 @@
             </div>
           </div>
           <div class="chart-end-actions">
-            <button id="resetView" type="button" title="Reset chart zoom to show the full 1970-71 to 2024-25 range">Reset zoom</button>
-            <button id="fullscreenChart" class="chart-fullscreen-button" type="button" aria-pressed="false" aria-label="Open chart full screen" title="Open chart full screen">Full screen</button>
+            <button id="shareView" type="button" title="Copy a shareable link to this chart view" aria-label="Copy a shareable link to this chart view" aria-keyshortcuts="L">Share view</button>
+            <button id="resetView" type="button" title="Reset chart zoom to show the full 1970-71 to 2024-25 range" aria-keyshortcuts="0">Reset zoom</button>
+            <button id="fullscreenChart" class="chart-fullscreen-button" type="button" aria-pressed="false" aria-label="Open chart full screen" title="Open chart full screen" aria-keyshortcuts="Control+Enter">Full screen</button>
           </div>
         </div>
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"></div>
-          <svg id="chart" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, or use the mouse wheel to zoom around the pointer."></svg>
+          <svg id="chart" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1766,8 +1777,17 @@
       debtView: "pctGdp",
       dollarBasis: "nominal",
       dollarMeasure: "absolute",
+      showGovernment: true,
       visible: defaultVisibleForMode()
     };
+
+    const lensDefinitions = [
+      { debtView: "pctGdp", dollarMeasure: "absolute", dollarBasis: "nominal" },
+      { debtView: "dollars", dollarMeasure: "absolute", dollarBasis: "nominal" },
+      { debtView: "dollars", dollarMeasure: "absolute", dollarBasis: "real" },
+      { debtView: "dollars", dollarMeasure: "perCapita", dollarBasis: "nominal" },
+      { debtView: "dollars", dollarMeasure: "perCapita", dollarBasis: "real" }
+    ];
 
     const isDollarMode = () =>
       state.mode === "debt" && state.debtView === "dollars";
@@ -1846,7 +1866,7 @@
     const getChartAxisLabel = (mode) => {
       if (!isDollarMode()) {
         return state.visible.grossGrowth
-          ? "% of GDP / debt change % / growth %"
+          ? "% of GDP / gross debt growth %"
           : mode.axisLabel;
       }
       if (state.mode === "debt" && state.dollarMeasure === "perCapita") {
@@ -1876,7 +1896,7 @@
     const chartModes = {
       debt: {
         title: "Debt, budget, changes and interest (% of GDP)",
-        axisLabel: "% of GDP / debt change %",
+        axisLabel: "% of GDP",
         note: "Gross and net debt, underlying cash balance, fiscal balance and the two interest series are shown relative to nominal GDP; positive budget-balance values are surpluses and negative values are deficits. Interest paid on AGS and net interest payments are annual flows, while debt is measured at 30 June. Debt-change lines show the difference between consecutive debt stocks divided by current-year nominal GDP, expressed as percentages, and are unavailable for the first year. The fiscal balance, direct gross-debt-growth and interest lines are off by default. Use the measure lozenges to show direct gross debt growth versus the previous year's debt, including the 82.4% increase in 2008-09; enabling it expands the chart's vertical scale. Percentage-point changes in the debt-to-GDP ratio remain available in the selected-year details, table and CSV.",
         get series() {
           if (state.debtView === "dollars") {
@@ -1886,26 +1906,26 @@
               ? getDollarPerCapita(row, key)
               : getDollarBillions(row, key);
             return [
-              { key: "gross", label: perCapita ? "Gross debt per capita" : "Gross debt", color: "#f1b84b", get: (row) => getValue(row, "gross"), suffix },
-              { key: "net", label: perCapita ? "Net debt per capita" : "Net debt", color: "#bba3ff", get: (row) => getValue(row, "net"), suffix },
-              { key: "ucb", label: perCapita ? "Underlying cash per capita" : "Underlying cash balance", color: "#60c7de", get: (row) => getValue(row, "ucb"), suffix },
-              { key: "fiscal", label: perCapita ? "Fiscal balance per capita" : "Fiscal balance", color: "#6bd29b", dash: "7 5", get: (row) => getValue(row, "fiscal"), suffix },
-              { key: "grossChange", label: perCapita ? "Gross debt change per capita" : "Change in gross debt", color: "#f59dad", dash: "2 4", get: (row) => getDebtChangeDollars(row, "gross", perCapita), suffix },
-              { key: "netChange", label: perCapita ? "Net debt change per capita" : "Change in net debt", color: "#f6a65b", dash: "9 4", get: (row) => getDebtChangeDollars(row, "net", perCapita), suffix },
-              { key: "agsInterest", label: perCapita ? "Interest paid on AGS per capita" : "Interest paid on AGS", color: "#e4a853", dash: "12 4", get: (row) => getValue(row, "agsInterest"), suffix },
-              { key: "interest", label: perCapita ? "Net interest payments per capita" : "Net interest payments", color: "#d779be", dash: "4 4", get: (row) => getValue(row, "interest"), suffix }
+              { key: "gross", label: perCapita ? "Gross debt per capita" : "Gross debt", color: "#f4b942", get: (row) => getValue(row, "gross"), suffix },
+              { key: "net", label: perCapita ? "Net debt per capita" : "Net debt", color: "#5a8fbd", get: (row) => getValue(row, "net"), suffix },
+              { key: "ucb", label: perCapita ? "Underlying cash per capita" : "Underlying cash balance", color: "#3fb39f", get: (row) => getValue(row, "ucb"), suffix },
+              { key: "fiscal", label: perCapita ? "Fiscal balance per capita" : "Fiscal balance", color: "#83d6b7", dash: "7 5", get: (row) => getValue(row, "fiscal"), suffix },
+              { key: "grossChange", label: perCapita ? "Gross debt change per capita" : "Change in gross debt", color: "#e67845", dash: "2 4", get: (row) => getDebtChangeDollars(row, "gross", perCapita), suffix },
+              { key: "netChange", label: perCapita ? "Net debt change per capita" : "Change in net debt", color: "#666faf", dash: "9 4", get: (row) => getDebtChangeDollars(row, "net", perCapita), suffix },
+              { key: "agsInterest", label: perCapita ? "Interest paid on AGS per capita" : "Interest paid on AGS", color: "#c95f67", dash: "12 4", get: (row) => getValue(row, "agsInterest"), suffix },
+              { key: "interest", label: perCapita ? "Net interest payments per capita" : "Net interest payments", color: "#986fba", dash: "4 4", get: (row) => getValue(row, "interest"), suffix }
             ];
           }
           return [
-            { key: "gross", label: "Gross debt / GDP", color: "#f1b84b", get: (row) => row.grossPct, suffix: "%" },
-            { key: "net", label: "Net debt / GDP", color: "#bba3ff", get: (row) => row.netPct, suffix: "%" },
-            { key: "ucb", label: "Underlying cash / GDP", color: "#60c7de", get: (row) => row.ucbPct, suffix: "%" },
-            { key: "fiscal", label: "Fiscal balance / GDP", color: "#6bd29b", dash: "7 5", get: (row) => row.fiscalPct, suffix: "%" },
-            { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#f59dad", dash: "2 4", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
-            { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#ff8c69", dash: "10 3", get: (row) => row.grossChange, suffix: "%" },
-            { key: "netChange", label: "Change in net debt / GDP (%)", color: "#f6a65b", dash: "9 4", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
-            { key: "agsInterest", label: "Interest paid on AGS / GDP", color: "#e4a853", dash: "12 4", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
-            { key: "interest", label: "Net interest payments / GDP", color: "#d779be", dash: "4 4", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
+            { key: "gross", label: "Gross debt / GDP", color: "#f4b942", get: (row) => row.grossPct, suffix: "%" },
+            { key: "net", label: "Net debt / GDP", color: "#5a8fbd", get: (row) => row.netPct, suffix: "%" },
+            { key: "ucb", label: "Underlying cash / GDP", color: "#3fb39f", get: (row) => row.ucbPct, suffix: "%" },
+            { key: "fiscal", label: "Fiscal balance / GDP", color: "#83d6b7", dash: "7 5", get: (row) => row.fiscalPct, suffix: "%" },
+            { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#e67845", dash: "2 4", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
+            { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#f26b5e", dash: "10 3", get: (row) => row.grossChange, suffix: "%" },
+            { key: "netChange", label: "Change in net debt / GDP (%)", color: "#666faf", dash: "9 4", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
+            { key: "agsInterest", label: "Interest paid on AGS / GDP", color: "#c95f67", dash: "12 4", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
+            { key: "interest", label: "Net interest payments / GDP", color: "#986fba", dash: "4 4", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
           ];
         }
       }
@@ -1920,7 +1940,23 @@
       grossGrowth: "Gross debt growth vs prior debt (%)",
       netChange: "Net debt change",
       agsInterest: "Interest paid on AGS",
-      interest: "Net interest payments"
+      interest: "Net interest payments",
+      government: "Government"
+    };
+
+    // These explanations are deliberately static so the term's meaning does
+    // not change when the selected year or chart lens changes.
+    const measureExplanations = {
+      gross: "Gross debt is the face value of Australian Government Securities (AGS) on issue. It is a debt stock measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory.",
+      net: "Net debt is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt stock measured at 30 June.",
+      ucb: "The underlying cash balance is the Commonwealth's headline cash-based Budget result: broadly, cash receipts less cash payments over the financial year. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt stock or debt-stock change.",
+      fiscal: "The fiscal balance is an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses and negative values are deficits. The embedded PBO series begins in 1996-97.",
+      grossChange: "Gross debt change is the difference between consecutive gross-debt stocks. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar stock difference or per-capita equivalent. It is not the Budget surplus or deficit.",
+      grossGrowth: "Gross debt growth versus prior debt is the derived percentage (current gross debt minus previous gross debt) divided by previous gross debt, multiplied by 100. It measures the percentage change in the gross-debt stock, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only.",
+      netChange: "Net debt change is the difference between consecutive net-debt stocks. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar stock difference or per-capita equivalent. It is not the Budget surplus or deficit.",
+      agsInterest: "Interest paid on AGS is annual gross interest paid on Australian Government Securities on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP.",
+      interest: "Net interest payments are the PBO measure of interest paid minus interest receipts. Interest receipts can include receipts from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets. It is an annual flow and is shown as a share of nominal GDP in the percentage view.",
+      government: "Government shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the selected-year details, table or tooltips."
     };
 
     // Keep the selector grouping stable across lenses; only each lozenge's value
@@ -1934,9 +1970,21 @@
       [
         ["net", "netChange", "interest"],
         ["fiscal"],
-        []
+        ["government"]
       ]
     ];
+    const measureShortcutKeys = {
+      q: "gross",
+      w: "grossChange",
+      e: "agsInterest",
+      r: "ucb",
+      t: "grossGrowth",
+      a: "net",
+      s: "netChange",
+      d: "interest",
+      f: "fiscal",
+      g: "government"
+    };
 
     const chart = document.getElementById("chart");
     const chartWrap = document.getElementById("chartWrap");
@@ -1955,6 +2003,7 @@
     const rangeSummary = document.getElementById("rangeSummary");
     const resetView = document.getElementById("resetView");
     const fullscreenChart = document.getElementById("fullscreenChart");
+    const shareView = document.getElementById("shareView");
     const debtViewControl = document.getElementById("debtViewControl");
     const debtViewButtons = Array.from(document.querySelectorAll("[data-debt-view]"));
     const dollarMeasureControl = document.getElementById("dollarMeasureControl");
@@ -1964,13 +2013,17 @@
     const chartLayout = {
       width: 1000,
       height: 520,
-      margin: { top: 24, right: 22, bottom: 72, left: 62 }
+      // Reserve room for long tick labels and the vertical axis title.
+      margin: { top: 24, right: 22, bottom: 72, left: 75 }
     };
     const dragState = {
       active: false,
+      mode: null,
       pointerId: null,
       startX: 0,
       currentX: 0,
+      initialStart: 0,
+      initialEnd: 0,
       moved: false,
       suppressClickUntil: 0
     };
@@ -1984,6 +2037,118 @@
 
     const selectedRow = () => rows[state.selected];
     const visibleRows = () => rows.slice(state.start, state.end + 1);
+    const shareableSeriesKeys = Object.keys(seriesSelectorLabels)
+      .filter((key) => key !== "government");
+    const shareableActiveKeys = [...shareableSeriesKeys, "government"];
+    const shareUrlParameters = [
+      "from",
+      "to",
+      "selected",
+      "view",
+      "measure",
+      "basis",
+      "active"
+    ];
+
+    function applyUrlState() {
+      const params = new URLSearchParams(window.location.search);
+      const indexForYear = (value) => {
+        if (!value) return -1;
+        return rows.findIndex((row) => row.fy === value);
+      };
+      const requestedStart = indexForYear(params.get("from"));
+      const requestedEnd = indexForYear(params.get("to"));
+      let start = requestedStart >= 0 ? requestedStart : 0;
+      let end = requestedEnd >= 0 ? requestedEnd : rows.length - 1;
+      if (start > end) [start, end] = [end, start];
+      state.start = start;
+      state.end = end;
+
+      const requestedSelected = indexForYear(params.get("selected"));
+      if (requestedSelected >= 0) state.selected = requestedSelected;
+      state.selected = Math.max(state.start, Math.min(state.end, state.selected));
+
+      const requestedView = params.get("view");
+      if (requestedView === "pctGdp" || requestedView === "dollars") {
+        state.debtView = requestedView;
+      }
+      const requestedMeasure = params.get("measure");
+      if (requestedMeasure === "absolute" || requestedMeasure === "perCapita") {
+        state.dollarMeasure = requestedMeasure;
+      }
+      const requestedBasis = params.get("basis");
+      if (requestedBasis === "nominal" || requestedBasis === "real") {
+        state.dollarBasis = requestedBasis;
+      }
+
+      const active = params.get("active");
+      if (active !== null) {
+        const activeKeys = new Set(active.split(",").filter((key) => shareableActiveKeys.includes(key)));
+        shareableSeriesKeys.forEach((key) => {
+          state.visible[key] = activeKeys.has(key);
+        });
+        state.showGovernment = activeKeys.has("government");
+      }
+    }
+
+    function buildShareUrl() {
+      const url = new URL(window.location.href);
+      shareUrlParameters.forEach((parameter) => url.searchParams.delete(parameter));
+      url.searchParams.set("from", rows[state.start].fy);
+      url.searchParams.set("to", rows[state.end].fy);
+      url.searchParams.set("selected", selectedRow().fy);
+      url.searchParams.set("view", state.debtView);
+      url.searchParams.set("measure", state.dollarMeasure);
+      url.searchParams.set("basis", state.dollarBasis);
+      url.searchParams.set(
+        "active",
+        [
+          ...shareableSeriesKeys.filter((key) => state.visible[key] !== false),
+          ...(state.showGovernment ? ["government"] : [])
+        ].join(",")
+      );
+      return url;
+    }
+
+    function clearShareUrl() {
+      const url = new URL(window.location.href);
+      shareUrlParameters.forEach((parameter) => url.searchParams.delete(parameter));
+      window.history.replaceState(null, "", url);
+    }
+
+    let shareFeedbackTimer = null;
+    function setShareButtonFeedback(label) {
+      shareView.textContent = label;
+      clearTimeout(shareFeedbackTimer);
+      shareFeedbackTimer = setTimeout(() => {
+        shareView.textContent = "Share view";
+      }, 1800);
+    }
+
+    async function shareCurrentView() {
+      const shareUrl = buildShareUrl().href;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: document.title, url: shareUrl });
+          setShareButtonFeedback("Shared");
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
+      }
+
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setShareButtonFeedback("Link copied");
+          return;
+        } catch (error) {
+          // Fall through to a visible copy prompt when clipboard access is unavailable.
+        }
+      }
+      window.prompt("Copy this URL to share the current chart view:", shareUrl);
+      setShareButtonFeedback("Link ready");
+    }
 
     function fullscreenElement() {
       return document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -2131,19 +2296,48 @@
             return `
               <div class="measure-cluster">
                 ${keys.map((key) => {
+                  if (key === "government") {
+                    const selected = state.showGovernment;
+                    const label = seriesSelectorLabels.government;
+                    const explanation = measureExplanations.government;
+                    const selectedClass = selected ? " is-selected" : "";
+                    const political = row.political;
+                    const governmentLabel = political.party === "labor"
+                      ? "Labor"
+                      : political.party === "coalition"
+                        ? "Liberal"
+                        : political.government;
+                    const governmentValue = `${governmentLabel}, ${political.pm}, ${political.treasurer}`;
+                    const ariaLabel = `${label}: ${governmentValue}. ${explanation}`;
+                    return `
+                      <button type="button"
+                        class="measure-lozenge${selectedClass}"
+                        style="--series-color:#8a8f98"
+                        data-toggle="government"
+                        aria-pressed="${String(selected)}"
+                        aria-label="${esc(ariaLabel)}"
+                        title="${esc(explanation)}">
+                        <span class="measure-lozenge-content">
+                          <span class="measure-lozenge-name" title="${esc(explanation)}">${esc(label)}</span>
+                          <span class="measure-lozenge-value measure-lozenge-government-value">${esc(governmentValue)}</span>
+                        </span>
+                      </button>
+                    `;
+                  }
                   const series = seriesByKey.get(key);
                   const available = Boolean(series);
                   const label = seriesSelectorLabels[key] || key;
                   const selected = available && state.visible[key] !== false;
                   const value = available
-                    ? formatChartValue(series.get(row), series.suffix)
+                    ? formatLozengeValue(series.get(row), series.suffix)
                     : key === "grossGrowth"
                       ? formatPct(row.grossChange, true)
                       : "n/a";
                   const note = getMeasureSupportingText(key, row, available);
+                  const explanation = measureExplanations[key] || "This measure is defined in the detailed Definitions section below.";
                   const selectedClass = selected ? " is-selected" : "";
                   const disabled = available ? "" : 'disabled aria-disabled="true"';
-                  const ariaLabel = `${label}: ${value}. ${note}`;
+                  const ariaLabel = `${label}: ${value}. ${note}. ${explanation}`;
                   return `
                     <button type="button"
                       class="measure-lozenge${selectedClass}"
@@ -2151,12 +2345,11 @@
                       data-series="${esc(key)}"
                       aria-pressed="${String(selected)}"
                       aria-label="${esc(ariaLabel)}"
-                      title="${esc(ariaLabel)}"
+                      title="${esc(explanation)}"
                       ${disabled}>
                       <span class="measure-lozenge-content">
-                        <span class="measure-lozenge-name">${esc(label)}</span>
+                        <span class="measure-lozenge-name" title="${esc(explanation)}">${esc(label)}</span>
                         <span class="measure-lozenge-value">${esc(value)}</span>
-                        ${note ? `<span class="measure-lozenge-note">${esc(note)}</span>` : ""}
                       </span>
                     </button>
                   `;
@@ -2167,16 +2360,31 @@
         </div>
       `).join("");
       measureRows.innerHTML = rowsMarkup;
-      measureRows.querySelectorAll("button[data-series]:not(:disabled)").forEach((button) => {
+      measureRows.querySelectorAll("button[data-series]:not(:disabled), button[data-toggle]:not(:disabled)").forEach((button) => {
         button.addEventListener("click", () => {
-          const key = button.dataset.series;
-          state.visible[key] = state.visible[key] === false;
+          if (button.dataset.toggle === "government") {
+            state.showGovernment = !state.showGovernment;
+          } else {
+            const key = button.dataset.series;
+            state.visible[key] = state.visible[key] === false;
+          }
           renderMeasureRows();
           renderChart();
-          const updatedButton = measureRows.querySelector(`button[data-series="${key}"]`);
+          const selector = button.dataset.toggle
+            ? `button[data-toggle="${button.dataset.toggle}"]`
+            : `button[data-series="${button.dataset.series}"]`;
+          const updatedButton = measureRows.querySelector(selector);
           if (updatedButton) updatedButton.focus();
         });
       });
+    }
+
+    function toggleMeasureShortcut(key) {
+      const selector = key === "government"
+        ? 'button[data-toggle="government"]:not(:disabled)'
+        : `button[data-series="${key}"]:not(:disabled)`;
+      const button = measureRows.querySelector(selector);
+      if (button) button.click();
     }
 
     function renderDetail() {
@@ -2360,6 +2568,31 @@
       return view[viewIndex].index;
     }
 
+    function zoomViewport(zoomingIn, anchorIndex = state.selected) {
+      const currentLength = state.end - state.start + 1;
+      const requestedLength = zoomingIn
+        ? Math.floor(currentLength / wheelZoomFactor)
+        : Math.ceil(currentLength * wheelZoomFactor);
+      const targetLength = Math.max(
+        minimumZoomYears,
+        Math.min(rows.length, requestedLength)
+      );
+      if (targetLength === currentLength || !Number.isFinite(anchorIndex)) return false;
+
+      const boundedAnchorIndex = Math.max(state.start, Math.min(state.end, anchorIndex));
+      const anchorRatio = (boundedAnchorIndex - state.start) / Math.max(1, currentLength - 1);
+      let nextStart = Math.round(boundedAnchorIndex - anchorRatio * (targetLength - 1));
+      nextStart = Math.max(0, Math.min(rows.length - targetLength, nextStart));
+      const nextEnd = nextStart + targetLength - 1;
+
+      state.start = nextStart;
+      state.end = nextEnd;
+      state.selected = Math.max(nextStart, Math.min(nextEnd, state.selected));
+      hideTooltip();
+      renderAll();
+      return true;
+    }
+
     function handleWheelZoom(event) {
       if (event.ctrlKey || event.deltaY === 0) return;
       const view = visibleRows();
@@ -2368,28 +2601,9 @@
       const anchorIndex = rowIndexFromChartX(chartXFromPointer(event), view);
       if (anchorIndex === null) return;
 
-      const currentLength = state.end - state.start + 1;
       const zoomingIn = event.deltaY < 0;
-      const requestedLength = zoomingIn
-        ? Math.floor(currentLength / wheelZoomFactor)
-        : Math.ceil(currentLength * wheelZoomFactor);
-      const targetLength = Math.max(
-        minimumZoomYears,
-        Math.min(rows.length, requestedLength)
-      );
-      if (targetLength === currentLength) return;
-
-      const anchorRatio = (anchorIndex - state.start) / Math.max(1, currentLength - 1);
-      let nextStart = Math.round(anchorIndex - anchorRatio * (targetLength - 1));
-      nextStart = Math.max(0, Math.min(rows.length - targetLength, nextStart));
-      const nextEnd = nextStart + targetLength - 1;
-
+      if (!zoomViewport(zoomingIn, anchorIndex)) return;
       event.preventDefault();
-      state.start = nextStart;
-      state.end = nextEnd;
-      state.selected = Math.max(nextStart, Math.min(nextEnd, state.selected));
-      hideTooltip();
-      renderAll();
     }
 
     function updateDragSelection() {
@@ -2408,14 +2622,34 @@
       chart.classList.remove("dragging");
     }
 
+    function updatePanRange() {
+      const viewLength = dragState.initialEnd - dragState.initialStart + 1;
+      if (viewLength < 2) return;
+      const plotWidth = chartLayout.width - chartLayout.margin.left - chartLayout.margin.right;
+      const pixelsPerYear = plotWidth / (viewLength - 1);
+      const offset = Math.round((dragState.currentX - dragState.startX) / pixelsPerYear);
+      const maxStart = rows.length - viewLength;
+      const nextStart = Math.max(0, Math.min(maxStart, dragState.initialStart - offset));
+      if (nextStart === state.start) return;
+      state.start = nextStart;
+      state.end = nextStart + viewLength - 1;
+      hideTooltip();
+      renderChart();
+    }
+
     function beginRangeSelection(event) {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const isPan = event.button === 2;
+      if (!isPan && event.button !== 0) return;
       dragState.active = true;
+      dragState.mode = isPan ? "pan" : "zoom";
       dragState.pointerId = event.pointerId;
       dragState.startX = chartXFromPointer(event);
       dragState.currentX = dragState.startX;
+      dragState.initialStart = state.start;
+      dragState.initialEnd = state.end;
       dragState.moved = false;
       chart.classList.add("dragging");
+      if (isPan) event.preventDefault();
     }
 
     function updateRangeSelection(event) {
@@ -2425,20 +2659,31 @@
       dragState.moved = true;
       event.preventDefault();
       if (chart.setPointerCapture) chart.setPointerCapture(event.pointerId);
-      updateDragSelection();
+      if (dragState.mode === "pan") {
+        updatePanRange();
+      } else {
+        updateDragSelection();
+      }
     }
 
     function finishRangeSelection(event) {
       if (!dragState.active || event.pointerId !== dragState.pointerId) return;
       dragState.currentX = chartXFromPointer(event);
       const wasDrag = dragState.moved;
+      const mode = dragState.mode;
+      if (mode === "pan" && wasDrag) updatePanRange();
       const view = visibleRows();
       const firstIndex = rowIndexFromChartX(Math.min(dragState.startX, dragState.currentX), view);
       const lastIndex = rowIndexFromChartX(Math.max(dragState.startX, dragState.currentX), view);
       dragState.active = false;
+      dragState.mode = null;
       dragState.pointerId = null;
       clearDragSelection();
       if (chart.releasePointerCapture) chart.releasePointerCapture(event.pointerId);
+      if (mode === "pan") {
+        if (wasDrag) dragState.suppressClickUntil = Date.now() + 250;
+        return;
+      }
       if (!wasDrag || firstIndex === null || lastIndex === null || firstIndex === lastIndex) return;
 
       state.start = Math.min(firstIndex, lastIndex);
@@ -2453,6 +2698,7 @@
     function cancelRangeSelection(event) {
       if (!dragState.active || event.pointerId !== dragState.pointerId) return;
       dragState.active = false;
+      dragState.mode = null;
       dragState.pointerId = null;
       clearDragSelection();
       if (chart.releasePointerCapture) chart.releasePointerCapture(event.pointerId);
@@ -2466,6 +2712,9 @@
       const sign = value < 0 ? "-A$" : "A$";
       return `${sign}${formatNumber(Math.abs(value))}b`;
     };
+
+    const formatLozengeValue = (value, suffix) =>
+      formatChartValue(value, suffix).replace("A$", "$");
 
     function showTooltip(point, index) {
       const row = rows[index];
@@ -2515,7 +2764,8 @@
       updateChartLayout();
       const { width, height, margin } = chartLayout;
       const innerWidth = width - margin.left - margin.right;
-      const innerHeight = height - margin.top - margin.bottom;
+      const plotBottom = state.showGovernment ? height - margin.bottom : height - 36;
+      const innerHeight = plotBottom - margin.top;
       const xFor = (index) => margin.left + (view.length === 1 ? innerWidth / 2 : index * innerWidth / (view.length - 1));
       const allValues = activeSeries.flatMap((series) => view.map((row) => series.get(row)))
         .filter((value) => value !== null && value !== undefined && !Number.isNaN(value));
@@ -2551,7 +2801,7 @@
       const tickDecimals = decimalPlacesForStep(tickStep);
       let svg = `
         <title>${esc(chartTitle)} from ${esc(view[0].fy)} to ${esc(view[view.length - 1].fy)}</title>
-        <desc>Interactive line chart. Click anywhere to inspect the nearest financial year.</desc>
+        <desc>Interactive line chart. Click to inspect the nearest financial year, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
         <rect x="0" y="0" width="${width}" height="${height}" fill="#0c1d2f"></rect>
       `;
 
@@ -2560,36 +2810,34 @@
         const y = yFor(value);
         const isZero = Math.abs(value) < tickStep / 1000000;
         svg += `<line x1="${margin.left}" x2="${width - margin.right}" y1="${y}" y2="${y}" stroke="${isZero ? "#7090a4" : "#29455d"}" stroke-width="${isZero ? "1.4" : "1"}" stroke-dasharray="${isZero ? "0" : "4 5"}"></line>`;
-        const isPerCapita = state.mode === "debt"
-          && state.debtView === "dollars"
-          && state.dollarMeasure === "perCapita";
         const isPercentage = state.mode === "debt"
           && state.debtView === "pctGdp";
-        const suffix = isPercentage ? "%" : "bn";
-        const tickLabel = isPerCapita
-          ? `${value < 0 ? "-A$" : "A$"}${formatNumber(Math.abs(value), tickDecimals)}`
-          : `${formatNumber(value, tickDecimals)}${suffix}`;
+        const tickLabel = isPercentage
+          ? `${formatNumber(value, tickDecimals)}%`
+          : formatNumber(value, tickDecimals);
         svg += svgText(margin.left - 10, y + 4, tickLabel, 'fill="#a9c0d1" text-anchor="end" font-size="11"');
       }
 
-      /* Political strip: contiguous runs are merged so party changes are easy
-         to see without overwhelming the quantitative series. */
       const bandY = height - 45;
-      const bandHeight = 14;
-      let bandStart = 0;
-      for (let i = 1; i <= view.length; i += 1) {
-        const current = view[i]?.political;
-        const previous = view[bandStart].political;
-        if (i === view.length
-          || current?.party !== previous.party
-          || current?.startDate !== previous.startDate) {
-          const x1 = xFor(bandStart);
-          const x2 = xFor(Math.max(bandStart, i - 1));
-          const fill = previous.party === "labor" ? "#c85d73" : "#4f8fbe";
-          const title = `${previous.government}; government began ${formatDateDdMmYyyy(previous.startDate)}`;
-          svg += `<g class="political-band"><title>${esc(title)}</title><rect x="${x1}" y="${bandY}" width="${Math.max(x2 - x1, 2)}" height="${bandHeight}" rx="3" fill="${fill}" opacity="0.72"></rect>`;
-          svg += "</g>";
-          bandStart = i;
+      if (state.showGovernment) {
+        /* Political strip: contiguous runs are merged so party changes are
+           easy to see without overwhelming the quantitative series. */
+        const bandHeight = 14;
+        let bandStart = 0;
+        for (let i = 1; i <= view.length; i += 1) {
+          const current = view[i]?.political;
+          const previous = view[bandStart].political;
+          if (i === view.length
+            || current?.party !== previous.party
+            || current?.startDate !== previous.startDate) {
+            const x1 = xFor(bandStart);
+            const x2 = xFor(Math.max(bandStart, i - 1));
+            const fill = previous.party === "labor" ? "#c85d73" : "#4f8fbe";
+            const title = `${previous.government}; government began ${formatDateDdMmYyyy(previous.startDate)}`;
+            svg += `<g class="political-band"><title>${esc(title)}</title><rect x="${x1}" y="${bandY}" width="${Math.max(x2 - x1, 2)}" height="${bandHeight}" rx="3" fill="${fill}" opacity="0.72"></rect>`;
+            svg += "</g>";
+            bandStart = i;
+          }
         }
       }
 
@@ -2621,7 +2869,8 @@
       const selectedViewIndex = state.selected - state.start;
       if (selectedViewIndex >= 0 && selectedViewIndex < view.length) {
         const selectedX = xFor(selectedViewIndex);
-        svg += `<line x1="${selectedX}" x2="${selectedX}" y1="${margin.top}" y2="${bandY - 4}" stroke="#fff" stroke-width="1" stroke-dasharray="3 4" opacity="0.72"></line>`;
+        const selectionBottom = state.showGovernment ? bandY - 4 : plotBottom - 4;
+        svg += `<line x1="${selectedX}" x2="${selectedX}" y1="${margin.top}" y2="${selectionBottom}" stroke="#fff" stroke-width="1" stroke-dasharray="3 4" opacity="0.72"></line>`;
       }
 
       svg += `<rect id="dragSelection" x="${margin.left}" y="${margin.top}" width="0" height="${innerHeight}" fill="#60c7de" fill-opacity="0.18" stroke="#b9f2ff" stroke-width="1.5" stroke-dasharray="5 4" display="none" pointer-events="none"></rect>`;
@@ -2795,9 +3044,88 @@
       renderAll();
     }
 
+    function panViewport(offset) {
+      const viewLength = state.end - state.start + 1;
+      if (viewLength >= rows.length) return;
+      const nextStart = Math.max(0, Math.min(rows.length - viewLength, state.start + offset));
+      if (nextStart === state.start) return;
+      state.start = nextStart;
+      state.end = nextStart + viewLength - 1;
+      renderAll();
+    }
+
+    function setLens(number) {
+      const lens = lensDefinitions[number - 1];
+      if (!lens) return;
+      if (
+        state.debtView === lens.debtView &&
+        state.dollarMeasure === lens.dollarMeasure &&
+        state.dollarBasis === lens.dollarBasis
+      ) return;
+      state.debtView = lens.debtView;
+      state.dollarMeasure = lens.dollarMeasure;
+      state.dollarBasis = lens.dollarBasis;
+      renderAll();
+    }
+
+    function currentLensNumber() {
+      const number = lensDefinitions.findIndex((lens) =>
+        lens.debtView === state.debtView &&
+        lens.dollarMeasure === state.dollarMeasure &&
+        lens.dollarBasis === state.dollarBasis
+      );
+      return number === -1 ? 1 : number + 1;
+    }
+
+    function moveLens(offset) {
+      const nextNumber = (currentLensNumber() - 1 + offset + lensDefinitions.length) % lensDefinitions.length + 1;
+      setLens(nextNumber);
+    }
+
+    function isEditableTarget(target) {
+      return target instanceof HTMLElement &&
+        (target.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName));
+    }
+
     /* Keep global year shortcuts separate from Escape and other handled keys. */
     document.addEventListener("keydown", (event) => {
       if (event.defaultPrevented) return;
+
+      if (!isEditableTarget(event.target)) {
+        if (event.ctrlKey && !event.altKey && !event.metaKey && event.key === "Enter") {
+          event.preventDefault();
+          toggleFullscreen();
+          return;
+        }
+
+        if (!event.ctrlKey && !event.altKey && !event.metaKey) {
+          if (event.key === "0") {
+            event.preventDefault();
+            showFullHistory();
+            return;
+          }
+          if (event.key.toLowerCase() === "l") {
+            event.preventDefault();
+            shareCurrentView();
+            return;
+          }
+
+          if (/^[1-5]$/.test(event.key)) {
+            event.preventDefault();
+            setLens(Number(event.key));
+            return;
+          }
+          const measureKey = event.key.toLowerCase();
+          if (measureShortcutKeys[measureKey]) {
+            event.preventDefault();
+            toggleMeasureShortcut(measureShortcutKeys[measureKey]);
+            return;
+          }
+          if (event.key === "Tab") {
+            moveLens(event.shiftKey ? -1 : 1);
+          }
+        }
+      }
 
       if (event.key === "Escape") {
         event.preventDefault();
@@ -2805,9 +3133,20 @@
         return;
       }
 
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      const isHorizontalArrow = event.key === "ArrowLeft" || event.key === "ArrowRight";
+      const isVerticalArrow = event.key === "ArrowUp" || event.key === "ArrowDown";
+      if (!isHorizontalArrow && !isVerticalArrow) return;
+      if (!event.ctrlKey && !isHorizontalArrow) return;
 
       event.preventDefault();
+      if (event.ctrlKey) {
+        if (isHorizontalArrow) {
+          panViewport(event.key === "ArrowRight" ? 1 : -1);
+        } else {
+          zoomViewport(event.key === "ArrowUp");
+        }
+        return;
+      }
       moveSelectedYear(event.key === "ArrowRight" ? 1 : -1);
     });
 
@@ -2840,6 +3179,7 @@
     chart.addEventListener("pointerup", finishRangeSelection);
     chart.addEventListener("pointercancel", cancelRangeSelection);
     chart.addEventListener("wheel", handleWheelZoom, { passive: false });
+    chart.addEventListener("contextmenu", (event) => event.preventDefault());
     chart.addEventListener("click", (event) => {
       if (Date.now() < dragState.suppressClickUntil) return;
       const index = rowIndexFromChartX(chartXFromPointer(event));
@@ -2852,6 +3192,7 @@
       showFullHistory();
     });
 
+    shareView.addEventListener("click", shareCurrentView);
     fullscreenChart.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
@@ -2862,7 +3203,9 @@
 
     renderSources();
     renderFullscreenControl();
+    applyUrlState();
     renderAll();
+    clearShareUrl();
   </script>
 </body>
 </html>
