@@ -277,119 +277,99 @@
       border-color: var(--navy-3);
     }
 
-    .legend {
-      align-items: center;
+    .measure-rows {
+      display: grid;
+      gap: 0.7rem;
+      margin: 0 0 0.75rem;
+    }
+
+    .measure-row {
+      display: grid;
+      gap: 0.7rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .measure-cluster {
+      align-items: stretch;
       display: flex;
       flex-wrap: wrap;
-      gap: 0.65rem 1rem;
-      margin: 1rem 0 1.25rem;
-    }
-
-    .legend-item {
-      align-items: center;
-      color: #425364;
-      display: inline-flex;
-      font-size: 0.84rem;
-      gap: 0.38rem;
-    }
-
-    .legend-item input { accent-color: var(--navy-3); }
-
-    .legend-swatch {
-      border-radius: 50%;
-      display: inline-block;
-      height: 10px;
-      width: 10px;
-    }
-
-    .chart-meta-row {
-      align-items: center;
-      border-bottom: 1px solid rgba(174, 205, 222, 0.24);
-      display: flex;
-      gap: 1rem;
-      margin: 0;
-      padding: 0 0 0.5rem;
-    }
-
-    .chart-meta-row > .legend {
-      flex: 1 1 auto;
-      margin: 0;
+      gap: 0.6rem;
       min-width: 0;
-      padding: 0;
     }
 
-    .chart-meta-row .legend-item {
+    .measure-lozenge {
+      align-items: flex-start;
+      appearance: none;
       background: var(--series-color);
       border: 1px solid var(--series-color);
-      border-radius: 999px;
-      color: var(--navy);
-      padding: 0.25rem 0.55rem;
-    }
-
-    .chart-meta-row .legend-item input { accent-color: var(--navy); }
-
-    .chart-meta-row > .chart-header-actions {
-      flex: 0 0 auto;
-    }
-
-    .stats {
-      display: grid;
-      gap: 0.8rem;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      margin: 0 0 0.75rem;
-      padding: 0.45rem 0 0.7rem;
-    }
-
-    .stat {
-      background: linear-gradient(145deg, #173650, #071522);
-      border: 1px solid rgba(185, 242, 255, 0.22);
       border-radius: 16px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      min-height: 143px;
-      overflow: hidden;
-      padding: 1rem;
-      position: relative;
+      color: var(--navy);
+      cursor: pointer;
+      display: flex;
+      flex: 1 1 0;
+      font: inherit;
+      gap: 0.45rem;
+      min-height: 4.55rem;
+      min-width: 0;
+      padding: 0.6rem 0.7rem;
+      text-align: left;
+      transition: filter 160ms ease, opacity 160ms ease, transform 160ms ease;
     }
 
-    .chart-card > .stats {
-      border-bottom: 1px solid rgba(174, 205, 222, 0.24);
+    .measure-lozenge:focus-visible {
+      outline: 3px solid rgba(185, 242, 255, 0.9);
+      outline-offset: 2px;
     }
 
-    .stat::before {
-      background: var(--stat-accent, var(--cyan));
-      content: "";
-      inset: 0 auto 0 0;
-      position: absolute;
-      width: 4px;
+    .measure-lozenge:not(:disabled):not(.is-selected) {
+      background: #dfe7ec;
+      border-color: #b9c8d1;
+      color: #30495a;
+      filter: none;
+      opacity: 1;
     }
 
-    .stat:nth-child(1) { --stat-accent: var(--amber); }
-    .stat:nth-child(2) { --stat-accent: var(--purple); }
-    .stat:nth-child(3) { --stat-accent: var(--cyan); }
-    .stat:nth-child(4) { --stat-accent: var(--purple); }
-    .stat:nth-child(5) { --stat-accent: var(--pink); }
-
-    .stat-label {
-      color: #a9c0d1;
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      line-height: 1.25;
-      text-transform: uppercase;
+    .measure-lozenge:not(:disabled):hover {
+      transform: translateY(-1px);
     }
 
-    .stat-value {
-      color: #fff;
-      font-size: clamp(1.45rem, 2.7vw, 2.15rem);
+    .measure-lozenge:disabled {
+      background: #dfe7ec;
+      border-color: #b9c8d1;
+      color: #30495a;
+      cursor: not-allowed;
+      filter: none;
+      opacity: 0.72;
+    }
+
+    .measure-lozenge-content {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .measure-lozenge-name {
+      font-size: 0.7rem;
       font-weight: 850;
-      letter-spacing: -0.05em;
-      line-height: 1.08;
-      margin: 0.7rem 0 0.35rem;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
     }
 
-    .stat-sub {
-      color: #a9c0d1;
-      font-size: 0.82rem;
+    .measure-lozenge-value {
+      font-size: clamp(1rem, 1.6vw, 1.35rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-top: 0.35rem;
+      overflow-wrap: anywhere;
+    }
+
+    .measure-lozenge-note {
+      font-size: 0.68rem;
+      line-height: 1.2;
+      margin-top: 0.25rem;
+      opacity: 0.72;
     }
 
     .chart-card {
@@ -423,57 +403,37 @@
 
     body.kiosk-open { overflow: hidden; }
 
-    .chart-tabs-row {
-      align-items: flex-start;
+    .chart-controls-row {
+      align-items: center;
       border-bottom: 1px solid rgba(174, 205, 222, 0.24);
+      --chart-control-height: calc(3.15rem + 0.4rem + 2px);
       display: flex;
       gap: 1rem;
       margin: -0.15rem 0 0.6rem;
       padding-bottom: 0.35rem;
     }
 
-    .chart-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      flex: 1 1 auto;
-      gap: 0.35rem;
-      min-width: 0;
-    }
-
-    .chart-tab {
-      background: transparent;
-      border-color: transparent;
-      color: #a9c0d1;
-      font-size: 0.82rem;
-      padding: 0.5rem 0.7rem;
-    }
-
-    .chart-tab:hover {
-      background: #173650;
-      border-color: #507189;
-      color: #fff;
-    }
-
-    .chart-tab[aria-selected="true"] {
-      background: var(--amber);
-      border-color: var(--amber);
-      color: var(--navy);
-    }
-
-    .chart-tab[aria-selected="true"]:hover {
-      background: #f5c866;
-      border-color: #f5c866;
-    }
-
-    .chart-header-actions {
+    .chart-lens-controls,
+    .chart-end-actions {
       align-items: center;
       display: flex;
       flex-wrap: wrap;
       gap: 0.55rem;
-      justify-content: flex-end;
     }
 
-    .chart-meta-row #resetView {
+    .chart-lens-controls {
+      flex: 1 1 auto;
+      flex-wrap: nowrap;
+      justify-self: start;
+    }
+
+    .chart-end-actions {
+      flex: 0 0 auto;
+      justify-content: flex-end;
+      justify-self: end;
+    }
+
+    .chart-controls-row #resetView {
       background: linear-gradient(145deg, #173650, #071522);
       border-color: rgba(185, 242, 255, 0.52);
       border-radius: 16px;
@@ -481,17 +441,17 @@
       color: #dce9f3;
       display: inline-flex;
       align-items: center;
-      min-height: calc(3.15rem + 0.4rem + 2px);
+      height: var(--chart-control-height);
       padding: 0.55rem 0.85rem;
     }
 
-    .chart-meta-row #resetView:hover {
+    .chart-controls-row #resetView:hover {
       background: linear-gradient(145deg, #285b7d, #122b42);
       border-color: var(--cyan);
       color: #fff;
     }
 
-    .chart-meta-row #resetView:disabled {
+    .chart-controls-row #resetView:disabled {
       opacity: 0.82;
     }
 
@@ -501,6 +461,7 @@
       border: 1px solid rgba(185, 242, 255, 0.42);
       border-radius: 12px;
       display: flex;
+      height: var(--chart-control-height);
       padding: 0.28rem;
     }
 
@@ -515,16 +476,16 @@
       border: 1px solid rgba(185, 242, 255, 0.52);
       border-radius: 12px;
       color: #dce9f3;
-      min-height: 2.8rem;
+      height: var(--chart-control-height);
       padding: 0.45rem 0.8rem;
       white-space: nowrap;
     }
 
-    .chart-tabs-row > .chart-fullscreen-button {
+    .chart-end-actions > .chart-fullscreen-button {
       flex: 0 0 auto;
     }
 
-    .chart-tabs-row > .dollar-basis-control {
+    .chart-lens-controls > .dollar-basis-control {
       flex: 0 0 auto;
     }
 
@@ -551,6 +512,7 @@
       color: #dce9f3;
       font-size: 0.76rem;
       padding: 0.34rem 0.55rem;
+      white-space: nowrap;
     }
 
     .dollar-basis-switch button:hover {
@@ -561,6 +523,15 @@
     .dollar-basis-switch button[aria-pressed="true"] {
       background: var(--cyan);
       color: var(--navy);
+    }
+
+    .dollar-basis-switch button:disabled,
+    .dollar-basis-switch button:disabled:hover {
+      background: rgba(7, 21, 34, 0.5);
+      border-color: transparent;
+      color: #708799;
+      cursor: not-allowed;
+      opacity: 0.58;
     }
 
     .chart-wrap {
@@ -593,20 +564,6 @@
       min-width: 0;
     }
 
-    .chart-card:fullscreen .chart-meta-row,
-    .chart-card:-webkit-full-screen .chart-meta-row,
-    .chart-card.is-kiosk .chart-meta-row {
-      margin-bottom: 0;
-    }
-
-    .chart-card:fullscreen > .stats,
-    .chart-card:-webkit-full-screen > .stats,
-    .chart-card.is-kiosk > .stats {
-      border-top: 0;
-      margin-top: 0;
-      padding-top: 0.25rem;
-    }
-
     .chart-year-picker {
       align-items: center;
       background: linear-gradient(145deg, #173650, #071522);
@@ -615,7 +572,9 @@
       box-shadow: 0 12px 25px rgba(0, 0, 0, 0.24);
       display: flex;
       gap: 0.55rem;
-      min-height: calc(3.15rem + 0.4rem + 2px);
+      flex: 0 0 auto;
+      height: var(--chart-control-height);
+      margin-left: auto;
       min-width: 0;
       padding: 0.2rem 0.55rem;
     }
@@ -1046,10 +1005,6 @@
       clip: rect(0, 0, 0, 0);
     }
 
-    @media (max-width: 1000px) {
-      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-
     @media (max-width: 760px) {
       .topbar-inner,
       main,
@@ -1065,32 +1020,42 @@
       .table-head { align-items: start; flex-direction: column; }
       .section-heading p,
       .table-head p { text-align: left; }
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .detail-layout { grid-template-columns: 1fr; }
       .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .term-definitions { grid-template-columns: 1fr; }
       .source-grid { grid-template-columns: 1fr; }
       .chart-wrap,
       #chart { min-height: 420px; }
-      .chart-meta-row {
+      .measure-row { grid-template-columns: 1fr; }
+      .chart-controls-row {
         align-items: flex-start;
-        flex-direction: column;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
       }
-      .chart-meta-row > .chart-header-actions {
+      .chart-lens-controls {
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+      }
+      .chart-year-picker {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .chart-end-actions {
         justify-content: flex-start;
         width: 100%;
       }
     }
 
     @media (max-width: 480px) {
-      .stats { grid-template-columns: 1fr; }
       .detail-grid { grid-template-columns: 1fr; }
       .detail-item.wide { grid-column: span 1; }
     }
 
     @media print {
       .topbar,
-      .legend,
       .chart-card,
       .insight-card,
       .sources-card { display: none !important; }
@@ -1159,7 +1124,7 @@
         <h2>How to read it</h2>
         <p><strong>Debt:</strong> measured at 30 June.</p>
         <p><strong>Budget balance:</strong> measured over the financial year; <strong>positive (+) = surplus, negative (-) = deficit.</strong></p>
-        <p><strong>Context:</strong> percentages of GDP make different-sized economies comparable.</p>
+        <p><strong>Debt burden:</strong> on this page, gross or net debt as a percentage of nominal GDP; it is not the annual interest cost of the debt.</p>
         <p><strong>Politics:</strong> PM and Treasurer are the office-holders on 30 June.</p>
       </aside>
     </section>
@@ -1174,38 +1139,43 @@
       </div>
 
       <div class="chart-card">
-        <div class="chart-tabs-row">
-          <div class="chart-tabs" role="tablist" aria-label="Chart view">
-            <button id="chartTab-burden" class="chart-tab" type="button" role="tab" aria-controls="chart" aria-selected="true" data-mode="burden">Debt burden (% of GDP)</button>
-            <button id="chartTab-cash" class="chart-tab" type="button" role="tab" aria-controls="chart" aria-selected="false" data-mode="cash" tabindex="-1">Budget balance and debt growth</button>
-            <button id="chartTab-dollars" class="chart-tab" type="button" role="tab" aria-controls="chart" aria-selected="false" data-mode="dollars" tabindex="-1">Debt in dollars ($ billions)</button>
-            <button id="chartTab-interest" class="chart-tab" type="button" role="tab" aria-controls="chart" aria-selected="false" data-mode="interest" tabindex="-1">Interest and debt ($ billions)</button>
-          </div>
-          <div id="dollarBasisControl" class="dollar-basis-control" hidden>
-            <div class="dollar-basis-switch" role="group" aria-label="Choose dollar basis">
-              <button id="basisNominal" type="button" data-basis="nominal" aria-pressed="true">Nominal</button>
-              <button id="basisReal" type="button" data-basis="real" aria-pressed="false">2024-25 dollars</button>
-            </div>
-          </div>
-          <button id="fullscreenChart" class="chart-fullscreen-button" type="button" aria-pressed="false" aria-label="Open chart full screen" title="Open chart full screen">Full screen</button>
-        </div>
-        <div class="chart-meta-row">
-          <div id="legend" class="legend" aria-label="Chart series"></div>
-          <div class="chart-header-actions">
-            <div class="chart-year-picker" aria-label="Selected financial year">
-              <div class="chart-year-row">
-                <button id="previousYear" type="button" aria-label="Select previous financial year" title="Select previous financial year"><span class="year-arrow year-arrow-left" aria-hidden="true"></span></button>
-                <output id="selectedYearLabel" aria-live="polite">2024-25</output>
-                <button id="nextYear" type="button" aria-label="Select next financial year" title="Select next financial year"><span class="year-arrow year-arrow-right" aria-hidden="true"></span></button>
+        <div class="chart-controls-row">
+          <div class="chart-lens-controls">
+            <div id="debtViewControl" class="dollar-basis-control" hidden>
+              <div class="dollar-basis-switch" role="group" aria-label="Choose percentage or dollar view">
+                <button id="viewPctGdp" type="button" data-debt-view="pctGdp" aria-pressed="true">% of GDP</button>
+                <button id="viewDollars" type="button" data-debt-view="dollars" aria-pressed="false">Dollars</button>
               </div>
             </div>
-            <button id="resetView" type="button" title="Reset the first and last year to the full 1970-71 to 2024-25 range">Reset to full history</button>
+            <div id="dollarMeasureControl" class="dollar-basis-control" hidden>
+              <div class="dollar-basis-switch" role="group" aria-label="Choose dollar measure">
+                <button id="measureAbsolute" type="button" data-measure="absolute" aria-pressed="true">Absolute</button>
+                <button id="measurePerCapita" type="button" data-measure="perCapita" aria-pressed="false">Per capita</button>
+              </div>
+            </div>
+            <div id="dollarBasisControl" class="dollar-basis-control" hidden>
+              <div class="dollar-basis-switch" role="group" aria-label="Choose dollar basis">
+                <button id="basisNominal" type="button" data-basis="nominal" aria-pressed="true">Nominal</button>
+                <button id="basisReal" type="button" data-basis="real" aria-pressed="false">2024-25 dollars</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-year-picker" aria-label="Selected financial year">
+            <div class="chart-year-row">
+              <button id="previousYear" type="button" aria-label="Select previous financial year" title="Select previous financial year"><span class="year-arrow year-arrow-left" aria-hidden="true"></span></button>
+              <output id="selectedYearLabel" aria-live="polite">2024-25</output>
+              <button id="nextYear" type="button" aria-label="Select next financial year" title="Select next financial year"><span class="year-arrow year-arrow-right" aria-hidden="true"></span></button>
+            </div>
+          </div>
+          <div class="chart-end-actions">
+            <button id="resetView" type="button" title="Reset chart zoom to show the full 1970-71 to 2024-25 range">Reset zoom</button>
+            <button id="fullscreenChart" class="chart-fullscreen-button" type="button" aria-pressed="false" aria-label="Open chart full screen" title="Open chart full screen">Full screen</button>
           </div>
         </div>
-        <div id="stats" class="stats" aria-live="polite"></div>
+        <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"></div>
-          <svg id="chart" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year or drag across the plot to zoom."></svg>
+          <svg id="chart" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, or use the mouse wheel to zoom around the pointer."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1248,13 +1218,26 @@
           <thead>
             <tr>
               <th scope="col">Financial year</th>
+              <th scope="col">Population<br>(persons)</th>
+              <th scope="col">Gross debt<br>/ person</th>
+              <th scope="col">Net debt<br>/ person</th>
               <th scope="col">Gross debt<br>(A$bn)</th>
               <th scope="col">Debt / GDP</th>
-              <th scope="col">Debt change<br>vs prior debt</th>
+              <th scope="col">Gross debt growth<br>vs prior year</th>
+              <th scope="col">Gross debt change<br>(A$bn)</th>
+              <th scope="col">Gross debt change<br>/ GDP (%)</th>
+              <th scope="col">Gross debt burden<br>change (pp)</th>
               <th scope="col">Net debt<br>(A$bn)</th>
               <th scope="col">Net debt / GDP</th>
+              <th scope="col">Net debt change<br>(A$bn)</th>
+              <th scope="col">Net debt change<br>/ GDP (%)</th>
+              <th scope="col">Net debt burden<br>change (pp)</th>
               <th scope="col">Underlying cash<br>(A$bn; + surplus / - deficit)</th>
               <th scope="col">Cash / GDP</th>
+              <th scope="col">Interest paid on AGS<br>(A$bn)</th>
+              <th scope="col">AGS interest<br>/ GDP</th>
+              <th scope="col">Net interest payments<br>(A$bn)</th>
+              <th scope="col">Net interest<br>/ GDP</th>
               <th scope="col">Government / Prime Minister</th>
               <th scope="col">Treasurer</th>
               <th scope="col">S&P rating</th>
@@ -1282,14 +1265,23 @@
         <ul>
           <li><strong>Gross debt:</strong> face value of Australian Government Securities (AGS) on issue, often referred to as gross debt. The Parliamentary Budget Office (PBO) notes that total AGS on issue includes securities held on behalf of the states and Northern Territory.</li>
           <li><strong>Net debt:</strong> interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook.</li>
-          <li><strong>Budget result:</strong> the underlying cash balance. Positive values are surpluses; negative values are deficits. The fiscal balance is also retained where the PBO series provides it.</li>
-          <li><strong>Debt change vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. It is not a separate official Budget aggregate.</li>
+          <li><strong>Underlying cash balance:</strong> the Commonwealth's headline cash-based Budget result: broadly, cash receipts less cash payments over the financial year. Positive values are surpluses; negative values are deficits. It is a flow measure and is not the same as the stock of gross debt or its year-to-year change.</li>
+          <li><strong>Fiscal balance:</strong> an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses; negative values are deficits. The embedded PBO series begins in 1996-97.</li>
+          <li><strong>Budget result in public commentary:</strong> when Australian Commonwealth politicians and media refer without qualification to the Budget being in surplus or deficit, they usually mean the underlying cash balance. The fiscal balance is a separate measure and is normally identified by name.</li>
+          <li><strong>Interest paid on AGS:</strong> annual interest paid on Australian Government Securities (AGS) on issue, the securities underlying the page's gross-debt measure. It is a gross interest measure and is not reduced by interest receipts. In the chart's % of GDP view it is shown as a share of nominal GDP.</li>
+          <li><strong>Net interest payments:</strong> the PBO measure equal to interest paid minus interest receipts. Interest receipts can come from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets; they are not limited to income from debt-backed assets. This measure is broader than interest paid on AGS alone and is also shown as a share of nominal GDP in the chart's percentage view.</li>
+          <li><strong>Gross debt growth vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. The selected-year details, table and CSV retain this measure, including the 82.4% increase in 2008-09.</li>
+          <li><strong>Debt burden:</strong> in this page, gross debt burden means gross debt as a percentage of nominal GDP, and net debt burden means net debt as a percentage of nominal GDP. “Debt burden” is descriptive shorthand for debt relative to the size of the economy; it does not mean interest cost or debt-service cost.</li>
+          <li><strong>Debt burden change:</strong> the year-on-year change in the debt-to-GDP ratio, expressed in percentage points. This measure remains available in the selected-year details, table and CSV; the combined chart's % of GDP view instead uses debt-stock change divided by current-year GDP. It avoids unstable net-debt growth percentages when net debt is near zero or negative.</li>
+          <li><strong>Debt-stock change as a share of GDP:</strong> the difference between consecutive debt stocks divided by the current financial year's nominal GDP, expressed as a percentage: <code>(current debt stock - previous debt stock) / current-year GDP * 100</code>. It is a normalized stock-change measure, not the Budget surplus or deficit and not the same as debt-burden change.</li>
+          <li><strong>Dollar debt change:</strong> the current debt stock minus the previous year's debt stock. In Per capita mode it is the change in debt per person; in inflation-adjusted mode each stock is converted to 2024-25 dollars before the change is calculated. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
           <li><strong>Nominal dollars:</strong> amounts are expressed in the Australian-dollar values recorded in each period, without adjusting for inflation. Comparing dollar levels across decades therefore reflects both economic growth and changes in prices.</li>
           <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2024-25 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
+          <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
           <li><strong>Chart range:</strong> click and drag across the plot to zoom into a consecutive range of financial years. The reset button restores the full embedded history.</li>
           <li><strong>Year convention:</strong> debt and office-holders are aligned to 30 June. For a year with a change of government, this shows the PM, government and Treasurer in office at the end of the financial year.</li>
           <li><strong>Credit rating:</strong> the S&amp;P long-term sovereign rating timeline is a compact external-agency reference. It is not an Australian Government statistic; verify against the linked agency archive before using it for a formal publication.</li>
-          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend the political and rating timelines, update the source metadata, and check the derived values. Keep only reported outcomes in the embedded series.</li>
+          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political and rating timelines, update the source metadata, and check the derived values. Keep only reported outcomes in the embedded series.</li>
         </ul>
       </details>
     </section>
@@ -1456,6 +1448,80 @@
     const cpiBase = { stockIndex: 98.43, flowIndex: 97.39 };
 
     /*
+      DATA UPDATE POINT 1C: populationByFinancialYear
+      ------------------------------------------------
+      These are ABS estimated resident population observations at 30 June,
+      expressed as persons. The financial-year label is the year ending on
+      that 30 June: for example, the 1970-71 observation uses the population
+      at 30 June 1971.
+
+      The 1971-80 observations come from ABS Historical Population, 2021,
+      Table 2. The 1981-2025 observations come from the ABS National, state
+      and territory population, December 2025, Table 1 / ERP Australia series.
+      The latter source reports population in thousands, so those values have
+      been multiplied by 1,000 before embedding here. Keeping the denominator
+      in a separate array makes the per-capita calculation easy to audit and
+      update alongside the fiscal and CPI arrays.
+    */
+    const populationByFinancialYear = new Map([
+      ["1970-71", 13067265],
+      ["1971-72", 13303664],
+      ["1972-73", 13504538],
+      ["1973-74", 13722571],
+      ["1974-75", 13892995],
+      ["1975-76", 14033083],
+      ["1976-77", 14192234],
+      ["1977-78", 14359255],
+      ["1978-79", 14515729],
+      ["1979-80", 14695356],
+      ["1980-81", 14923300],
+      ["1981-82", 15184200],
+      ["1982-83", 15393500],
+      ["1983-84", 15579400],
+      ["1984-85", 15788300],
+      ["1985-86", 16018400],
+      ["1986-87", 16263900],
+      ["1987-88", 16532200],
+      ["1988-89", 16814400],
+      ["1989-90", 17065100],
+      ["1990-91", 17284000],
+      ["1991-92", 17478600],
+      ["1992-93", 17634800],
+      ["1993-94", 17805500],
+      ["1994-95", 18004900],
+      ["1995-96", 18224800],
+      ["1996-97", 18423000],
+      ["1997-98", 18607600],
+      ["1998-99", 18812300],
+      ["1999-00", 19028800],
+      ["2000-01", 19274700],
+      ["2001-02", 19495200],
+      ["2002-03", 19720700],
+      ["2003-04", 19932700],
+      ["2004-05", 20176800],
+      ["2005-06", 20451000],
+      ["2006-07", 20827600],
+      ["2007-08", 21249200],
+      ["2008-09", 21691700],
+      ["2009-10", 22031800],
+      ["2010-11", 22340000],
+      ["2011-12", 22733500],
+      ["2012-13", 23128100],
+      ["2013-14", 23475700],
+      ["2014-15", 23816000],
+      ["2015-16", 24190900],
+      ["2016-17", 24592600],
+      ["2017-18", 24963300],
+      ["2018-19", 25334800],
+      ["2019-20", 25649200],
+      ["2020-21", 25685400],
+      ["2021-22", 26018700],
+      ["2022-23", 26659900],
+      ["2023-24", 27194300],
+      ["2024-25", 27611000]
+    ]);
+
+    /*
       DATA UPDATE POINT 2: politicalTimeline
       --------------------------------------
       These ranges are keyed by the starting calendar year in the financial
@@ -1532,6 +1598,20 @@
         linkText: "Open the ABS CPI release"
       },
       {
+        id: "absPopulationHistorical",
+        title: "Australian Bureau of Statistics - Historical Population, 2021, Table 2",
+        text: "Official 30 June population observations from Table 2, used for the 1970-71 to 1979-80 per-capita denominators.",
+        url: "https://www.abs.gov.au/statistics/people/population/historical-population/2021/HPDC1.xlsx",
+        linkText: "Download ABS Historical Population Table 2"
+      },
+      {
+        id: "absPopulationCurrent",
+        title: "Australian Bureau of Statistics - National, state and territory population, December 2025, Table 1",
+        text: "Official estimated resident population at 30 June from the December 2025 release, used for the 1980-81 to 2024-25 per-capita denominators.",
+        url: "https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/dec-2025/310101.xlsx",
+        linkText: "Download ABS population Table 1"
+      },
+      {
         id: "budget",
         title: "Australian Government Budget",
         text: "Budget papers are the underlying official publication series used by the PBO workbook.",
@@ -1603,11 +1683,23 @@
       return `${prefix}${formatNumber(value)}%`;
     };
 
+    const formatPp = (value, signed = false) => {
+      if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
+      const prefix = signed && value > 0 ? "+" : "";
+      return `${prefix}${formatNumber(value)} pp`;
+    };
+
     const formatBillions = (value, signed = false) => {
       if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
       const billions = Math.abs(value) / 1000;
       const sign = value < 0 ? "-A$" : signed && value > 0 ? "+A$" : "A$";
       return `${sign}${formatNumber(billions)}b`;
+    };
+
+    const formatPerCapita = (value, signed = false) => {
+      if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
+      const sign = value < 0 ? "-A$" : signed && value > 0 ? "+A$" : "A$";
+      return `${sign}${formatNumber(Math.abs(value), 0)} per person`;
     };
 
     const formatTableBillions = (value) => {
@@ -1631,10 +1723,13 @@
       const year = Number(fy.slice(0, 4));
       const cpi = cpiByFinancialYear.get(fy);
       if (!cpi) throw new Error(`Missing ABS CPI deflator for ${fy}`);
+      const population = populationByFinancialYear.get(fy);
+      if (!population) throw new Error(`Missing ABS population denominator for ${fy}`);
       return {
         index,
         fy,
         year,
+        population,
         gdp,
         gross,
         grossPct,
@@ -1656,107 +1751,198 @@
       };
     });
 
+    const defaultVisibleForMode = () => ({
+      fiscal: false,
+      grossGrowth: false,
+      agsInterest: false,
+      interest: false
+    });
+
     const state = {
       start: 0,
       end: rows.length - 1,
       selected: rows.length - 1,
-      mode: "burden",
+      mode: "debt",
+      debtView: "pctGdp",
       dollarBasis: "nominal",
-      visible: {}
+      dollarMeasure: "absolute",
+      visible: defaultVisibleForMode()
     };
 
-    const isDollarMode = () => state.mode === "dollars" || state.mode === "interest";
+    const isDollarMode = () =>
+      state.mode === "debt" && state.debtView === "dollars";
+    const hasNumericValue = (value) =>
+      value !== null && value !== undefined && !Number.isNaN(value);
+    const getPercentOfGdp = (row, key) =>
+      hasNumericValue(row[key]) && hasNumericValue(row.gdp)
+        ? row[key] / row.gdp * 100
+        : null;
     const getDollarBillions = (row, key) => {
+      if (!hasNumericValue(row[key])) return null;
       const nominalBillions = row[key] / 1000;
       if (state.dollarBasis === "nominal") return nominalBillions;
-      const isFlow = key === "ucb" || key === "interest" || key === "agsInterest";
+      const isFlow = key === "ucb" || key === "fiscal" || key === "interest" || key === "agsInterest";
       return nominalBillions * (isFlow ? row.cpiFlowFactor : row.cpiStockFactor);
+    };
+    const getNominalDollarsPerCapita = (row, key) =>
+      hasNumericValue(row[key]) && hasNumericValue(row.population)
+        ? row[key] * 1000000 / row.population
+        : null;
+    const getDollarPerCapita = (row, key) => {
+      const nominalDollarsPerCapita = getNominalDollarsPerCapita(row, key);
+      if (nominalDollarsPerCapita === null) return null;
+      if (state.dollarBasis === "nominal") return nominalDollarsPerCapita;
+      const isFlow = key === "ucb" || key === "fiscal" || key === "interest" || key === "agsInterest";
+      return nominalDollarsPerCapita * (isFlow ? row.cpiFlowFactor : row.cpiStockFactor);
+    };
+    /* Compare adjusted debt stocks so real debt change remains a stock measure. */
+    const getDebtChangeDollars = (row, key, perCapita) => {
+      if (row.index === 0) return null;
+      const previous = rows[row.index - 1];
+      const currentValue = perCapita
+        ? getDollarPerCapita(row, key)
+        : getDollarBillions(row, key);
+      const previousValue = perCapita
+        ? getDollarPerCapita(previous, key)
+        : getDollarBillions(previous, key);
+      if (currentValue === null || previousValue === null) return null;
+      return currentValue - previousValue;
+    };
+    const getNominalDebtChange = (row, key) => {
+      if (row.index === 0 || !hasNumericValue(row[key])) return null;
+      const previous = rows[row.index - 1];
+      if (!hasNumericValue(previous[key])) return null;
+      return row[key] - previous[key];
+    };
+    const getDebtChangeOverGdp = (row, key) => {
+      const change = getNominalDebtChange(row, key);
+      if (change === null || !hasNumericValue(row.gdp) || row.gdp === 0) return null;
+      return change / row.gdp * 100;
+    };
+    const getDebtBurdenChange = (row, key) => {
+      if (row.index === 0) return null;
+      const previous = rows[row.index - 1];
+      if (!hasNumericValue(row[key]) || !hasNumericValue(previous[key])) return null;
+      return row[key] - previous[key];
     };
 
     const getChartTitle = (mode) => {
-      if (state.mode === "dollars") {
-        return state.dollarBasis === "real"
-          ? "Debt in 2024-25 dollars ($ billions)"
-          : "Debt in nominal dollars ($ billions)";
-      }
-      if (state.mode === "interest") {
-        return state.dollarBasis === "real"
-          ? "Interest and debt in 2024-25 dollars ($ billions)"
-          : "Interest and debt in nominal dollars ($ billions)";
+      if (state.mode === "debt") {
+        if (state.debtView === "dollars" && state.dollarMeasure === "perCapita") {
+          return state.dollarBasis === "real"
+            ? "Debt, budget, changes and interest per capita in 2024-25 dollars ($ per person)"
+            : "Debt, budget, changes and interest per capita in nominal dollars ($ per person)";
+        }
+        if (state.debtView === "dollars") {
+          return state.dollarBasis === "real"
+            ? "Debt, budget, changes and interest in 2024-25 dollars ($ billions)"
+            : "Debt, budget, changes and interest in nominal dollars ($ billions)";
+        }
+        return "Debt, budget, changes and interest (% of GDP)";
       }
       return mode.title;
     };
 
     const getChartAxisLabel = (mode) => {
-      if (!isDollarMode()) return mode.axisLabel;
+      if (!isDollarMode()) {
+        return state.visible.grossGrowth
+          ? "% of GDP / debt change % / growth %"
+          : mode.axisLabel;
+      }
+      if (state.mode === "debt" && state.dollarMeasure === "perCapita") {
+        return state.dollarBasis === "real"
+          ? "A$ per person (2024-25 dollars)"
+          : "A$ per person (nominal)";
+      }
       return state.dollarBasis === "real"
         ? "A$ billions (2024-25 dollars)"
         : "A$ billions (nominal)";
     };
 
     const getChartNote = (mode) => {
-      if (state.mode === "dollars") {
+      if (state.mode === "debt" && state.debtView === "dollars") {
+        if (state.dollarMeasure === "perCapita") {
+          return state.dollarBasis === "real"
+            ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. Results are shown per person using ABS population at 30 June; the fiscal balance is unavailable before 1996-97. Interest lines are off by default."
+            : "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Results are shown per person using ABS population at 30 June; nominal dollars are not adjusted for inflation; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.";
+        }
         return state.dollarBasis === "real"
-          ? "Values are expressed in 2024-25 purchasing power using the ABS All Groups CPI. Gross and net debt use the June-quarter CPI; the underlying cash balance uses the financial-year average CPI."
-          : "Nominal dollars are the amounts recorded in each period, without adjusting for inflation. Gross and net debt are measured at the end of the financial year; the underlying cash balance is measured over the year.";
-      }
-      if (state.mode === "interest") {
-        return state.dollarBasis === "real"
-          ? "Values are expressed in 2024-25 purchasing power using the ABS All Groups CPI. Gross debt uses the June-quarter CPI; interest series use the financial-year average CPI."
-          : "Nominal dollars are the amounts recorded in each period, without adjusting for inflation. Interest series are measured over a year; gross debt is measured at the end of the financial year, shown in the same nominal unit.";
+          ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. The fiscal balance is unavailable before 1996-97. Interest lines are off by default."
+          : "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Nominal dollars are not adjusted for inflation; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.";
       }
       return mode.note;
     };
 
     const chartModes = {
-      burden: {
-        title: "Debt burden (% of GDP)",
-        axisLabel: "% of nominal GDP",
-        note: "Debt and budget values are shown relative to nominal GDP. The political strip at the bottom marks Labor and Liberal-National Coalition governments.",
-        series: [
-          { key: "grossPct", label: "Gross debt / GDP", color: "#f1b84b", get: (row) => row.grossPct, suffix: "%" },
-          { key: "netPct", label: "Net debt / GDP", color: "#bba3ff", get: (row) => row.netPct, suffix: "%" },
-          { key: "ucbPct", label: "Underlying cash / GDP", color: "#60c7de", get: (row) => row.ucbPct, suffix: "%" }
-        ]
-      },
-      cash: {
-        title: "Budget balance and debt growth",
-        axisLabel: "Percent (%)",
-        note: "The cyan line is underlying cash balance / GDP: positive (+) is a surplus and negative (-) is a deficit. The green dashed line is fiscal balance / GDP and begins in 1996-97 because earlier PBO fiscal-balance observations are unavailable; the cyan line does not change colour. Debt change is derived from consecutive gross-debt observations and is unavailable for the first year.",
-        series: [
-          { key: "ucbPct", label: "Underlying cash / GDP", color: "#60c7de", get: (row) => row.ucbPct, suffix: "%" },
-          { key: "fiscalPct", label: "Fiscal balance / GDP", color: "#6bd29b", dash: "7 5", get: (row) => row.fiscalPct, suffix: "%" },
-          { key: "grossChange", label: "Gross debt change", color: "#f59dad", get: (row) => row.grossChange, suffix: "%" }
-        ]
-      },
-      dollars: {
-        title: "Debt in nominal dollars ($ billions)",
-        axisLabel: "A$ billions (nominal)",
-        note: "Nominal dollars are the amounts recorded in each period, without adjusting for inflation. Gross and net debt are measured at the end of the financial year; the underlying cash balance is measured over the year.",
-        series: [
-          { key: "gross", label: "Gross debt", color: "#f1b84b", get: (row) => getDollarBillions(row, "gross"), suffix: "bn" },
-          { key: "net", label: "Net debt", color: "#bba3ff", get: (row) => getDollarBillions(row, "net"), suffix: "bn" },
-          { key: "ucb", label: "Underlying cash balance", color: "#60c7de", get: (row) => getDollarBillions(row, "ucb"), suffix: "bn" }
-        ]
-      },
-      interest: {
-        title: "Interest and debt in nominal dollars ($ billions)",
-        axisLabel: "A$ billions (nominal)",
-        note: "Nominal dollars are the amounts recorded in each period, without adjusting for inflation. Interest series are measured over a year; gross debt is measured at the end of the financial year, shown in the same nominal unit.",
-        series: [
-          { key: "agsInterest", label: "Interest paid on AGS", color: "#f1b84b", get: (row) => getDollarBillions(row, "agsInterest"), suffix: "bn" },
-          { key: "interest", label: "Net interest payments", color: "#f59dad", get: (row) => getDollarBillions(row, "interest"), suffix: "bn" },
-          { key: "gross", label: "Gross debt", color: "#bba3ff", get: (row) => getDollarBillions(row, "gross"), suffix: "bn" }
-        ]
+      debt: {
+        title: "Debt, budget, changes and interest (% of GDP)",
+        axisLabel: "% of GDP / debt change %",
+        note: "Gross and net debt, underlying cash balance, fiscal balance and the two interest series are shown relative to nominal GDP; positive budget-balance values are surpluses and negative values are deficits. Interest paid on AGS and net interest payments are annual flows, while debt is measured at 30 June. Debt-change lines show the difference between consecutive debt stocks divided by current-year nominal GDP, expressed as percentages, and are unavailable for the first year. The fiscal balance, direct gross-debt-growth and interest lines are off by default. Use the measure lozenges to show direct gross debt growth versus the previous year's debt, including the 82.4% increase in 2008-09; enabling it expands the chart's vertical scale. Percentage-point changes in the debt-to-GDP ratio remain available in the selected-year details, table and CSV.",
+        get series() {
+          if (state.debtView === "dollars") {
+            const perCapita = state.dollarMeasure === "perCapita";
+            const suffix = perCapita ? "perPerson" : "bn";
+            const getValue = (row, key) => perCapita
+              ? getDollarPerCapita(row, key)
+              : getDollarBillions(row, key);
+            return [
+              { key: "gross", label: perCapita ? "Gross debt per capita" : "Gross debt", color: "#f1b84b", get: (row) => getValue(row, "gross"), suffix },
+              { key: "net", label: perCapita ? "Net debt per capita" : "Net debt", color: "#bba3ff", get: (row) => getValue(row, "net"), suffix },
+              { key: "ucb", label: perCapita ? "Underlying cash per capita" : "Underlying cash balance", color: "#60c7de", get: (row) => getValue(row, "ucb"), suffix },
+              { key: "fiscal", label: perCapita ? "Fiscal balance per capita" : "Fiscal balance", color: "#6bd29b", dash: "7 5", get: (row) => getValue(row, "fiscal"), suffix },
+              { key: "grossChange", label: perCapita ? "Gross debt change per capita" : "Change in gross debt", color: "#f59dad", dash: "2 4", get: (row) => getDebtChangeDollars(row, "gross", perCapita), suffix },
+              { key: "netChange", label: perCapita ? "Net debt change per capita" : "Change in net debt", color: "#f6a65b", dash: "9 4", get: (row) => getDebtChangeDollars(row, "net", perCapita), suffix },
+              { key: "agsInterest", label: perCapita ? "Interest paid on AGS per capita" : "Interest paid on AGS", color: "#e4a853", dash: "12 4", get: (row) => getValue(row, "agsInterest"), suffix },
+              { key: "interest", label: perCapita ? "Net interest payments per capita" : "Net interest payments", color: "#d779be", dash: "4 4", get: (row) => getValue(row, "interest"), suffix }
+            ];
+          }
+          return [
+            { key: "gross", label: "Gross debt / GDP", color: "#f1b84b", get: (row) => row.grossPct, suffix: "%" },
+            { key: "net", label: "Net debt / GDP", color: "#bba3ff", get: (row) => row.netPct, suffix: "%" },
+            { key: "ucb", label: "Underlying cash / GDP", color: "#60c7de", get: (row) => row.ucbPct, suffix: "%" },
+            { key: "fiscal", label: "Fiscal balance / GDP", color: "#6bd29b", dash: "7 5", get: (row) => row.fiscalPct, suffix: "%" },
+            { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#f59dad", dash: "2 4", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
+            { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#ff8c69", dash: "10 3", get: (row) => row.grossChange, suffix: "%" },
+            { key: "netChange", label: "Change in net debt / GDP (%)", color: "#f6a65b", dash: "9 4", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
+            { key: "agsInterest", label: "Interest paid on AGS / GDP", color: "#e4a853", dash: "12 4", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
+            { key: "interest", label: "Net interest payments / GDP", color: "#d779be", dash: "4 4", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
+          ];
+        }
       }
     };
+
+    const seriesSelectorLabels = {
+      gross: "Gross debt",
+      net: "Net debt",
+      ucb: "Underlying cash balance",
+      fiscal: "Fiscal balance",
+      grossChange: "Gross debt change",
+      grossGrowth: "Gross debt growth vs prior debt (%)",
+      netChange: "Net debt change",
+      agsInterest: "Interest paid on AGS",
+      interest: "Net interest payments"
+    };
+
+    // Keep the selector grouping stable across lenses; only each lozenge's value
+    // and the inline SVG legend change with the active view.
+    const measureRowLayout = [
+      [
+        ["gross", "grossChange", "agsInterest"],
+        ["ucb"],
+        ["grossGrowth"]
+      ],
+      [
+        ["net", "netChange", "interest"],
+        ["fiscal"],
+        []
+      ]
+    ];
 
     const chart = document.getElementById("chart");
     const chartWrap = document.getElementById("chartWrap");
     const chartTooltip = document.getElementById("chartTooltip");
     const chartAxisLabelElement = document.getElementById("chartAxisLabel");
-    const legend = document.getElementById("legend");
-    const stats = document.getElementById("stats");
+    const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
     const detailTitle = document.getElementById("detail-title");
     const detailStatus = document.getElementById("detailStatus");
@@ -1766,10 +1952,13 @@
     const selectedYearLabel = document.getElementById("selectedYearLabel");
     const previousYear = document.getElementById("previousYear");
     const nextYear = document.getElementById("nextYear");
-    const chartTabs = Array.from(document.querySelectorAll(".chart-tab"));
     const rangeSummary = document.getElementById("rangeSummary");
     const resetView = document.getElementById("resetView");
     const fullscreenChart = document.getElementById("fullscreenChart");
+    const debtViewControl = document.getElementById("debtViewControl");
+    const debtViewButtons = Array.from(document.querySelectorAll("[data-debt-view]"));
+    const dollarMeasureControl = document.getElementById("dollarMeasureControl");
+    const dollarMeasureButtons = Array.from(document.querySelectorAll("[data-measure]"));
     const dollarBasisControl = document.getElementById("dollarBasisControl");
     const dollarBasisButtons = Array.from(document.querySelectorAll("[data-basis]"));
     const chartLayout = {
@@ -1785,6 +1974,8 @@
       moved: false,
       suppressClickUntil: 0
     };
+    const minimumZoomYears = 3;
+    const wheelZoomFactor = 1.25;
 
     const sourceLink = (id, text = id) => {
       const source = sources.find((item) => item.id === id);
@@ -1793,14 +1984,6 @@
 
     const selectedRow = () => rows[state.selected];
     const visibleRows = () => rows.slice(state.start, state.end + 1);
-
-    function renderChartTabs() {
-      chartTabs.forEach((tab) => {
-        const selected = tab.dataset.mode === state.mode;
-        tab.setAttribute("aria-selected", String(selected));
-        tab.tabIndex = selected ? 0 : -1;
-      });
-    }
 
     function fullscreenElement() {
       return document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -1873,64 +2056,127 @@
       if (chartIsFullscreen()) renderAll();
     }
 
-    function renderDollarBasisControl() {
-      dollarBasisControl.hidden = !isDollarMode();
-      dollarBasisButtons.forEach((button) => {
-        const selected = button.dataset.basis === state.dollarBasis;
+    function renderDebtViewControl() {
+      const enabled = state.mode === "debt";
+      debtViewControl.hidden = !enabled;
+      debtViewButtons.forEach((button) => {
+        const selected = button.dataset.debtView === state.debtView;
+        button.disabled = !enabled;
+        button.setAttribute("aria-disabled", String(!enabled));
         button.setAttribute("aria-pressed", String(selected));
       });
     }
 
-    function renderLegend() {
-      const mode = chartModes[state.mode];
-      const seriesMarkup = mode.series.map((series) => {
-        const checked = state.visible[series.key] !== false ? "checked" : "";
-        return `
-          <label class="legend-item" style="--series-color:${series.color}">
-            <input type="checkbox" data-series="${series.key}" ${checked}>
-            <span>${esc(series.label)}</span>
-          </label>
-        `;
-      }).join("");
-      legend.innerHTML = seriesMarkup;
-      legend.querySelectorAll("input[data-series]").forEach((input) => {
-        input.addEventListener("change", (event) => {
-          state.visible[event.target.dataset.series] = event.target.checked;
-          renderChart();
-        });
+    function renderDollarMeasureControl() {
+      const visible = state.mode === "debt";
+      const enabled = visible && state.debtView === "dollars";
+      dollarMeasureControl.hidden = !visible;
+      dollarMeasureButtons.forEach((button) => {
+        const selected = button.dataset.measure === state.dollarMeasure;
+        button.disabled = !enabled;
+        button.setAttribute("aria-disabled", String(!enabled));
+        button.setAttribute("aria-pressed", String(selected));
       });
     }
 
-    function renderStats() {
+    function renderDollarBasisControl() {
+      const visible = state.mode === "debt";
+      const enabled = visible && state.debtView === "dollars";
+      dollarBasisControl.hidden = !visible;
+      dollarBasisButtons.forEach((button) => {
+        const selected = button.dataset.basis === state.dollarBasis;
+        button.disabled = !enabled;
+        button.setAttribute("aria-disabled", String(!enabled));
+        button.setAttribute("aria-pressed", String(selected));
+      });
+    }
+
+    function getMeasureSupportingText(key, row, available) {
+      if (!available) return "Available in % of GDP view only";
+      switch (key) {
+        case "gross":
+          return state.debtView === "pctGdp"
+            ? `${formatPct(row.grossChange, true)} gross debt growth vs previous year`
+            : "Face value of AGS on issue";
+        case "net":
+          return `${formatPct(row.netPct)} of GDP`;
+        case "ucb":
+          return `${formatPct(row.ucbPct)} of GDP; negative means deficit`;
+        case "fiscal":
+          return `${formatPct(row.fiscalPct)} of GDP where available; accrual-based result`;
+        case "grossChange":
+        case "netChange":
+          return "Difference between consecutive debt stocks; not the Budget surplus or deficit";
+        case "grossGrowth":
+          return "Direct growth versus previous gross-debt stock";
+        case "agsInterest":
+          return `${formatPct(getPercentOfGdp(row, "agsInterest"))} of GDP; annual gross interest flow`;
+        case "interest":
+          return `${formatPct(getPercentOfGdp(row, "interest"))} of GDP; after interest receipts`;
+        default:
+          return "";
+      }
+    }
+
+    function renderMeasureRows() {
+      const mode = chartModes[state.mode];
       const row = selectedRow();
-      const status = "Historical outcome";
-      stats.innerHTML = `
-        <div class="stat">
-          <div class="stat-label">Gross debt</div>
-          <div class="stat-value">${formatBillions(row.gross)}</div>
-          <div class="stat-sub">${esc(row.fy)} / face value of AGS on issue</div>
+      const seriesByKey = new Map(mode.series.map((series) => [series.key, series]));
+      const rowsMarkup = measureRowLayout.map((groups) => `
+        <div class="measure-row">
+          ${groups.map((keys) => {
+            if (!keys.length) {
+              return '<div class="measure-cluster measure-cluster-empty" aria-hidden="true"></div>';
+            }
+            return `
+              <div class="measure-cluster">
+                ${keys.map((key) => {
+                  const series = seriesByKey.get(key);
+                  const available = Boolean(series);
+                  const label = seriesSelectorLabels[key] || key;
+                  const selected = available && state.visible[key] !== false;
+                  const value = available
+                    ? formatChartValue(series.get(row), series.suffix)
+                    : key === "grossGrowth"
+                      ? formatPct(row.grossChange, true)
+                      : "n/a";
+                  const note = getMeasureSupportingText(key, row, available);
+                  const selectedClass = selected ? " is-selected" : "";
+                  const disabled = available ? "" : 'disabled aria-disabled="true"';
+                  const ariaLabel = `${label}: ${value}. ${note}`;
+                  return `
+                    <button type="button"
+                      class="measure-lozenge${selectedClass}"
+                      style="--series-color:${series?.color || "#8aa0b2"}"
+                      data-series="${esc(key)}"
+                      aria-pressed="${String(selected)}"
+                      aria-label="${esc(ariaLabel)}"
+                      title="${esc(ariaLabel)}"
+                      ${disabled}>
+                      <span class="measure-lozenge-content">
+                        <span class="measure-lozenge-name">${esc(label)}</span>
+                        <span class="measure-lozenge-value">${esc(value)}</span>
+                        ${note ? `<span class="measure-lozenge-note">${esc(note)}</span>` : ""}
+                      </span>
+                    </button>
+                  `;
+                }).join("")}
+              </div>
+            `;
+          }).join("")}
         </div>
-        <div class="stat">
-          <div class="stat-label">Gross debt / GDP</div>
-          <div class="stat-value">${formatPct(row.grossPct)}</div>
-          <div class="stat-sub">${formatPct(row.grossChange, true)} vs previous total debt</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Underlying cash balance (+ surplus / - deficit)</div>
-          <div class="stat-value">${formatBillions(row.ucb)}</div>
-          <div class="stat-sub">${formatPct(row.ucbPct)} of GDP</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Net debt</div>
-          <div class="stat-value">${formatBillions(row.net)}</div>
-          <div class="stat-sub">${formatPct(row.netPct)} of GDP</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Interest paid on AGS</div>
-          <div class="stat-value">${formatBillions(row.agsInterest)}</div>
-          <div class="stat-sub">${status}; nominal GDP ${formatBillions(row.gdp)}</div>
-        </div>
-      `;
+      `).join("");
+      measureRows.innerHTML = rowsMarkup;
+      measureRows.querySelectorAll("button[data-series]:not(:disabled)").forEach((button) => {
+        button.addEventListener("click", () => {
+          const key = button.dataset.series;
+          state.visible[key] = state.visible[key] === false;
+          renderMeasureRows();
+          renderChart();
+          const updatedButton = measureRows.querySelector(`button[data-series="${key}"]`);
+          if (updatedButton) updatedButton.focus();
+        });
+      });
     }
 
     function renderDetail() {
@@ -1942,6 +2188,9 @@
       nextYear.disabled = row.index === rows.length - 1;
 
       const ratingClass = row.rating.rating === "--" ? "rating-pill unknown" : "rating-pill";
+      const populationSource = row.year <= 1979
+        ? sourceLink("absPopulationHistorical", "ABS Historical Population")
+        : sourceLink("absPopulationCurrent", "ABS population estimates");
       detailGrid.innerHTML = `
         <dl class="detail-item">
           <dt>Gross debt</dt>
@@ -1949,9 +2198,19 @@
           <small>${formatPct(row.grossPct)} of GDP</small>
         </dl>
         <dl class="detail-item">
-          <dt>Debt vs previous debt</dt>
+          <dt>Gross debt growth vs previous year</dt>
           <dd>${formatPct(row.grossChange, true)}</dd>
           <small>Derived from adjacent PBO observations</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Gross debt burden change</dt>
+          <dd>${formatPp(getDebtBurdenChange(row, "grossPct"), true)}</dd>
+          <small>Percentage-point change in the gross debt-to-GDP ratio from the previous year</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Change in gross debt / GDP</dt>
+          <dd>${formatPct(getDebtChangeOverGdp(row, "gross"), true)}</dd>
+          <small>Difference between consecutive gross-debt stocks divided by current-year nominal GDP</small>
         </dl>
         <dl class="detail-item">
           <dt>Net debt</dt>
@@ -1959,9 +2218,34 @@
           <small>${formatPct(row.netPct)} of GDP</small>
         </dl>
         <dl class="detail-item">
+          <dt>Net debt burden change</dt>
+          <dd>${formatPp(getDebtBurdenChange(row, "netPct"), true)}</dd>
+          <small>Percentage-point change in the net debt-to-GDP ratio from the previous year</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Change in net debt / GDP</dt>
+          <dd>${formatPct(getDebtChangeOverGdp(row, "net"), true)}</dd>
+          <small>Difference between consecutive net-debt stocks divided by current-year nominal GDP</small>
+        </dl>
+        <dl class="detail-item">
           <dt>Nominal GDP</dt>
           <dd>${formatBillions(row.gdp)}</dd>
           <small>${sourceLink("abs", "ABS / PBO historical GDP")}</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Population at 30 June</dt>
+          <dd>${formatNumber(row.population, 0)}</dd>
+          <small>${populationSource}; used for per-capita values</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Gross debt per capita</dt>
+          <dd>${formatPerCapita(getNominalDollarsPerCapita(row, "gross"))}</dd>
+          <small>Nominal gross debt divided by population</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Net debt per capita</dt>
+          <dd>${formatPerCapita(getNominalDollarsPerCapita(row, "net"))}</dd>
+          <small>Nominal net debt divided by population</small>
         </dl>
         <dl class="detail-item">
           <dt>Underlying cash balance (+ surplus / - deficit)</dt>
@@ -1976,7 +2260,12 @@
         <dl class="detail-item">
           <dt>Interest paid on AGS</dt>
           <dd>${formatBillions(row.agsInterest)}</dd>
-          <small>Cash interest measured over the year</small>
+          <small>${formatPct(getPercentOfGdp(row, "agsInterest"))} of nominal GDP; cash interest measured over the year</small>
+        </dl>
+        <dl class="detail-item">
+          <dt>Net interest payments</dt>
+          <dd>${formatBillions(row.interest)}</dd>
+          <small>${formatPct(getPercentOfGdp(row, "interest"))} of nominal GDP; after interest receipts</small>
         </dl>
         <dl class="detail-item">
           <dt>Credit rating</dt>
@@ -2071,6 +2360,38 @@
       return view[viewIndex].index;
     }
 
+    function handleWheelZoom(event) {
+      if (event.ctrlKey || event.deltaY === 0) return;
+      const view = visibleRows();
+      if (view.length < 2) return;
+
+      const anchorIndex = rowIndexFromChartX(chartXFromPointer(event), view);
+      if (anchorIndex === null) return;
+
+      const currentLength = state.end - state.start + 1;
+      const zoomingIn = event.deltaY < 0;
+      const requestedLength = zoomingIn
+        ? Math.floor(currentLength / wheelZoomFactor)
+        : Math.ceil(currentLength * wheelZoomFactor);
+      const targetLength = Math.max(
+        minimumZoomYears,
+        Math.min(rows.length, requestedLength)
+      );
+      if (targetLength === currentLength) return;
+
+      const anchorRatio = (anchorIndex - state.start) / Math.max(1, currentLength - 1);
+      let nextStart = Math.round(anchorIndex - anchorRatio * (targetLength - 1));
+      nextStart = Math.max(0, Math.min(rows.length - targetLength, nextStart));
+      const nextEnd = nextStart + targetLength - 1;
+
+      event.preventDefault();
+      state.start = nextStart;
+      state.end = nextEnd;
+      state.selected = Math.max(nextStart, Math.min(nextEnd, state.selected));
+      hideTooltip();
+      renderAll();
+    }
+
     function updateDragSelection() {
       const selection = chart.querySelector("#dragSelection");
       if (!selection) return;
@@ -2140,6 +2461,8 @@
     const formatChartValue = (value, suffix) => {
       if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
       if (suffix === "%") return `${formatNumber(value)}%`;
+      if (suffix === "pp") return `${formatNumber(value)} pp`;
+      if (suffix === "perPerson") return formatPerCapita(value).replace(" per person", "/person");
       const sign = value < 0 ? "-A$" : "A$";
       return `${sign}${formatNumber(Math.abs(value))}b`;
     };
@@ -2205,10 +2528,13 @@
       const fullHistoryShown = state.start === 0 && state.end === rows.length - 1;
       rangeSummary.textContent = `Displayed range: ${view[0].fy} to ${view[view.length - 1].fy}`;
       resetView.disabled = fullHistoryShown;
-      resetView.textContent = fullHistoryShown ? "Full history shown" : "Reset to full history";
+      resetView.textContent = "Reset zoom";
+      resetView.title = fullHistoryShown
+        ? "The chart is already showing the full 1970-71 to 2024-25 history"
+        : "Reset chart zoom to show the full 1970-71 to 2024-25 range";
       resetView.setAttribute("aria-label", fullHistoryShown
-        ? "The chart is already showing the full history"
-        : "Reset the chart to show the full history");
+        ? "The chart is already showing the full history; reset zoom is unavailable"
+        : "Reset chart zoom to show the full history");
 
       if (!allValues.length) {
         chart.innerHTML = svgText(500, chartLayout.height / 2, "Select at least one available series.", 'fill="#dce9f3" text-anchor="middle" font-size="18"');
@@ -2234,8 +2560,16 @@
         const y = yFor(value);
         const isZero = Math.abs(value) < tickStep / 1000000;
         svg += `<line x1="${margin.left}" x2="${width - margin.right}" y1="${y}" y2="${y}" stroke="${isZero ? "#7090a4" : "#29455d"}" stroke-width="${isZero ? "1.4" : "1"}" stroke-dasharray="${isZero ? "0" : "4 5"}"></line>`;
-        const suffix = state.mode === "burden" || state.mode === "cash" ? "%" : "bn";
-        svg += svgText(margin.left - 10, y + 4, `${formatNumber(value, tickDecimals)}${suffix}`, 'fill="#a9c0d1" text-anchor="end" font-size="11"');
+        const isPerCapita = state.mode === "debt"
+          && state.debtView === "dollars"
+          && state.dollarMeasure === "perCapita";
+        const isPercentage = state.mode === "debt"
+          && state.debtView === "pctGdp";
+        const suffix = isPercentage ? "%" : "bn";
+        const tickLabel = isPerCapita
+          ? `${value < 0 ? "-A$" : "A$"}${formatNumber(Math.abs(value), tickDecimals)}`
+          : `${formatNumber(value, tickDecimals)}${suffix}`;
+        svg += svgText(margin.left - 10, y + 4, tickLabel, 'fill="#a9c0d1" text-anchor="end" font-size="11"');
       }
 
       /* Political strip: contiguous runs are merged so party changes are easy
@@ -2293,11 +2627,11 @@
       svg += `<rect id="dragSelection" x="${margin.left}" y="${margin.top}" width="0" height="${innerHeight}" fill="#60c7de" fill-opacity="0.18" stroke="#b9f2ff" stroke-width="1.5" stroke-dasharray="5 4" display="none" pointer-events="none"></rect>`;
 
       /*
-        Keep a second legend inside the SVG itself. It is appended after the
+        Keep an inline legend inside the SVG itself. It is appended after the
         grid and data so those lines cannot show through its solid background.
         pointer-events keeps the key from blocking chart-point interaction.
       */
-      const inlineLegendWidth = 216;
+      const inlineLegendWidth = 290;
       const inlineLegendX = margin.left + 10;
       const inlineLegendY = margin.top + 8;
       const inlineLegendHeight = activeSeries.length * 22 + 12;
@@ -2336,13 +2670,26 @@
       tableBody.innerHTML = view.map((row) => `
         <tr data-index="${row.index}" class="${row.index === state.selected ? "selected" : ""}" tabindex="0" aria-selected="${row.index === state.selected}">
           <td>${esc(row.fy)}<span class="table-sub">Outcome</span></td>
+          <td>${formatNumber(row.population, 0)}</td>
+          <td>${formatPerCapita(getNominalDollarsPerCapita(row, "gross"))}</td>
+          <td>${formatPerCapita(getNominalDollarsPerCapita(row, "net"))}</td>
           <td>${formatTableBillions(row.gross)}</td>
           <td>${formatPct(row.grossPct)}</td>
           <td>${formatPct(row.grossChange, true)}</td>
+          <td>${formatTableBillions(getNominalDebtChange(row, "gross"))}</td>
+          <td>${formatPct(getDebtChangeOverGdp(row, "gross"), true)}</td>
+          <td>${formatPp(getDebtBurdenChange(row, "grossPct"), true)}</td>
           <td>${formatTableBillions(row.net)}</td>
           <td>${formatPct(row.netPct)}</td>
+          <td>${formatTableBillions(getNominalDebtChange(row, "net"))}</td>
+          <td>${formatPct(getDebtChangeOverGdp(row, "net"), true)}</td>
+          <td>${formatPp(getDebtBurdenChange(row, "netPct"), true)}</td>
           <td>${formatTableBillions(row.ucb)}</td>
           <td>${formatPct(row.ucbPct)}</td>
+          <td>${formatTableBillions(row.agsInterest)}</td>
+          <td>${formatPct(getPercentOfGdp(row, "agsInterest"))}</td>
+          <td>${formatTableBillions(row.interest)}</td>
+          <td>${formatPct(getPercentOfGdp(row, "interest"))}</td>
           <td><span class="party-pill ${esc(row.political.party)}">${esc(row.political.government)}</span><span class="table-sub">${esc(row.political.pm)}</span></td>
           <td>${esc(row.political.treasurer)}</td>
           <td><span class="${row.rating.rating === "--" ? "rating-pill unknown" : "rating-pill"}">${esc(row.rating.rating)}</span></td>
@@ -2377,18 +2724,29 @@
 
     function downloadCsv() {
       const headers = [
-        "financial_year", "nominal_gdp_m", "gross_debt_m", "gross_debt_pct_gdp",
-        "gross_debt_change_pct", "net_debt_m", "net_debt_pct_gdp",
+        "financial_year", "population_persons", "gross_debt_per_capita_aud",
+        "net_debt_per_capita_aud", "nominal_gdp_m", "gross_debt_m", "gross_debt_pct_gdp",
+        "gross_debt_growth_pct", "gross_debt_change_m", "gross_debt_change_pct_gdp",
+        "gross_debt_burden_change_pp", "net_debt_m", "net_debt_pct_gdp",
+        "net_debt_change_m", "net_debt_change_pct_gdp", "net_debt_burden_change_pp",
         "underlying_cash_balance_m", "underlying_cash_balance_pct_gdp",
         "headline_cash_balance_m", "headline_cash_balance_pct_gdp",
         "fiscal_balance_m", "fiscal_balance_pct_gdp", "net_interest_payments_m",
-        "interest_paid_on_ags_m", "government", "prime_minister_at_30_june",
+        "net_interest_payments_pct_gdp", "interest_paid_on_ags_m",
+        "interest_paid_on_ags_pct_gdp", "government", "prime_minister_at_30_june",
         "treasurer_at_30_june", "sp_rating"
       ];
       const csvRows = rows.map((row) => [
-        row.fy, row.gdp, row.gross, row.grossPct, row.grossChange, row.net,
-        row.netPct, row.ucb, row.ucbPct, row.headline, row.headlinePct,
-        row.fiscal, row.fiscalPct, row.interest, row.agsInterest,
+        row.fy, row.population, getNominalDollarsPerCapita(row, "gross"),
+        getNominalDollarsPerCapita(row, "net"), row.gdp, row.gross, row.grossPct,
+        row.grossChange, getNominalDebtChange(row, "gross"), getDebtChangeOverGdp(row, "gross"),
+        getDebtBurdenChange(row, "grossPct"),
+        row.net, row.netPct,
+        getNominalDebtChange(row, "net"), getDebtChangeOverGdp(row, "net"),
+        getDebtBurdenChange(row, "netPct"),
+        row.ucb, row.ucbPct, row.headline, row.headlinePct,
+        row.fiscal, row.fiscalPct, row.interest, getPercentOfGdp(row, "interest"),
+        row.agsInterest, getPercentOfGdp(row, "agsInterest"),
         row.political.government, row.political.pm, row.political.treasurer,
         row.rating.rating
       ]);
@@ -2411,10 +2769,10 @@
       mode.series.forEach((series) => {
         if (state.visible[series.key] === undefined) state.visible[series.key] = true;
       });
-      renderChartTabs();
+      renderDebtViewControl();
+      renderDollarMeasureControl();
       renderDollarBasisControl();
-      renderLegend();
-      renderStats();
+      renderMeasureRows();
       renderDetail();
       renderInsights();
       renderChart();
@@ -2437,23 +2795,7 @@
       renderAll();
     }
 
-    chartTabs.forEach((tab, index) => {
-      tab.addEventListener("click", () => {
-        state.mode = tab.dataset.mode;
-        state.visible = {};
-        renderAll();
-      });
-      tab.addEventListener("keydown", (event) => {
-        if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-        event.preventDefault();
-        const direction = event.key === "ArrowRight" ? 1 : -1;
-        const nextIndex = (index + direction + chartTabs.length) % chartTabs.length;
-        chartTabs[nextIndex].focus();
-        chartTabs[nextIndex].click();
-      });
-    });
-
-    /* Keep the chart-tab arrow navigation separate from the global year shortcuts. */
+    /* Keep global year shortcuts separate from Escape and other handled keys. */
     document.addEventListener("keydown", (event) => {
       if (event.defaultPrevented) return;
 
@@ -2464,7 +2806,6 @@
       }
 
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      if (event.target instanceof Element && event.target.closest(".chart-tab")) return;
 
       event.preventDefault();
       moveSelectedYear(event.key === "ArrowRight" ? 1 : -1);
@@ -2472,6 +2813,20 @@
 
     previousYear.addEventListener("click", () => moveSelectedYear(-1));
     nextYear.addEventListener("click", () => moveSelectedYear(1));
+
+    debtViewButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        state.debtView = button.dataset.debtView;
+        renderAll();
+      });
+    });
+
+    dollarMeasureButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        state.dollarMeasure = button.dataset.measure;
+        renderAll();
+      });
+    });
 
     dollarBasisButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -2484,6 +2839,7 @@
     chart.addEventListener("pointermove", updateRangeSelection);
     chart.addEventListener("pointerup", finishRangeSelection);
     chart.addEventListener("pointercancel", cancelRangeSelection);
+    chart.addEventListener("wheel", handleWheelZoom, { passive: false });
     chart.addEventListener("click", (event) => {
       if (Date.now() < dragState.suppressClickUntil) return;
       const index = rowIndexFromChartX(chartXFromPointer(event));
