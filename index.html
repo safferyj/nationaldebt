@@ -405,6 +405,7 @@
       max-height: 100vh;
       overflow: auto;
       padding: clamp(1.15rem, 2vw, 2rem);
+      padding-bottom: 1rem;
       max-width: 100vw;
       width: 100vw;
     }
@@ -419,12 +420,22 @@
 
     .chart-controls-row {
       align-items: center;
-      border-bottom: 1px solid rgba(174, 205, 222, 0.24);
       --chart-control-height: calc(3.15rem + 0.4rem + 2px);
       display: flex;
       gap: 1rem;
       margin: -0.8rem 0 0.6rem;
       padding-bottom: 0.35rem;
+      position: relative;
+    }
+
+    .chart-controls-row::after {
+      background: rgba(174, 205, 222, 0.24);
+      bottom: -0.15rem;
+      content: "";
+      height: 1px;
+      left: 0;
+      position: absolute;
+      right: 0;
     }
 
     .chart-lens-controls,
@@ -445,6 +456,43 @@
       flex: 0 0 auto;
       justify-content: flex-end;
       justify-self: end;
+    }
+
+    .share-fallback {
+      align-items: center;
+      background: rgba(7, 21, 34, 0.72);
+      border: 1px solid rgba(185, 242, 255, 0.42);
+      border-radius: 14px;
+      display: flex;
+      gap: 0.55rem;
+      margin: -0.1rem 0 0.8rem;
+      padding: 0.55rem;
+    }
+
+    .share-fallback[hidden] {
+      display: none;
+    }
+
+    .share-fallback label {
+      color: #dce9f3;
+      flex: 0 0 auto;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .share-fallback input {
+      background: #fff;
+      border: 1px solid #bdc9d4;
+      border-radius: 8px;
+      color: var(--ink);
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 0.45rem 0.55rem;
+    }
+
+    .share-fallback button {
+      flex: 0 0 auto;
+      padding: 0.45rem 0.7rem;
     }
 
     .chart-controls-row #resetView,
@@ -551,7 +599,7 @@
     }
 
     .chart-wrap {
-      min-height: 552px;
+      min-height: 540px;
       position: relative;
     }
 
@@ -661,7 +709,7 @@
     #chart {
       display: block;
       height: auto;
-      min-height: 552px;
+      min-height: 540px;
       overflow: visible;
       touch-action: none;
       width: 100%;
@@ -701,9 +749,28 @@
     .chart-tooltip[hidden] { display: none; }
 
     .chart-tooltip strong {
-      color: var(--amber);
+      color: #fff;
       display: block;
+    }
+
+    .chart-tooltip .tooltip-heading,
+    .chart-tooltip .tooltip-government,
+    .chart-tooltip .tooltip-axis-label {
       margin-bottom: 0.25rem;
+    }
+
+    .chart-tooltip .tooltip-separator {
+      background: rgba(174, 205, 222, 0.24);
+      height: 1px;
+      margin: 0.35rem 0;
+    }
+
+    .chart-tooltip .tooltip-series {
+      display: block;
+    }
+
+    .chart-tooltip .tooltip-series.is-hovered {
+      font-weight: 700;
     }
 
     .chart-note {
@@ -1057,6 +1124,14 @@
         justify-content: flex-start;
         width: 100%;
       }
+      .share-fallback {
+        align-items: stretch;
+        flex-wrap: wrap;
+      }
+      .share-fallback label,
+      .share-fallback input {
+        flex-basis: 100%;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1183,10 +1258,16 @@
             <button id="fullscreenChart" class="chart-fullscreen-button" type="button" aria-pressed="false" aria-label="Open chart full screen" title="Open chart full screen" aria-keyshortcuts="Control+Enter">Full screen</button>
           </div>
         </div>
+        <div id="shareFallback" class="share-fallback" role="region" aria-label="Shareable chart link" hidden>
+          <label for="shareUrlInput">Shareable link</label>
+          <input id="shareUrlInput" type="url" readonly>
+          <button id="copyShareUrl" type="button">Copy link</button>
+          <button id="closeShareFallback" type="button">Close</button>
+        </div>
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"></div>
-          <svg id="chart" viewBox="0 0 1000 552" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
+          <svg id="chart" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1851,23 +1932,6 @@
       return row[key] - previous[key];
     };
 
-    const getChartTitle = (mode) => {
-      if (state.mode === "debt") {
-        if (state.debtView === "dollars" && state.dollarMeasure === "perCapita") {
-          return state.dollarBasis === "real"
-            ? "Debt, budget, changes and interest per capita in 2024-25 dollars ($ per person)"
-            : "Debt, budget, changes and interest per capita in nominal dollars ($ per person)";
-        }
-        if (state.debtView === "dollars") {
-          return state.dollarBasis === "real"
-            ? "Debt, budget, changes and interest in 2024-25 dollars ($ billions)"
-            : "Debt, budget, changes and interest in nominal dollars ($ billions)";
-        }
-        return "Debt, budget, changes and interest (% of GDP)";
-      }
-      return mode.title;
-    };
-
     const getChartAxisLabel = (mode) => {
       if (!isDollarMode()) {
         return state.visible.grossGrowth
@@ -1926,9 +1990,9 @@
             { key: "net", label: "Net debt / GDP", color: "#5a8fbd", get: (row) => row.netPct, suffix: "%" },
             { key: "ucb", label: "Underlying cash / GDP", color: "#3fb39f", get: (row) => row.ucbPct, suffix: "%" },
             { key: "fiscal", label: "Fiscal balance / GDP", color: "#83d6b7", get: (row) => row.fiscalPct, suffix: "%" },
-            { key: "grossChange", label: "Change in gross debt / GDP (%)", color: "#e67845", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
-            { key: "grossGrowth", label: "Gross debt growth vs prior debt (%)", color: "#f26b5e", get: (row) => row.grossChange, suffix: "%" },
-            { key: "netChange", label: "Change in net debt / GDP (%)", color: "#666faf", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
+            { key: "grossChange", label: "Change in gross debt / GDP", color: "#e67845", get: (row) => getDebtChangeOverGdp(row, "gross"), suffix: "%" },
+            { key: "grossGrowth", label: "Gross debt growth vs prior debt", color: "#f26b5e", get: (row) => row.grossChange, suffix: "%" },
+            { key: "netChange", label: "Change in net debt / GDP", color: "#666faf", get: (row) => getDebtChangeOverGdp(row, "net"), suffix: "%" },
             { key: "agsInterest", label: "Interest paid (PBO series) / GDP", color: "#c95f67", get: (row) => getPercentOfGdp(row, "agsInterest"), suffix: "%" },
             { key: "interest", label: "Net interest payments / GDP", color: "#986fba", get: (row) => getPercentOfGdp(row, "interest"), suffix: "%" }
           ];
@@ -1958,6 +2022,14 @@
       const parts = name.trim().split(/\s+/);
       return parts[parts.length - 1];
     };
+    const getGovernmentLabel = (political) =>
+      political.party === "labor"
+        ? "Labor"
+        : political.party === "coalition"
+          ? "Liberal"
+          : political.government;
+    const getShortGovernmentValue = (political) =>
+      `${getGovernmentLabel(political)}: ${getSurname(political.pm)}, ${getSurname(political.treasurer)}`;
 
     // These explanations are deliberately static so the term's meaning does
     // not change when the selected year or chart lens changes.
@@ -1988,6 +2060,9 @@
         ["government"]
       ]
     ];
+    const tooltipSeriesKeys = measureRowLayout
+      .flatMap((groups) => groups.flat())
+      .filter((key) => key !== "government");
     const measureShortcutKeys = {
       q: "gross",
       w: "grossChange",
@@ -2019,6 +2094,10 @@
     const resetView = document.getElementById("resetView");
     const fullscreenChart = document.getElementById("fullscreenChart");
     const shareView = document.getElementById("shareView");
+    const shareFallback = document.getElementById("shareFallback");
+    const shareUrlInput = document.getElementById("shareUrlInput");
+    const copyShareUrl = document.getElementById("copyShareUrl");
+    const closeShareFallback = document.getElementById("closeShareFallback");
     const debtViewControl = document.getElementById("debtViewControl");
     const debtViewButtons = Array.from(document.querySelectorAll("[data-debt-view]"));
     const dollarMeasureControl = document.getElementById("dollarMeasureControl");
@@ -2027,7 +2106,7 @@
     const dollarBasisButtons = Array.from(document.querySelectorAll("[data-basis]"));
     const chartLayout = {
       width: 1000,
-      height: 552,
+      height: 540,
       // Reserve room for long tick labels and the vertical axis title.
       margin: { top: 16, right: 22, bottom: 72, left: 75 }
     };
@@ -2141,15 +2220,47 @@
       }, 1800);
     }
 
+    function showShareFallback(shareUrl) {
+      shareUrlInput.value = shareUrl;
+      shareFallback.hidden = false;
+      shareUrlInput.focus();
+      shareUrlInput.select();
+    }
+
+    function hideShareFallback(restoreFocus = false) {
+      shareFallback.hidden = true;
+      if (restoreFocus) shareView.focus();
+    }
+
+    async function copyShareLink() {
+      const shareUrl = shareUrlInput.value;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          hideShareFallback(true);
+          setShareButtonFeedback("Link copied");
+          return;
+        } catch (error) {
+          console.warn("Clipboard access was unavailable; select the link manually.", error);
+        }
+      }
+      shareUrlInput.focus();
+      shareUrlInput.select();
+      setShareButtonFeedback("Select and copy");
+    }
+
     async function shareCurrentView() {
       const shareUrl = buildShareUrl().href;
-      if (navigator.share) {
+      // Native share sheets and browser prompts can exit Fullscreen. Copy the
+      // link directly there so the chart remains in its current presentation.
+      if (!chartIsFullscreen() && navigator.share) {
         try {
           await navigator.share({ title: document.title, url: shareUrl });
           setShareButtonFeedback("Shared");
           return;
         } catch (error) {
           if (error.name === "AbortError") return;
+          console.warn("Native sharing was unavailable; copying the link instead.", error);
         }
       }
 
@@ -2159,11 +2270,10 @@
           setShareButtonFeedback("Link copied");
           return;
         } catch (error) {
-          // Fall through to a visible copy prompt when clipboard access is unavailable.
+          console.warn("Clipboard access was unavailable; showing the link for manual copying.", error);
         }
       }
-      window.prompt("Copy this URL to share the current chart view:", shareUrl);
-      setShareButtonFeedback("Link ready");
+      showShareFallback(shareUrl);
     }
 
     function fullscreenElement() {
@@ -2319,13 +2429,9 @@
                     const explanation = measureExplanations.government;
                     const selectedClass = selected ? " is-selected" : "";
                     const political = row.political;
-                    const governmentLabel = political.party === "labor"
-                      ? "Labor"
-                      : political.party === "coalition"
-                        ? "Liberal"
-                        : political.government;
-                    const governmentValue = `${governmentLabel}, ${political.pm}, ${political.treasurer}`;
-                    const governmentShortValue = `${governmentLabel}, ${getSurname(political.pm)}, ${getSurname(political.treasurer)}`;
+                    const governmentLabel = getGovernmentLabel(political);
+                    const governmentValue = `${governmentLabel}: ${political.pm}, ${political.treasurer}`;
+                    const governmentShortValue = getShortGovernmentValue(political);
                     const ariaLabel = `${label}: ${governmentValue}. ${explanation}`;
                     return `
                       <button type="button"
@@ -2817,19 +2923,32 @@
       legendAnimationFrame = window.requestAnimationFrame(animate);
     }
 
-    function showTooltip(point, index) {
+    function showTooltip(point, index, hoveredSeriesKey) {
       const row = rows[index];
       const mode = chartModes[state.mode];
       const rect = chartWrap.getBoundingClientRect();
       const pointRect = point.getBoundingClientRect();
-      const seriesLines = mode.series
-        .filter((series) => state.visible[series.key] !== false)
-        .map((series) => `${esc(series.label)}: ${formatChartValue(series.get(row), series.suffix)}`)
-        .join("<br>");
+      const seriesByKey = new Map(mode.series.map((series) => [series.key, series]));
+      const axisLabel = getChartAxisLabel(mode);
+      const seriesLines = tooltipSeriesKeys.map((key) => {
+        const series = seriesByKey.get(key);
+        const label = seriesSelectorShortLabels[key] || seriesSelectorLabels[key];
+        const value = series
+          ? formatLozengeValue(series.get(row), series.suffix)
+          : "n/a";
+        const result = key === "ucb"
+          ? `<span class="measure-lozenge-result ${row.ucb >= 0 ? "is-surplus" : "is-deficit"}">${row.ucb >= 0 ? "Surplus" : "Deficit"}</span>`
+          : "";
+        const hoveredClass = key === hoveredSeriesKey ? " is-hovered" : "";
+        return `<span class="tooltip-series${hoveredClass}">${esc(label)}: ${esc(value)}${result}</span>`;
+      }).join("");
       chartTooltip.innerHTML = `
-        <strong>${esc(row.fy)}</strong>
-        ${seriesLines}<br>
-        ${esc(row.political.pm)} / ${esc(row.political.treasurer)}
+        <strong class="tooltip-heading">${esc(row.fy)}</strong>
+        <strong class="tooltip-government">${esc(getShortGovernmentValue(row.political))}</strong>
+        <div class="tooltip-separator" aria-hidden="true"></div>
+        <strong class="tooltip-axis-label">${esc(axisLabel)}</strong>
+        <div class="tooltip-separator" aria-hidden="true"></div>
+        ${seriesLines}
       `;
       chartTooltip.hidden = false;
 
@@ -2871,13 +2990,12 @@
       updateChartLayout();
       const { width, height, margin } = chartLayout;
       const innerWidth = width - margin.left - margin.right;
-      const bandY = height - 45;
-      const plotBottom = state.showGovernment ? bandY - 12 : height - 36;
+      const bandY = height - 38;
+      const plotBottom = state.showGovernment ? bandY - 7 : height - 24;
       const innerHeight = plotBottom - margin.top;
       const xFor = (index) => margin.left + (view.length === 1 ? innerWidth / 2 : index * innerWidth / (view.length - 1));
       const allValues = activeSeries.flatMap((series) => view.map((row) => series.get(row)))
         .filter((value) => value !== null && value !== undefined && !Number.isNaN(value));
-      const chartTitle = getChartTitle(mode);
       const chartAxisLabel = getChartAxisLabel(mode);
       const chartNote = getChartNote(mode);
 
@@ -2908,7 +3026,6 @@
       const tickCount = Math.round((max - min) / tickStep);
       const tickDecimals = decimalPlacesForStep(tickStep);
       let svg = `
-        <title>${esc(chartTitle)} from ${esc(view[0].fy)} to ${esc(view[view.length - 1].fy)}</title>
         <desc>Interactive line chart. Click to inspect the nearest financial year, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
         <rect x="0" y="0" width="${width}" height="${height}" fill="#0c1d2f"></rect>
       `;
@@ -2940,7 +3057,7 @@
             const x1 = xFor(bandStart);
             const x2 = xFor(Math.max(bandStart, i - 1));
             const fill = previous.party === "labor" ? "#c85d73" : "#4f8fbe";
-            const title = `${previous.government}; administration began ${formatDateDdMmYyyy(previous.startDate)}`;
+            const title = `${previous.government}, ${previous.pm}, took office ${formatDateDdMmYyyy(previous.startDate)}`;
             svg += `<g class="political-band"><title>${esc(title)}</title><rect x="${x1}" y="${bandY}" width="${Math.max(x2 - x1, 2)}" height="${bandHeight}" rx="3" fill="${fill}" opacity="0.72"></rect>`;
             svg += "</g>";
             bandStart = i;
@@ -2953,7 +3070,7 @@
       const labelEvery = view.length > 30 ? 5 : view.length > 15 ? 3 : 1;
       view.forEach((row, index) => {
         if (index === 0 || index === view.length - 1 || index % labelEvery === 0) {
-          svg += svgText(xFor(index), height - 14, row.fy.slice(0, 4), 'fill="#a9c0d1" text-anchor="middle" font-size="11"');
+          svg += svgText(xFor(index), height - 8, row.fy.slice(0, 4), 'fill="#a9c0d1" text-anchor="middle" font-size="11"');
         }
       });
 
@@ -2968,15 +3085,14 @@
         view.forEach((row, viewIndex) => {
           const value = series.get(row);
           if (value === null || value === undefined || Number.isNaN(value)) return;
-          svg += `<circle class="chart-point" data-index="${row.index}" data-value="${value}" cx="${xFor(viewIndex)}" cy="${yFor(value)}" r="4.8" fill="${series.color}" stroke="#0c1d2f" stroke-width="2" tabindex="0" aria-label="${esc(row.fy)} ${esc(series.label)} ${esc(formatChartValue(value, series.suffix))}"></circle>`;
+          svg += `<circle class="chart-point" data-index="${row.index}" data-series="${esc(series.key)}" data-value="${value}" cx="${xFor(viewIndex)}" cy="${yFor(value)}" r="4.8" fill="${series.color}" stroke="#0c1d2f" stroke-width="2" tabindex="0" aria-label="${esc(row.fy)} ${esc(series.label)} ${esc(formatChartValue(value, series.suffix))}"></circle>`;
         });
       });
 
       const selectedViewIndex = state.selected - state.start;
       if (selectedViewIndex >= 0 && selectedViewIndex < view.length) {
         const selectedX = xFor(selectedViewIndex);
-        const selectionBottom = state.showGovernment ? bandY - 4 : plotBottom - 4;
-        svg += `<line x1="${selectedX}" x2="${selectedX}" y1="${margin.top}" y2="${selectionBottom}" stroke="#fff" stroke-width="1" stroke-dasharray="3 4" opacity="0.72"></line>`;
+        svg += `<line x1="${selectedX}" x2="${selectedX}" y1="${margin.top}" y2="${plotBottom}" stroke="#fff" stroke-width="1" stroke-dasharray="3 4" opacity="0.72"></line>`;
       }
 
       svg += `<rect id="dragSelection" x="${margin.left}" y="${margin.top}" width="0" height="${innerHeight}" fill="#60c7de" fill-opacity="0.18" stroke="#b9f2ff" stroke-width="1.5" stroke-dasharray="5 4" display="none" pointer-events="none"></rect>`;
@@ -3001,17 +3117,18 @@
       `;
       legendSeries.forEach((series, index) => {
         const legendY = inlineLegendY + 19 + index * 22;
+        const legendLabel = seriesSelectorLabels[series.key] || series.label;
         svg += `<line x1="${inlineLegendX + 12}" x2="${inlineLegendX + 30}" y1="${legendY - 4}" y2="${legendY - 4}" stroke="${series.color}" stroke-width="3" stroke-linecap="round"></line>`;
-        svg += svgText(inlineLegendX + 40, legendY, series.label, 'fill="#fff" font-size="11.5"');
+        svg += svgText(inlineLegendX + 40, legendY, legendLabel, 'fill="#fff" font-size="11.5"');
       });
       svg += "</g>";
 
       chart.innerHTML = svg;
       chart.querySelectorAll(".chart-point").forEach((point) => {
         const index = Number(point.dataset.index);
-        point.addEventListener("mouseenter", () => showTooltip(point, index));
+        point.addEventListener("mouseenter", () => showTooltip(point, index, point.dataset.series));
         point.addEventListener("mouseleave", hideTooltip);
-        point.addEventListener("focus", () => showTooltip(point, index));
+        point.addEventListener("focus", () => showTooltip(point, index, point.dataset.series));
         point.addEventListener("blur", hideTooltip);
       });
       const legend = chart.querySelector(".chart-inline-legend");
@@ -3301,6 +3418,8 @@
     });
 
     shareView.addEventListener("click", shareCurrentView);
+    copyShareUrl.addEventListener("click", copyShareLink);
+    closeShareFallback.addEventListener("click", () => hideShareFallback(true));
     fullscreenChart.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
