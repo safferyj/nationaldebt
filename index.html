@@ -2759,6 +2759,7 @@
 
     function handleWheelZoom(event) {
       if (event.ctrlKey || event.deltaY === 0) return;
+      event.preventDefault();
       const view = visibleRows();
       if (view.length < 2) return;
 
@@ -2766,8 +2767,7 @@
       if (anchorIndex === null) return;
 
       const zoomingIn = event.deltaY < 0;
-      if (!zoomViewport(zoomingIn, anchorIndex)) return;
-      event.preventDefault();
+      zoomViewport(zoomingIn, anchorIndex);
     }
 
     function updateDragSelection() {
@@ -3348,6 +3348,7 @@
           return;
         }
         if (event.key === "Tab") {
+          event.preventDefault();
           moveLens(event.shiftKey ? -1 : 1);
         }
       }
