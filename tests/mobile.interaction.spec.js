@@ -209,6 +209,18 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
       chartCard.dispatchEvent(contextEvent);
       const touchEvent = new Event("touchstart", { bubbles: true, cancelable: true });
       document.querySelector("#nextYear").dispatchEvent(touchEvent);
+      const controlButton = document.querySelector("#viewPctGdp");
+      let controlClicks = 0;
+      controlButton.addEventListener("click", () => {
+        controlClicks += 1;
+      });
+      const controlTouchStart = new Event("touchstart", { bubbles: true, cancelable: true });
+      Object.defineProperty(controlTouchStart, "touches", {
+        value: [{ clientX: 10, clientY: 10 }]
+      });
+      const controlTouchEnd = new Event("touchend", { bubbles: true, cancelable: true });
+      controlButton.dispatchEvent(controlTouchStart);
+      controlButton.dispatchEvent(controlTouchEnd);
       const shareSelectEvent = new Event("selectstart", { bubbles: true, cancelable: true });
       document.querySelector("#shareUrlInput").dispatchEvent(shareSelectEvent);
       return {
@@ -221,6 +233,9 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
         selectPrevented: selectEvent.defaultPrevented,
         contextPrevented: contextEvent.defaultPrevented,
         boundaryTouchPrevented: touchEvent.defaultPrevented,
+        controlTouchStartPrevented: controlTouchStart.defaultPrevented,
+        controlTouchEndPrevented: controlTouchEnd.defaultPrevented,
+        controlClicks,
         shareSelectPrevented: shareSelectEvent.defaultPrevented,
       };
     });
@@ -231,6 +246,9 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
     expect(touchGuards.selectPrevented).toBe(true);
     expect(touchGuards.contextPrevented).toBe(true);
     expect(touchGuards.boundaryTouchPrevented).toBe(true);
+    expect(touchGuards.controlTouchStartPrevented).toBe(true);
+    expect(touchGuards.controlTouchEndPrevented).toBe(true);
+    expect(touchGuards.controlClicks).toBe(1);
     expect(touchGuards.shareSelectPrevented).toBe(false);
   }
 

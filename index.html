@@ -2325,6 +2325,7 @@
     const chartAxisLabelText = document.getElementById("chartAxisLabelText");
     const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
+    const chartControlsRow = document.querySelector(".chart-controls-row");
     const chartYearPicker = document.querySelector(".chart-year-picker");
     const detailTitle = document.getElementById("detail-title");
     const detailStatus = document.getElementById("detailStatus");
@@ -3747,6 +3748,56 @@
         passive: false
       });
     });
+    let activeControlTouch = null;
+    let suppressNativeControlClickButton = null;
+    let suppressNativeControlClickUntil = 0;
+    chartControlsRow.addEventListener("touchstart", (event) => {
+      if (!isMobileChartViewport() || event.touches?.length !== 1) return;
+      const target = event.target instanceof Element ? event.target.closest(".chart-controls-row button") : null;
+      if (!target) return;
+      event.preventDefault();
+      const touch = event.touches[0];
+      activeControlTouch = {
+        button: target,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        moved: false
+      };
+    }, { capture: true, passive: false });
+    chartControlsRow.addEventListener("touchmove", (event) => {
+      if (!activeControlTouch) return;
+      event.preventDefault();
+      const touch = event.touches[0];
+      if (!touch) return;
+      activeControlTouch.moved ||= Math.hypot(
+        touch.clientX - activeControlTouch.startX,
+        touch.clientY - activeControlTouch.startY
+      ) > 12;
+    }, { capture: true, passive: false });
+    chartControlsRow.addEventListener("touchend", (event) => {
+      if (!activeControlTouch) return;
+      event.preventDefault();
+      const { button, moved } = activeControlTouch;
+      activeControlTouch = null;
+      if (moved || button.disabled) return;
+      suppressNativeControlClickButton = button;
+      suppressNativeControlClickUntil = Date.now() + 750;
+      button.click();
+    }, { capture: true, passive: false });
+    chartControlsRow.addEventListener("touchcancel", () => {
+      activeControlTouch = null;
+    }, { capture: true, passive: true });
+    chartControlsRow.addEventListener("click", (event) => {
+      const target = event.target instanceof Element ? event.target.closest("button") : null;
+      if (suppressNativeControlClickUntil === 0 || !event.isTrusted || target !== suppressNativeControlClickButton) return;
+      if (Date.now() > suppressNativeControlClickUntil) {
+        suppressNativeControlClickButton = null;
+        suppressNativeControlClickUntil = 0;
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
 
     debtViewButtons.forEach((button) => {
       button.addEventListener("click", () => {
