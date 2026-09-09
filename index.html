@@ -773,6 +773,23 @@
       font-weight: 700;
     }
 
+    .measure-tooltip {
+      background: #071522;
+      border: 1px solid #42637c;
+      border-radius: 10px;
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.22);
+      color: #fff;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      max-width: min(18rem, calc(100vw - 1rem));
+      padding: 0.6rem 0.7rem;
+      pointer-events: none;
+      position: fixed;
+      z-index: 40;
+    }
+
+    .measure-tooltip[hidden] { display: none; }
+
     .chart-note {
       border-top: 1px solid var(--line);
       color: var(--muted);
@@ -1209,6 +1226,9 @@
       .chart-year-picker button {
         height: 2.2rem;
         width: 2.2rem;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        user-select: none;
       }
       .chart-end-actions {
         display: grid;
@@ -1218,11 +1238,23 @@
         width: 100%;
       }
       .chart-end-actions > button {
+        align-items: center;
+        display: inline-flex;
         font-size: 0.68rem;
+        justify-content: center;
+        line-height: 1.05;
         min-width: 0;
         padding-left: 0.25rem;
         padding-right: 0.25rem;
+        text-align: center;
+        touch-action: manipulation;
+        white-space: normal;
         width: 100%;
+      }
+      .measure-lozenge {
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        user-select: none;
       }
       .chart-card:fullscreen,
       .chart-card:-webkit-full-screen,
@@ -1245,6 +1277,49 @@
       .share-fallback label,
       .share-fallback input {
         flex-basis: 100%;
+      }
+    }
+
+    @media (max-width: 760px) and (orientation: portrait) {
+      #debtViewControl {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .chart-year-picker {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      #dollarMeasureControl {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      #dollarBasisControl {
+        grid-column: 2;
+        grid-row: 2;
+      }
+      .chart-end-actions {
+        grid-row: 3;
+      }
+      .chart-end-actions > button {
+        height: 2.8rem;
+        min-height: 2.8rem;
+      }
+      .chart-controls-row #shareView,
+      .chart-controls-row #resetView,
+      .chart-controls-row .chart-fullscreen-button {
+        height: 2.8rem;
+        min-height: 2.8rem;
+      }
+      .measure-lozenge {
+        height: 2.8rem;
+        padding-bottom: 0.3rem;
+        padding-top: 0.3rem;
+      }
+      .measure-lozenge-government-value {
+        font-size: 0.56rem;
+      }
+      #chart {
+        height: 440px;
       }
     }
 
@@ -1385,6 +1460,7 @@
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
+      <div id="measureTooltip" class="measure-tooltip" role="tooltip" hidden></div>
       <p id="chartNote" class="chart-note"></p>
     </section>
 
@@ -2193,6 +2269,7 @@
     const chart = document.getElementById("chart");
     const chartWrap = document.getElementById("chartWrap");
     const chartTooltip = document.getElementById("chartTooltip");
+    const measureTooltip = document.getElementById("measureTooltip");
     const chartAxisLabelElement = document.getElementById("chartAxisLabel");
     const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
@@ -2468,6 +2545,7 @@
 
     function handleViewportResize() {
       hideTooltip();
+      hideMeasureTooltip();
       fitMeasureLozengeText();
       if (chartIsFullscreen() || isMobileChartViewport()) renderAll();
     }
@@ -2535,6 +2613,7 @@
     }
 
     function renderMeasureRows() {
+      hideMeasureTooltip();
       const mode = chartModes[state.mode];
       const row = selectedRow();
       const seriesByKey = new Map(mode.series.map((series) => [series.key, series]));
@@ -2619,8 +2698,52 @@
       `).join("");
       measureRows.innerHTML = rowsMarkup;
       fitMeasureLozengeText();
-      measureRows.querySelectorAll("button[data-series]:not(:disabled), button[data-toggle]:not(:disabled)").forEach((button) => {
-        button.addEventListener("click", () => {
+      measureRows.querySelectorAll(".measure-lozenge").forEach((button) => {
+        let longPressTimer = null;
+        let longPressTriggered = false;
+        let pointerStartX = 0;
+        let pointerStartY = 0;
+
+        const clearLongPress = () => {
+          if (longPressTimer === null) return;
+          window.clearTimeout(longPressTimer);
+          longPressTimer = null;
+        };
+
+        button.addEventListener("pointerdown", (event) => {
+          if (event.pointerType === "mouse" || !button.title) return;
+          hideMeasureTooltip();
+          pointerStartX = event.clientX;
+          pointerStartY = event.clientY;
+          clearLongPress();
+          longPressTriggered = false;
+          longPressTimer = window.setTimeout(() => {
+            longPressTriggered = true;
+            showMeasureTooltip(button);
+          }, 550);
+        });
+
+        button.addEventListener("pointermove", (event) => {
+          if (longPressTimer === null) return;
+          const movedX = Math.abs(event.clientX - pointerStartX);
+          const movedY = Math.abs(event.clientY - pointerStartY);
+          if (movedX > 10 || movedY > 10) clearLongPress();
+        });
+
+        button.addEventListener("pointerup", clearLongPress);
+        button.addEventListener("pointercancel", clearLongPress);
+        button.addEventListener("contextmenu", (event) => {
+          if (longPressTriggered) event.preventDefault();
+        });
+
+        if (button.disabled) return;
+        button.addEventListener("click", (event) => {
+          if (longPressTriggered) {
+            event.preventDefault();
+            event.stopPropagation();
+            longPressTriggered = false;
+            return;
+          }
           if (button.dataset.toggle === "government") {
             state.showGovernment = !state.showGovernment;
           } else {
@@ -3101,6 +3224,56 @@
       chartTooltip.hidden = true;
     }
 
+    let measureTooltipHideTimer = null;
+    let activeMeasureTooltipButton = null;
+
+    function showMeasureTooltip(button) {
+      if (!button.title) return;
+      if (measureTooltipHideTimer !== null) {
+        window.clearTimeout(measureTooltipHideTimer);
+        measureTooltipHideTimer = null;
+      }
+      if (activeMeasureTooltipButton && activeMeasureTooltipButton !== button) {
+        activeMeasureTooltipButton.removeAttribute("aria-describedby");
+      }
+      activeMeasureTooltipButton = button;
+      button.setAttribute("aria-describedby", "measureTooltip");
+      const label = button.querySelector(".measure-lozenge-name")?.textContent?.trim();
+      measureTooltip.textContent = label ? `${label}: ${button.title}` : button.title;
+      measureTooltip.hidden = false;
+
+      const buttonRect = button.getBoundingClientRect();
+      const gap = 8;
+      const viewportPadding = 8;
+      const tooltipRect = measureTooltip.getBoundingClientRect();
+      let left = buttonRect.left + (buttonRect.width - tooltipRect.width) / 2;
+      let top = buttonRect.top - tooltipRect.height - gap;
+      if (top < viewportPadding) top = buttonRect.bottom + gap;
+      left = Math.max(
+        viewportPadding,
+        Math.min(left, window.innerWidth - tooltipRect.width - viewportPadding)
+      );
+      top = Math.max(
+        viewportPadding,
+        Math.min(top, window.innerHeight - tooltipRect.height - viewportPadding)
+      );
+      measureTooltip.style.left = `${left}px`;
+      measureTooltip.style.top = `${top}px`;
+      measureTooltipHideTimer = window.setTimeout(hideMeasureTooltip, 4500);
+    }
+
+    function hideMeasureTooltip() {
+      if (measureTooltipHideTimer !== null) {
+        window.clearTimeout(measureTooltipHideTimer);
+        measureTooltipHideTimer = null;
+      }
+      if (activeMeasureTooltipButton) {
+        activeMeasureTooltipButton.removeAttribute("aria-describedby");
+        activeMeasureTooltipButton = null;
+      }
+      measureTooltip.hidden = true;
+    }
+
     function renderChart() {
       cancelLegendAnimation();
       const mode = chartModes[state.mode];
@@ -3541,9 +3714,15 @@
     fullscreenChart.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("pointerdown", (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest(".measure-lozenge")) {
+        hideMeasureTooltip();
+      }
+    }, true);
 
     document.getElementById("downloadCsv").addEventListener("click", downloadCsv);
     chartWrap.addEventListener("mouseleave", hideTooltip);
+    window.addEventListener("scroll", hideMeasureTooltip, { passive: true });
     window.addEventListener("resize", handleViewportResize);
 
     renderSources();
