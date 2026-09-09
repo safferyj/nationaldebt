@@ -213,6 +213,10 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
       document.querySelector("#shareUrlInput").dispatchEvent(shareSelectEvent);
       return {
         userSelect: style.userSelect,
+        controlsTouchAction: getComputedStyle(document.querySelector(".chart-controls-row")).touchAction,
+        buttonTouchActions: Array.from(chartCard.querySelectorAll("button"), (button) =>
+          getComputedStyle(button).touchAction
+        ),
         shareUserSelect: getComputedStyle(document.querySelector("#shareUrlInput")).userSelect,
         selectPrevented: selectEvent.defaultPrevented,
         contextPrevented: contextEvent.defaultPrevented,
@@ -221,6 +225,8 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
       };
     });
     expect(touchGuards.userSelect).toBe("none");
+    expect(touchGuards.controlsTouchAction).toBe("manipulation");
+    expect(touchGuards.buttonTouchActions.every((action) => action === "manipulation")).toBe(true);
     expect(touchGuards.shareUserSelect).toBe("text");
     expect(touchGuards.selectPrevented).toBe(true);
     expect(touchGuards.contextPrevented).toBe(true);
