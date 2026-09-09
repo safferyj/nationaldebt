@@ -1,0 +1,54 @@
+# Copilot instructions
+
+## Repository shape and scope
+
+- This is a self-contained static web page. The application, styles, embedded data, SVG chart renderer, and interaction code all live in `index.html`.
+- The page is an interactive Commonwealth fiscal data story covering 1970-71 to 2024-25. It is not yet an all-levels-of-government dataset.
+- `government-debt-by-tier-notes.md` records possible future state/territory and local-government extensions; do not silently broaden the current Commonwealth scope when making changes.
+- `.github/mcp.json` provides a repository-scoped Playwright MCP server for browser smoke checks; it is tooling configuration, not an application runtime dependency.
+- There is no runtime backend, framework, chart library, package manifest, or runtime data request. The page is intended to work when opened offline.
+
+## Commands
+
+- Preview the page locally: `python3 -m http.server 8000`, then open `http://localhost:8000/index.html`.
+- Build: none configured; the deliverable is the standalone HTML file.
+- Test: no automated test runner or test files are configured, so there is no single-test command.
+- Lint: no lint configuration or lint command is configured.
+- For behavior changes, manually smoke-test the browser page after serving it: initial rendering, year selection, chart zoom/pan, lens and measure toggles, share-link fallback, full screen, table row selection, and CSV download.
+
+## Architecture
+
+- The HTML body provides the semantic shell and empty dynamic containers for the chart, measure controls, selected-year details, insights, table, and sources.
+- The inline script first declares the source snapshots:
+  - `fiscalRows`: PBO fiscal observations in compact array form.
+  - `cpiDeflators`: ABS June-quarter stock factors and financial-year-average flow factors.
+  - `populationByFinancialYear`: ABS 30 June population denominators.
+  - `politicalTimeline`: government and office-holders aligned to 30 June.
+  - `sources`: source metadata reused by the visible source grid and inline citations.
+- `rows` maps and validates those snapshots into the application model. It derives CPI conversion factors and attaches the political segment; missing CPI or population data intentionally throws during startup.
+- `state` is the single source of truth for the selected range/year, active lens, dollar view, inflation basis, visible series, government band, and legend side. Event handlers mutate state and then call `renderAll()`.
+- `renderAll()` refreshes the controls, measure lozenges, selected-year details, insights, SVG chart, table, and responsive label fitting. `chartModes.debt.series` supplies the currently selected percentage or dollar/per-capita series.
+- The chart is drawn directly as SVG. It uses the inclusive `state.start`/`state.end` range, maps missing values to gaps, and renders a political strip only when the Government measure is enabled.
+- The table follows the displayed chart range, while `downloadCsv()` always exports every embedded row and its derived fields.
+- Share links encode `from`, `to`, `selected`, `view`, `measure`, `basis`, and `active` query parameters. `applyUrlState()` validates them against the embedded data before the first render.
+
+## Data and calculation conventions
+
+- Keep the documented `fiscalRows` field order: financial year, nominal GDP, gross debt, gross-debt/GDP, gross-debt growth, net debt, net-debt/GDP, underlying cash balance, underlying-cash/GDP, headline cash balance, headline-cash/GDP, fiscal balance, fiscal-balance/GDP, net interest payments, and the PBO interest-paid series.
+- The fiscal values are stored in millions of Australian dollars; percentages are stored as numeric percentage values. `null` represents an unavailable observation, notably the fiscal balance before 1996-97.
+- Existing rows retain a legacy trailing `false` placeholder after the 15 documented fields. It is ignored by destructuring and is not a reported data field; do not treat it as a new column when updating the dataset.
+- Preserve the distinction between stocks measured at 30 June and annual flows. Use the June-quarter CPI factor for debt stocks and the financial-year-average CPI factor for cash, fiscal, and interest flows.
+- Use the existing derived-value helpers (`getPercentOfGdp`, `getDollarBillions`, `getDollarPerCapita`, `getDebtChangeDollars`, `getNominalDebtChange`, `getDebtChangeOverGdp`, and `getDebtBurdenChange`) instead of duplicating formulas in renderers.
+- Debt-stock change, debt growth, debt-burden change, budget balance, and interest are different measures. Do not label one as another or infer the Budget result from a change in debt stock.
+- The documented 2002-03 PBO ratio correction and the 2012-13 political transition are deliberate source-audit decisions. Preserve them unless the source methodology is intentionally revised.
+- When updating the embedded vintage, update the relevant data arrays, `cpiBase`, source metadata, visible definitions/update notes, and any date/range copy together. Keep source links and source IDs consistent with `sourceLink()`.
+
+## UI and code conventions
+
+- Keep the page framework-free and offline-capable. Do not add a dependency or fetch-based data path for a UI-only change.
+- Dynamic HTML and SVG are assembled with template strings. Escape interpolated values with `esc()`; use `svgText()` for SVG text and preserve `rel="noopener"` on external links.
+- Follow the existing render pipeline: change state in an event handler, then re-render the affected surface (or call `renderAll()` when multiple surfaces depend on it). Do not update one display while leaving the detail panel, table, tooltip, or CSV output stale.
+- Adding or renaming a measure requires coordinated updates to `chartModes.debt`, selector labels/short labels, `measureExplanations`, `measureRowLayout`, `tooltipSeriesKeys`, keyboard shortcut mappings, chart notes, table/detail output, and CSV headers/rows as applicable.
+- Keep `aria-pressed`, `aria-disabled`, live output, focus restoration, SVG point labels, and the chart `<desc>` synchronized with interaction changes. Existing keyboard shortcuts are part of the UI contract: `1`-`5` select lenses, `Tab`/`Shift+Tab` cycle lenses, `Q`-`T` and `A`-`G` toggle measures, `L` shares, `0`/`Escape` reset, arrows select years, Control+arrows pan/zoom, Space moves the legend, and Control+Enter toggles full screen.
+- Preserve the selected-year convention: debt and political office-holders refer to 30 June, while budget and interest values cover the financial year ending on that date.
+- Keep the source/definition text close to the implementation when changing methodology. This page is designed to be auditable, so derived formulas, exceptions, units, and source vintage should remain visible in the Sources section.
