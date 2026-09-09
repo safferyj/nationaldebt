@@ -783,7 +783,7 @@
       line-height: 1.35;
       max-width: min(18rem, calc(100vw - 1rem));
       padding: 0.6rem 0.7rem;
-      pointer-events: none;
+      pointer-events: auto;
       position: fixed;
       z-index: 40;
     }
@@ -1281,6 +1281,9 @@
     }
 
     @media (max-width: 760px) and (orientation: portrait) {
+      .chart-controls-row {
+        --chart-control-height: 2.5rem;
+      }
       #debtViewControl {
         grid-column: 1;
         grid-row: 1;
@@ -1301,25 +1304,56 @@
         grid-row: 3;
       }
       .chart-end-actions > button {
-        height: 2.8rem;
-        min-height: 2.8rem;
+        height: 2.5rem;
+        min-height: 2.5rem;
       }
       .chart-controls-row #shareView,
       .chart-controls-row #resetView,
       .chart-controls-row .chart-fullscreen-button {
-        height: 2.8rem;
-        min-height: 2.8rem;
+        height: 2.5rem;
+        min-height: 2.5rem;
+      }
+      .dollar-basis-control,
+      .dollar-basis-switch,
+      .chart-year-picker {
+        height: 2.5rem;
+      }
+      .chart-year-picker,
+      .chart-year-picker button,
+      .chart-year-picker button * {
+        touch-action: manipulation;
+      }
+      .year-arrow {
+        pointer-events: none;
+      }
+      .chart-year-picker button {
+        height: 2rem;
+        width: 2rem;
       }
       .measure-lozenge {
-        height: 2.8rem;
-        padding-bottom: 0.3rem;
-        padding-top: 0.3rem;
+        height: 2.5rem;
+        padding-bottom: 0.25rem;
+        padding-top: 0.25rem;
       }
       .measure-lozenge-government-value {
         font-size: 0.56rem;
       }
       #chart {
-        height: 440px;
+        height: 480px;
+      }
+      .chart-axis-label {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        top: 0;
+        transform: none;
+      }
+      .chart-axis-label > span {
+        display: block;
+        line-height: 1;
+        transform: rotate(-90deg);
+        white-space: nowrap;
       }
     }
 
@@ -1455,7 +1489,7 @@
         </div>
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
-          <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"></div>
+          <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"><span id="chartAxisLabelText"></span></div>
           <svg id="chart" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
@@ -2270,7 +2304,7 @@
     const chartWrap = document.getElementById("chartWrap");
     const chartTooltip = document.getElementById("chartTooltip");
     const measureTooltip = document.getElementById("measureTooltip");
-    const chartAxisLabelElement = document.getElementById("chartAxisLabel");
+    const chartAxisLabelText = document.getElementById("chartAxisLabelText");
     const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
     const detailTitle = document.getElementById("detail-title");
@@ -2477,6 +2511,10 @@
 
     function isMobileChartViewport() {
       return window.matchMedia("(max-width: 760px)").matches;
+    }
+
+    function isMobilePortraitChartViewport() {
+      return window.matchMedia("(max-width: 760px) and (orientation: portrait)").matches;
     }
 
     function updateChartLayout() {
@@ -2774,9 +2812,14 @@
     }
 
     function fitGovernmentLozengeValues() {
-      const showFullValues = chartIsFullscreen();
+      const useShortValues = isMobilePortraitChartViewport();
+      const showFullValues = chartIsFullscreen() && !useShortValues;
       measureRows.querySelectorAll(".measure-lozenge-government-value[data-short-value]").forEach((value) => {
         value.textContent = value.dataset.fullValue;
+        if (useShortValues) {
+          value.textContent = value.dataset.shortValue;
+          return;
+        }
         const lineHeight = Number.parseFloat(getComputedStyle(value).lineHeight);
         if (!showFullValues && Number.isFinite(lineHeight) && value.scrollHeight > lineHeight + 1) {
           value.textContent = value.dataset.shortValue;
@@ -3224,24 +3267,12 @@
       chartTooltip.hidden = true;
     }
 
-    let measureTooltipHideTimer = null;
     let activeMeasureTooltipButton = null;
+    let dismissedMeasureTooltipPointerId = null;
+    let suppressNextMeasureTooltipClick = false;
 
-    function showMeasureTooltip(button) {
-      if (!button.title) return;
-      if (measureTooltipHideTimer !== null) {
-        window.clearTimeout(measureTooltipHideTimer);
-        measureTooltipHideTimer = null;
-      }
-      if (activeMeasureTooltipButton && activeMeasureTooltipButton !== button) {
-        activeMeasureTooltipButton.removeAttribute("aria-describedby");
-      }
-      activeMeasureTooltipButton = button;
-      button.setAttribute("aria-describedby", "measureTooltip");
-      const label = button.querySelector(".measure-lozenge-name")?.textContent?.trim();
-      measureTooltip.textContent = label ? `${label}: ${button.title}` : button.title;
-      measureTooltip.hidden = false;
-
+    function positionMeasureTooltip(button) {
+      if (!button || measureTooltip.hidden) return;
       const buttonRect = button.getBoundingClientRect();
       const gap = 8;
       const viewportPadding = 8;
@@ -3259,14 +3290,29 @@
       );
       measureTooltip.style.left = `${left}px`;
       measureTooltip.style.top = `${top}px`;
-      measureTooltipHideTimer = window.setTimeout(hideMeasureTooltip, 4500);
+    }
+
+    function showMeasureTooltip(button) {
+      if (!button.title) return;
+      if (activeMeasureTooltipButton && activeMeasureTooltipButton !== button) {
+        activeMeasureTooltipButton.removeAttribute("aria-describedby");
+      }
+      activeMeasureTooltipButton = button;
+      button.setAttribute("aria-describedby", "measureTooltip");
+      const label = button.querySelector(".measure-lozenge-name")?.textContent?.trim();
+      measureTooltip.textContent = label ? `${label}: ${button.title}` : button.title;
+      measureTooltip.hidden = false;
+      positionMeasureTooltip(button);
+    }
+
+    function dismissMeasureTooltip(event) {
+      hideMeasureTooltip();
+      dismissedMeasureTooltipPointerId = event.pointerId ?? null;
+      event.preventDefault();
+      event.stopPropagation();
     }
 
     function hideMeasureTooltip() {
-      if (measureTooltipHideTimer !== null) {
-        window.clearTimeout(measureTooltipHideTimer);
-        measureTooltipHideTimer = null;
-      }
       if (activeMeasureTooltipButton) {
         activeMeasureTooltipButton.removeAttribute("aria-describedby");
         activeMeasureTooltipButton = null;
@@ -3296,7 +3342,7 @@
       const chartAxisLabel = getChartAxisLabel(mode);
       const chartNote = getChartNote(mode);
 
-      chartAxisLabelElement.textContent = chartAxisLabel;
+      chartAxisLabelText.textContent = chartAxisLabel;
       document.getElementById("chartNote").textContent = `${chartNote} Solid horizontal line marks exactly zero; dashed lines are regular tick intervals.`;
       const fullHistoryShown = state.start === 0 && state.end === rows.length - 1;
       rangeSummary.textContent = `Displayed range: ${view[0].fy} to ${view[view.length - 1].fy}`;
@@ -3714,21 +3760,45 @@
     fullscreenChart.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    measureTooltip.addEventListener("pointerdown", dismissMeasureTooltip);
+    measureTooltip.addEventListener("click", dismissMeasureTooltip);
     document.addEventListener("pointerdown", (event) => {
-      if (!(event.target instanceof Element) || !event.target.closest(".measure-lozenge")) {
-        hideMeasureTooltip();
+      if (!activeMeasureTooltipButton) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest("#measureTooltip")) dismissMeasureTooltip(event);
+    }, true);
+    document.addEventListener("pointerup", (event) => {
+      if (dismissedMeasureTooltipPointerId === null || event.pointerId !== dismissedMeasureTooltipPointerId) return;
+      event.preventDefault();
+      event.stopPropagation();
+      suppressNextMeasureTooltipClick = true;
+      dismissedMeasureTooltipPointerId = null;
+    }, true);
+    document.addEventListener("click", (event) => {
+      if (!suppressNextMeasureTooltipClick) return;
+      suppressNextMeasureTooltipClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
+    document.addEventListener("pointercancel", (event) => {
+      if (event.pointerId === dismissedMeasureTooltipPointerId) {
+        dismissedMeasureTooltipPointerId = null;
+        suppressNextMeasureTooltipClick = false;
       }
     }, true);
 
     document.getElementById("downloadCsv").addEventListener("click", downloadCsv);
     chartWrap.addEventListener("mouseleave", hideTooltip);
-    window.addEventListener("scroll", hideMeasureTooltip, { passive: true });
+    window.addEventListener("scroll", () => {
+      if (activeMeasureTooltipButton) positionMeasureTooltip(activeMeasureTooltipButton);
+    }, { passive: true });
     window.addEventListener("resize", handleViewportResize);
 
     renderSources();
     renderFullscreenControl();
     applyUrlState();
     renderAll();
+    if (isMobilePortraitChartViewport()) setKioskMode(true);
     clearShareUrl();
   </script>
 </body>
