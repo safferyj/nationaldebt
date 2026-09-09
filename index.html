@@ -1101,28 +1101,142 @@
       .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .term-definitions { grid-template-columns: 1fr; }
       .source-grid { grid-template-columns: 1fr; }
-      .chart-wrap,
-      #chart { min-height: 452px; }
-      .measure-row { grid-template-columns: 1fr; }
+      .chart-wrap { min-height: 0; }
+      #chart {
+        height: 360px;
+        min-height: 0;
+      }
+      .chart-axis-label {
+        font-family: inherit;
+        font-size: 0.68rem;
+        font-weight: 700;
+        width: 1.45rem;
+      }
+      .measure-rows {
+        display: grid;
+        gap: 0.45rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-bottom: 0.4rem;
+      }
+      .measure-row,
+      .measure-cluster {
+        display: contents;
+      }
+      .measure-lozenge {
+        border-radius: 12px;
+        gap: 0.25rem;
+        height: 3.7rem;
+        padding: 0.45rem 0.5rem;
+      }
+      .measure-lozenge-name {
+        font-size: 0.74rem;
+        letter-spacing: 0;
+        line-height: 1.05;
+      }
+      .measure-lozenge-value {
+        font-size: 0.7rem;
+        line-height: 1.05;
+        margin-top: 0.18rem;
+      }
+      .measure-lozenge-government-value {
+        font-size: 0.6rem;
+      }
+      .measure-lozenge-result {
+        margin-left: 0.2rem;
+      }
+      .measure-lozenge[data-series="gross"] { order: 1; }
+      .measure-lozenge[data-series="net"] { order: 2; }
+      .measure-lozenge[data-series="grossChange"] { order: 3; }
+      .measure-lozenge[data-series="netChange"] { order: 4; }
+      .measure-lozenge[data-series="agsInterest"] { order: 5; }
+      .measure-lozenge[data-series="interest"] { order: 6; }
+      .measure-lozenge[data-series="ucb"] { order: 7; }
+      .measure-lozenge[data-series="fiscal"] { order: 8; }
+      .measure-lozenge[data-series="grossGrowth"] { order: 9; }
+      .measure-lozenge[data-toggle="government"] { order: 10; }
       .chart-controls-row {
-        align-items: flex-start;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
+        align-items: stretch;
+        display: grid;
+        gap: 0.45rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: -0.65rem 0 0.45rem;
+        padding-bottom: 0.45rem;
       }
       .chart-lens-controls {
-        flex: 1 1 100%;
-        flex-wrap: wrap;
-        justify-content: flex-start;
+        display: contents;
+        width: auto;
+      }
+      .dollar-basis-control {
+        height: 2.8rem;
+        min-width: 0;
         width: 100%;
+      }
+      .dollar-basis-switch {
+        gap: 0.08rem;
+        height: 2.8rem;
+        width: 100%;
+      }
+      .dollar-basis-switch button {
+        flex: 1 1 0;
+        font-size: 0.64rem;
+        line-height: 1.05;
+        min-width: 0;
+        padding: 0.3rem 0.2rem;
+        white-space: normal;
+      }
+      #dollarBasisControl {
+        grid-column: 1;
       }
       .chart-year-picker {
-        margin-left: auto;
-        margin-right: auto;
+        align-self: stretch;
+        grid-column: 2;
+        height: 2.8rem;
+        justify-self: stretch;
+        margin: 0;
+        padding: 0.12rem 0.2rem;
+      }
+      .chart-year-row {
+        gap: 0.25rem;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .chart-year-picker output {
+        flex: 1 1 auto;
+        font-size: 1.1rem;
+        min-width: 0;
+        width: auto;
+      }
+      .chart-year-picker button {
+        height: 2.2rem;
+        width: 2.2rem;
       }
       .chart-end-actions {
-        justify-content: flex-start;
+        display: grid;
+        gap: 0.45rem;
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         width: 100%;
+      }
+      .chart-end-actions > button {
+        font-size: 0.68rem;
+        min-width: 0;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        width: 100%;
+      }
+      .chart-card:fullscreen,
+      .chart-card:-webkit-full-screen,
+      .chart-card.is-kiosk {
+        height: 100vh;
+        max-height: 100vh;
+        padding: 0.65rem;
+        height: 100dvh;
+        max-height: 100dvh;
+      }
+      .chart-card:fullscreen .chart-controls-row,
+      .chart-card:-webkit-full-screen .chart-controls-row,
+      .chart-card.is-kiosk .chart-controls-row {
+        margin-top: 0;
       }
       .share-fallback {
         align-items: stretch;
@@ -2284,9 +2398,14 @@
       return fullscreenElement() === chartCard || chartCard.classList.contains("is-kiosk");
     }
 
+    function isMobileChartViewport() {
+      return window.matchMedia("(max-width: 760px)").matches;
+    }
+
     function updateChartLayout() {
       const rect = chart.getBoundingClientRect();
-      const width = chartIsFullscreen() && rect.width > 0 && rect.height > 0
+      const responsiveLayout = chartIsFullscreen() || isMobileChartViewport();
+      const width = responsiveLayout && rect.width > 0 && rect.height > 0
         ? Math.max(360, Math.round(rect.width * chartLayout.height / rect.height))
         : 1000;
       chartLayout.width = width;
@@ -2323,6 +2442,11 @@
         return;
       }
 
+      if (isMobileChartViewport()) {
+        setKioskMode(true);
+        return;
+      }
+
       const requestFullscreen = chartCard.requestFullscreen || chartCard.webkitRequestFullscreen;
       if (!requestFullscreen) {
         setKioskMode(true);
@@ -2345,7 +2469,7 @@
     function handleViewportResize() {
       hideTooltip();
       fitMeasureLozengeText();
-      if (chartIsFullscreen()) renderAll();
+      if (chartIsFullscreen() || isMobileChartViewport()) renderAll();
     }
 
     function renderDebtViewControl() {
