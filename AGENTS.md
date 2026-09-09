@@ -6,13 +6,13 @@
 - The page is an interactive Commonwealth fiscal data story covering 1970-71 to 2024-25. It is not yet an all-levels-of-government dataset.
 - `government-debt-by-tier-notes.md` records possible future state/territory and local-government extensions; do not silently broaden the current Commonwealth scope when making changes.
 - `.github/mcp.json` provides a repository-scoped Playwright MCP server for browser smoke checks; it is tooling configuration, not an application runtime dependency.
-- There is no runtime backend, framework, chart library, package manifest, or runtime data request. The page is intended to work when opened offline.
+- There is no runtime backend, application framework, chart library, or runtime data request. The page is intended to work when opened offline; Node and Playwright are development-only test dependencies.
 
 ## Commands
 
 - Preview the page locally: `python3 -m http.server 8000`, then open `http://localhost:8000/index.html`.
 - Build: none configured; the deliverable is the standalone HTML file.
-- Test: no automated test runner or test files are configured, so there is no single-test command.
+- Test: `npm run test:mobile:smoke` runs the all-profile smoke matrix; `npm run test:mobile:interaction` runs the all-profile interaction matrix; `npm run test:mobile` runs both.
 - Lint: no lint configuration or lint command is configured.
 - For behavior changes, manually smoke-test the browser page after serving it: initial rendering, year selection, chart zoom/pan, lens and measure toggles, share-link fallback, full screen, table row selection, and CSV download.
 
@@ -26,7 +26,8 @@
 - The current Playwright 1.63.0 installation exposes 200 mobile descriptors. The recent full interaction run used 90 WebKit Apple profiles and 110 Chromium non-Apple profiles, all in portrait and landscape where descriptors provide both.
 - The portrait-only assertions correspond to the application breakpoint `max-width: 760px` plus `orientation: portrait`: the page starts in kiosk mode, controls and lozenges are 40px high, the normal chart is 480px high after leaving kiosk mode, and the Government value uses its short form. Wider tablets and wide landscape profiles should not be expected to auto-enter kiosk mode.
 - Native browser fullscreen is not reliably available in headless emulation for wider tablet/desktop-like viewports. Treat that as an environment limitation; still check that the control is present, no error is raised, and the page remains stable. The mobile-width kiosk fallback is the deterministic fullscreen behavior to validate across profiles.
-- There is currently no committed Playwright test runner, package manifest, or test fixture. The smoke and full-interaction runners are generated as temporary Node scripts from this checklist, run against the standalone `index.html` (via `file://` or a local HTTP server), and removed after the run. This preserves the dependency-free repository but means future sessions must keep the assertions and profile enumeration consistent with this section.
+- The committed Playwright runner is `playwright.config.cjs`; shared helpers are in `tests/helpers.js`, with the smoke and full-interaction suites in `tests/mobile.smoke.spec.js` and `tests/mobile.interaction.spec.js`. They run against the standalone `index.html` via `file://`; the application remains dependency-free at runtime.
+- The default npm scripts run every installed mobile descriptor. For a focused local run, set `PLAYWRIGHT_PROFILES` to a comma-separated list of exact descriptor names, for example `PLAYWRIGHT_PROFILES='iPhone 11,Pixel 5' npm run test:mobile:interaction`. Set `PW_WORKERS` to tune concurrency.
 - Before running a matrix, confirm the installed Playwright version and browser assets with `npx --no-install playwright --version` and `npx --no-install playwright install --list`. Record the total profile count, engine split, pass/fail count, and any emulation limitations in the session result.
 
 ## Architecture

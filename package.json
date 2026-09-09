@@ -1,0 +1,14 @@
+{
+  "name": "nationaldebt",
+  "private": true,
+  "description": "Self-contained Australian Commonwealth debt data story",
+  "scripts": {
+    "test": "npm run test:mobile:smoke",
+    "test:mobile": "npm run test:mobile:smoke && npm run test:mobile:interaction",
+    "test:mobile:smoke": "playwright test tests/mobile.smoke.spec.js",
+    "test:mobile:interaction": "playwright test tests/mobile.interaction.spec.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

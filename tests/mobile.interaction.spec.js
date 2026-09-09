@@ -1,0 +1,224 @@
+const { test, expect } = require("@playwright/test");
+const {
+  axisCenterError,
+  captureBrowserErrors,
+  clickMany,
+  loadApp,
+  longPress,
+  snapshot,
+  tapCenter,
+} = require("./helpers");
+
+test.setTimeout(60_000);
+
+async function assertPortraitLayout(page, initial) {
+  expect(initial.portraitMobile).toBe(true);
+  expect(initial.kiosk).toBe(true);
+  expect(initial.bodyKiosk).toBe(true);
+  expect(initial.fullscreenText).toBe("Exit full screen");
+  expect(initial.governmentValue).toBe(initial.governmentShortValue);
+
+  for (const selector of [
+    "#debtViewControl",
+    ".chart-year-picker",
+    "#dollarMeasureControl",
+    "#dollarBasisControl",
+    ".chart-end-actions > button",
+    "#measureRows .measure-lozenge",
+  ]) {
+    const heights = await page.locator(selector).evaluateAll((elements) => elements
+      .filter((element) => !element.hidden)
+      .map((element) => element.getBoundingClientRect().height));
+    expect(heights.length, `${selector} should have visible elements`).toBeGreaterThan(0);
+    for (const height of heights) {
+      expect(Math.abs(height - 40), `${selector} should be 40px high`).toBeLessThanOrEqual(1.5);
+    }
+  }
+
+  const grid = initial.grid;
+  expect(grid["#debtViewControl"]).toMatchObject({ row: "1", column: "1" });
+  expect(grid[".chart-year-picker"]).toMatchObject({ row: "1", column: "2" });
+  expect(grid["#dollarMeasureControl"]).toMatchObject({ row: "2", column: "1" });
+  expect(grid["#dollarBasisControl"]).toMatchObject({ row: "2", column: "2" });
+  expect(grid[".chart-end-actions"].row).toBe("3");
+
+  await page.locator("#fullscreenChart").click();
+  await page.waitForTimeout(80);
+  const normal = await snapshot(page);
+  expect(normal.kiosk).toBe(false);
+  expect(normal.fullscreen).toBe(false);
+  expect(normal.fullscreenText).toBe("Full screen");
+  expect(Math.abs(normal.chartHeight - 480)).toBeLessThanOrEqual(1.5);
+  expect(normal.governmentValue).toBe(normal.governmentShortValue);
+
+  await page.locator("#fullscreenChart").click();
+  await page.waitForTimeout(80);
+  const restored = await snapshot(page);
+  expect(restored.kiosk).toBe(true);
+  expect(restored.fullscreenText).toBe("Exit full screen");
+  expect(axisCenterError(restored)).toBeLessThanOrEqual(8);
+
+  await page.locator("#viewDollars").click();
+  await page.waitForTimeout(40);
+  const dollars = await snapshot(page);
+  expect(dollars.controls.dollarMeasure).toBe(true);
+  expect(dollars.controls.dollarBasis).toBe(true);
+  expect(dollars.grid["#dollarMeasureControl"]).toMatchObject({ row: "2", column: "1" });
+  expect(dollars.grid["#dollarBasisControl"]).toMatchObject({ row: "2", column: "2" });
+  expect(Math.abs(dollars.chart.height - restored.chart.height)).toBeLessThanOrEqual(1.5);
+
+  await page.locator("#measurePerCapita").click();
+  await page.locator("#basisReal").click();
+  await page.waitForTimeout(40);
+  const perCapita = await snapshot(page);
+  expect(perCapita.axisText.width).toBeGreaterThan(0);
+  expect(perCapita.axisText.height).toBeGreaterThan(0);
+  expect(axisCenterError(perCapita)).toBeLessThanOrEqual(8);
+  expect(perCapita.governmentValue).toBe(perCapita.governmentShortValue);
+
+  await page.locator("#viewPctGdp").click();
+  await page.waitForTimeout(40);
+}
+
+async function assertFullscreenBehavior(page, initial) {
+  if (initial.portraitMobile) return true;
+
+  await page.locator("#fullscreenChart").click();
+  await page.waitForTimeout(150);
+  let state = await snapshot(page);
+  if (!state.kiosk && !state.fullscreen) return false;
+
+  await page.locator("#fullscreenChart").click();
+  await page.waitForTimeout(150);
+  state = await snapshot(page);
+  expect(state.kiosk).toBe(false);
+  expect(state.fullscreen).toBe(false);
+  return true;
+}
+
+async function assertYearInteractions(page) {
+  await clickMany(page, "#nextYear", 100);
+  let state = await snapshot(page);
+  expect(state.year).toBe("2024-25");
+  const latestScale = state.visualScale;
+
+  await tapCenter(page, "#nextYear", 4);
+  state = await snapshot(page);
+  expect(state.year).toBe("2024-25");
+  expect(Math.abs(state.visualScale - latestScale)).toBeLessThanOrEqual(0.01);
+
+  await tapCenter(page, "#previousYear");
+  state = await snapshot(page);
+  expect(state.year).toBe("2023-24");
+  expect(Math.abs(state.visualScale - latestScale)).toBeLessThanOrEqual(0.01);
+
+  await clickMany(page, "#previousYear", 100);
+  state = await snapshot(page);
+  expect(state.year).toBe("1970-71");
+  const oldestScale = state.visualScale;
+
+  await tapCenter(page, "#previousYear", 4);
+  state = await snapshot(page);
+  expect(state.year).toBe("1970-71");
+  expect(Math.abs(state.visualScale - oldestScale)).toBeLessThanOrEqual(0.01);
+
+  await clickMany(page, "#nextYear", 100);
+  state = await snapshot(page);
+  expect(state.year).toBe("2024-25");
+
+  if (state.portraitMobile) {
+    const touchStyles = await page.evaluate(() => ({
+      picker: getComputedStyle(document.querySelector(".chart-year-picker")).touchAction,
+      button: getComputedStyle(document.querySelector("#nextYear")).touchAction,
+      arrow: getComputedStyle(document.querySelector(".year-arrow")).pointerEvents,
+    }));
+    expect(touchStyles.picker).toBe("manipulation");
+    expect(touchStyles.button).toBe("manipulation");
+    expect(touchStyles.arrow).toBe("none");
+  }
+}
+
+async function assertTooltipInteractions(page, initial) {
+  await clickMany(page, "#nextYear", 100);
+  const beforeInteraction = await snapshot(page);
+  const target = page.locator("#measureRows .measure-lozenge:not(:disabled)").first();
+  const targetSelector = await target.evaluate((button) => (
+    button.dataset.toggle
+      ? `button[data-toggle="${button.dataset.toggle}"]`
+      : `button[data-series="${button.dataset.series}"]`
+  ));
+  const beforePressed = await target.getAttribute("aria-pressed");
+
+  const opened = await longPress(page, targetSelector, 101);
+  expect(opened.hidden).toBe(false);
+  expect(opened.text.length).toBeGreaterThan(0);
+  expect(opened.describedBy).toBe("measureTooltip");
+
+  await page.waitForTimeout(1_200);
+  const persistent = await page.evaluate(() => {
+    const tooltip = document.querySelector("#measureTooltip");
+    const box = tooltip.getBoundingClientRect();
+    return {
+      hidden: tooltip.hidden,
+      rect: { left: box.left, top: box.top, right: box.right, bottom: box.bottom },
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+    };
+  });
+  expect(persistent.hidden).toBe(false);
+  expect(persistent.rect.left).toBeGreaterThanOrEqual(0);
+  expect(persistent.rect.top).toBeGreaterThanOrEqual(0);
+  expect(persistent.rect.right).toBeLessThanOrEqual(persistent.viewport.width + 1);
+  expect(persistent.rect.bottom).toBeLessThanOrEqual(persistent.viewport.height + 1);
+
+  await tapCenter(page, "#previousYear");
+  const blocked = await snapshot(page);
+  expect(blocked.year).toBe("2024-25");
+  expect(blocked.kiosk).toBe(beforeInteraction.kiosk);
+  expect(await page.locator(targetSelector).getAttribute("aria-pressed")).toBe(beforePressed);
+  expect(await page.locator("#measureTooltip").evaluate((element) => element.hidden)).toBe(true);
+
+  const reopened = await longPress(page, targetSelector, 102);
+  expect(reopened.hidden).toBe(false);
+  await tapCenter(page, "#measureTooltip");
+  await page.waitForTimeout(60);
+  expect(await page.locator("#measureTooltip").evaluate((element) => element.hidden)).toBe(true);
+  expect(await page.locator(targetSelector).getAttribute("aria-describedby")).toBeNull();
+
+  if (!initial.portraitMobile) {
+    expect((await snapshot(page)).horizontalOverflow).toBe(false);
+  }
+}
+
+test("supports the complete mobile interaction checklist", async ({ page }, testInfo) => {
+  const browserErrors = captureBrowserErrors(page);
+  await loadApp(page);
+  const initial = await snapshot(page);
+
+  expect(initial.measureCount).toBe(10);
+  expect(initial.chart?.width).toBeGreaterThan(0);
+  expect(initial.chart?.height).toBeGreaterThan(0);
+  expect(initial.horizontalOverflow).toBe(false);
+
+  if (initial.portraitMobile) {
+    await assertPortraitLayout(page, initial);
+  } else {
+    expect(initial.kiosk).toBe(false);
+    expect(initial.bodyKiosk).toBe(false);
+  }
+
+  const fullscreenSupported = await assertFullscreenBehavior(page, initial);
+  await assertYearInteractions(page);
+  await assertTooltipInteractions(page, initial);
+
+  const final = await snapshot(page);
+  expect(final.measureCount).toBe(10);
+  expect(final.horizontalOverflow).toBe(false);
+  expect(browserErrors, `${testInfo.project.name} browser errors`).toEqual([]);
+
+  if (!fullscreenSupported) {
+    testInfo.annotations.push({
+      type: "note",
+      description: "Native fullscreen was unavailable in headless emulation for this wider viewport.",
+    });
+  }
+});
