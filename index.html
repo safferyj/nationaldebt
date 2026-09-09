@@ -3259,7 +3259,6 @@
     function showFullHistory() {
       state.start = 0;
       state.end = rows.length - 1;
-      state.selected = rows.length - 1;
       renderAll();
     }
 
@@ -3351,12 +3350,6 @@
           event.preventDefault();
           moveLens(event.shiftKey ? -1 : 1);
         }
-      }
-
-      if (event.key === "Escape") {
-        event.preventDefault();
-        showFullHistory();
-        return;
       }
 
       const isHorizontalArrow = event.key === "ArrowLeft" || event.key === "ArrowRight";
