@@ -1104,6 +1104,20 @@
       main,
       footer { width: min(var(--max), calc(100% - 1.15rem)); }
 
+      .chart-card,
+      .chart-card *,
+      .measure-tooltip {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .chart-card input,
+      .chart-card textarea {
+        -webkit-touch-callout: default;
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
       .hero {
         grid-template-columns: 1fr;
         padding: 3.3rem 0 2.4rem;
@@ -2307,6 +2321,7 @@
     const chartAxisLabelText = document.getElementById("chartAxisLabelText");
     const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
+    const chartYearPicker = document.querySelector(".chart-year-picker");
     const detailTitle = document.getElementById("detail-title");
     const detailStatus = document.getElementById("detailStatus");
     const detailGrid = document.getElementById("detailGrid");
@@ -3714,6 +3729,20 @@
 
     previousYear.addEventListener("click", () => moveSelectedYear(-1));
     nextYear.addEventListener("click", () => moveSelectedYear(1));
+    function suppressBoundaryYearGesture(event) {
+      if (!isMobileChartViewport()) return;
+      const target = event.target instanceof Element ? event.target : null;
+      const button = target?.closest(".chart-year-picker button");
+      if (!button?.disabled) return;
+      event.preventDefault();
+      if (event.type === "pointerdown" || event.type === "touchstart") event.stopPropagation();
+    }
+    ["pointerdown", "pointerup", "touchstart", "touchend"].forEach((eventName) => {
+      chartYearPicker.addEventListener(eventName, suppressBoundaryYearGesture, {
+        capture: true,
+        passive: false
+      });
+    });
 
     debtViewButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -3742,6 +3771,16 @@
     chart.addEventListener("pointercancel", cancelRangeSelection);
     chart.addEventListener("wheel", handleWheelZoom, { passive: false });
     chart.addEventListener("contextmenu", (event) => event.preventDefault());
+    chartCard.addEventListener("contextmenu", (event) => {
+      if (isMobileChartViewport()) event.preventDefault();
+    });
+    document.addEventListener("selectstart", (event) => {
+      if (!isMobileChartViewport()) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest(".chart-card, #measureTooltip")) return;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+      event.preventDefault();
+    }, true);
     chart.addEventListener("click", (event) => {
       if (Date.now() < dragState.suppressClickUntil) return;
       const index = rowIndexFromChartX(chartXFromPointer(event));

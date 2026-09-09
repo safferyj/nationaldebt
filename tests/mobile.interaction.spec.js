@@ -199,6 +199,35 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
   expect(initial.chart?.height).toBeGreaterThan(0);
   expect(initial.horizontalOverflow).toBe(false);
 
+  if (initial.mobile) {
+    const touchGuards = await page.evaluate(() => {
+      const chartCard = document.querySelector(".chart-card");
+      const style = getComputedStyle(chartCard);
+      const selectEvent = new Event("selectstart", { bubbles: true, cancelable: true });
+      document.querySelector("#selectedYearLabel").dispatchEvent(selectEvent);
+      const contextEvent = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+      chartCard.dispatchEvent(contextEvent);
+      const touchEvent = new Event("touchstart", { bubbles: true, cancelable: true });
+      document.querySelector("#nextYear").dispatchEvent(touchEvent);
+      const shareSelectEvent = new Event("selectstart", { bubbles: true, cancelable: true });
+      document.querySelector("#shareUrlInput").dispatchEvent(shareSelectEvent);
+      return {
+        userSelect: style.userSelect,
+        shareUserSelect: getComputedStyle(document.querySelector("#shareUrlInput")).userSelect,
+        selectPrevented: selectEvent.defaultPrevented,
+        contextPrevented: contextEvent.defaultPrevented,
+        boundaryTouchPrevented: touchEvent.defaultPrevented,
+        shareSelectPrevented: shareSelectEvent.defaultPrevented,
+      };
+    });
+    expect(touchGuards.userSelect).toBe("none");
+    expect(touchGuards.shareUserSelect).toBe("text");
+    expect(touchGuards.selectPrevented).toBe(true);
+    expect(touchGuards.contextPrevented).toBe(true);
+    expect(touchGuards.boundaryTouchPrevented).toBe(true);
+    expect(touchGuards.shareSelectPrevented).toBe(false);
+  }
+
   if (initial.portraitMobile) {
     await assertPortraitLayout(page, initial);
   } else {
