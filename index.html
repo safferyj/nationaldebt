@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="An interactive, source-linked history of Australian Commonwealth gross debt, budget balances, GDP, governments, prime ministers and treasurers from 1970-71 to 2024-25.">
-  <title>Australia's national debt, in context</title>
+  <title>nationaldebt.au</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <style>
     /*
@@ -1548,6 +1549,24 @@
       }
     }
 
+    @media (max-width: 760px) and (orientation: landscape) {
+      .wordmark {
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+      }
+      .topbar-nav {
+        column-gap: 0.55rem;
+        row-gap: 0.25rem;
+      }
+      .topbar a {
+        font-size: 0.78rem;
+      }
+      .chart-end-actions > button {
+        font-size: 0.62rem;
+        white-space: nowrap;
+      }
+    }
+
     @media (max-width: 480px) {
       .detail-grid { grid-template-columns: 1fr; }
       .detail-item.wide { grid-column: span 1; }
@@ -1581,7 +1600,7 @@
 
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="wordmark" href="index.html">nationaldebt</a>
+      <a class="wordmark" href="index.html">nationaldebt.au</a>
       <nav class="topbar-nav" aria-label="Page sections">
         <a href="#chart">Chart</a>
         <a href="#usage">Usage</a>
