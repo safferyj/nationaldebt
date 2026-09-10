@@ -1249,6 +1249,10 @@
       clip: rect(0, 0, 0, 0);
     }
 
+    .landscape-warning {
+      display: none;
+    }
+
     @media (max-width: 760px) {
       .topbar-inner,
       main,
@@ -1550,20 +1554,38 @@
     }
 
     @media (max-width: 760px) and (orientation: landscape) {
-      .wordmark {
-        font-size: 1rem;
-        letter-spacing: 0.1em;
+      body {
+        background: var(--navy);
+        overflow: hidden;
       }
-      .topbar-nav {
-        column-gap: 0.55rem;
-        row-gap: 0.25rem;
+      body > *:not(.landscape-warning) {
+        display: none !important;
       }
-      .topbar a {
-        font-size: 0.78rem;
+      .landscape-warning {
+        align-items: center;
+        background: var(--navy);
+        color: #dce9f3;
+        display: flex;
+        inset: 0;
+        justify-content: center;
+        padding: 1.5rem;
+        position: fixed;
+        text-align: center;
+        z-index: 100;
       }
-      .chart-end-actions > button {
-        font-size: 0.62rem;
-        white-space: nowrap;
+      .landscape-warning-card {
+        max-width: 28rem;
+      }
+      .landscape-warning strong {
+        color: #fff;
+        display: block;
+        font-size: clamp(1.4rem, 5vw, 2rem);
+        line-height: 1.1;
+        margin-bottom: 0.8rem;
+      }
+      .landscape-warning p {
+        color: #b9e8f0;
+        margin: 0;
       }
     }
 
@@ -1596,6 +1618,12 @@
 </head>
 
 <body>
+  <div class="landscape-warning" role="status" aria-live="polite">
+    <div class="landscape-warning-card">
+      <strong>Please turn your device upright</strong>
+      <p>This page needs more horizontal space than this landscape view provides. Rotate your phone to portrait to continue.</p>
+    </div>
+  </div>
   <a class="skip-link" href="#main">Skip to the data story</a>
 
   <header class="topbar">
