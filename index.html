@@ -1488,9 +1488,9 @@
           </div>
           <div class="chart-year-picker" aria-label="Selected financial year">
             <div class="chart-year-row">
-              <button id="previousYear" type="button" aria-label="Select previous financial year" title="Select previous financial year"><span class="year-arrow year-arrow-left" aria-hidden="true"></span></button>
+              <button id="previousYear" type="button" aria-label="Select previous financial year" title="Select previous financial year; press and hold to repeat"><span class="year-arrow year-arrow-left" aria-hidden="true"></span></button>
               <output id="selectedYearLabel" aria-live="polite">2024-25</output>
-              <button id="nextYear" type="button" aria-label="Select next financial year" title="Select next financial year"><span class="year-arrow year-arrow-right" aria-hidden="true"></span></button>
+              <button id="nextYear" type="button" aria-label="Select next financial year" title="Select next financial year; press and hold to repeat"><span class="year-arrow year-arrow-right" aria-hidden="true"></span></button>
             </div>
           </div>
           <div class="chart-end-actions">
@@ -3487,6 +3487,31 @@
       svg += "</g>";
 
       chart.innerHTML = svg;
+      const legend = chart.querySelector(".chart-inline-legend");
+      if (legend) {
+        const legendMeasureText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        legendMeasureText.setAttribute("font-size", "11.5");
+        legendMeasureText.setAttribute("visibility", "hidden");
+        legend.appendChild(legendMeasureText);
+        const longestTextWidth = Object.values(seriesSelectorLabels).reduce((max, label) => {
+          legendMeasureText.textContent = label;
+          const width = legendMeasureText.getComputedTextLength();
+          return Number.isFinite(width) ? Math.max(max, width) : max;
+        }, 0);
+        legendMeasureText.remove();
+        if (longestTextWidth > 0) {
+          const sizedLegendWidth = Math.ceil(longestTextWidth + 52);
+          const sizedRightX = width - margin.right - sizedLegendWidth - 10;
+          const sizedRightOffset = sizedRightX - inlineLegendX;
+          const sizedOffset = state.legendSide === "right" ? sizedRightOffset : 0;
+          const background = legend.querySelector("rect");
+          background.setAttribute("width", String(sizedLegendWidth));
+          legend.setAttribute("transform", `translate(${sizedOffset} 0)`);
+          legend.dataset.legendOffset = String(sizedOffset);
+          legend.dataset.leftOffset = "0";
+          legend.dataset.rightOffset = String(sizedRightOffset);
+        }
+      }
       chart.querySelectorAll(".chart-point").forEach((point) => {
         const index = Number(point.dataset.index);
         point.addEventListener("mouseenter", () => showTooltip(point, index, point.dataset.series));
@@ -3494,7 +3519,6 @@
         point.addEventListener("focus", () => showTooltip(point, index, point.dataset.series));
         point.addEventListener("blur", hideTooltip);
       });
-      const legend = chart.querySelector(".chart-inline-legend");
       if (legend) {
         ["pointerdown", "pointermove", "pointerup"].forEach((eventName) => {
           legend.addEventListener(eventName, (event) => {
@@ -3627,11 +3651,12 @@
 
     function moveSelectedYear(offset) {
       const nextIndex = Math.max(0, Math.min(rows.length - 1, state.selected + offset));
-      if (nextIndex === state.selected) return;
+      if (nextIndex === state.selected) return false;
       state.selected = nextIndex;
       if (state.selected < state.start) state.start = state.selected;
       if (state.selected > state.end) state.end = state.selected;
       renderAll();
+      return true;
     }
 
     function panViewport(offset) {
@@ -3732,8 +3757,99 @@
       moveSelectedYear(event.key === "ArrowRight" ? 1 : -1);
     });
 
-    previousYear.addEventListener("click", () => moveSelectedYear(-1));
-    nextYear.addEventListener("click", () => moveSelectedYear(1));
+    const YEAR_HOLD_DELAY = 500;
+    const YEAR_HOLD_INTERVAL = 500;
+    let yearHold = null;
+    let suppressedYearClickButton = null;
+    let suppressedYearClickTimeout = 0;
+
+    function clearSuppressedYearClick() {
+      window.clearTimeout(suppressedYearClickTimeout);
+      suppressedYearClickButton = null;
+      suppressedYearClickTimeout = 0;
+    }
+
+    function suppressNextYearClick(button) {
+      clearSuppressedYearClick();
+      suppressedYearClickButton = button;
+      suppressedYearClickTimeout = window.setTimeout(clearSuppressedYearClick, YEAR_HOLD_INTERVAL * 2);
+    }
+
+    function consumeSuppressedYearClick(button) {
+      if (suppressedYearClickButton !== button) return false;
+      clearSuppressedYearClick();
+      return true;
+    }
+
+    function clearYearHold() {
+      if (!yearHold) return null;
+      window.clearTimeout(yearHold.delayId);
+      window.clearInterval(yearHold.intervalId);
+      const completed = yearHold;
+      yearHold = null;
+      return completed;
+    }
+
+    function startYearHold(button, offset, event) {
+      if (!event.isPrimary || button.disabled) return;
+      const previousHold = clearYearHold();
+      if (previousHold?.repeated) suppressNextYearClick(previousHold.button);
+      clearSuppressedYearClick();
+
+      const hold = {
+        button,
+        offset,
+        pointerId: event.pointerId,
+        repeated: false,
+        delayId: 0,
+        intervalId: 0
+      };
+      yearHold = hold;
+      hold.delayId = window.setTimeout(() => {
+        if (yearHold !== hold) return;
+        hold.repeated = true;
+        const repeat = () => {
+          if (yearHold !== hold) return;
+          if (moveSelectedYear(hold.offset)) return;
+          const completed = clearYearHold();
+          if (completed?.repeated) suppressNextYearClick(completed.button);
+        };
+        repeat();
+        if (yearHold === hold) {
+          hold.intervalId = window.setInterval(repeat, YEAR_HOLD_INTERVAL);
+        }
+      }, YEAR_HOLD_DELAY);
+    }
+
+    function finishYearHoldForButton(button) {
+      if (!yearHold || yearHold.button !== button) return;
+      const completed = clearYearHold();
+      if (completed?.repeated) suppressNextYearClick(completed.button);
+    }
+
+    function finishYearHold(event) {
+      if (!yearHold || yearHold.pointerId !== event.pointerId) return;
+      finishYearHoldForButton(yearHold.button);
+    }
+
+    function handleYearButtonClick(button, offset) {
+      if (consumeSuppressedYearClick(button)) return;
+      if (yearHold?.button === button && yearHold.repeated) {
+        suppressNextYearClick(button);
+        return;
+      }
+      moveSelectedYear(offset);
+    }
+
+    [
+      [previousYear, -1],
+      [nextYear, 1]
+    ].forEach(([button, offset]) => {
+      button.addEventListener("pointerdown", (event) => startYearHold(button, offset, event));
+      button.addEventListener("pointerup", finishYearHold);
+      button.addEventListener("pointercancel", finishYearHold);
+      button.addEventListener("click", () => handleYearButtonClick(button, offset));
+    });
     function suppressBoundaryYearGesture(event) {
       if (!isMobileChartViewport()) return;
       const target = event.target instanceof Element ? event.target : null;
@@ -3779,12 +3895,14 @@
       event.preventDefault();
       const { button, moved } = activeControlTouch;
       activeControlTouch = null;
+      finishYearHoldForButton(button);
       if (moved || button.disabled) return;
       suppressNativeControlClickButton = button;
       suppressNativeControlClickUntil = Date.now() + 750;
       button.click();
     }, { capture: true, passive: false });
     chartControlsRow.addEventListener("touchcancel", () => {
+      if (activeControlTouch) finishYearHoldForButton(activeControlTouch.button);
       activeControlTouch = null;
     }, { capture: true, passive: true });
     chartControlsRow.addEventListener("click", (event) => {

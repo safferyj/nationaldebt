@@ -11,6 +11,27 @@ const {
 
 test.setTimeout(60_000);
 
+async function holdPointer(page, selector, pointerId, duration) {
+  const locator = page.locator(selector);
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`No bounding box for hold target ${selector}`);
+  const eventData = {
+    pointerId,
+    pointerType: "mouse",
+    isPrimary: true,
+    clientX: box.x + box.width / 2,
+    clientY: box.y + box.height / 2,
+    button: 0,
+    buttons: 1,
+  };
+  await locator.dispatchEvent("pointerdown", eventData);
+  await page.waitForTimeout(duration);
+  const during = await snapshot(page);
+  await locator.dispatchEvent("pointerup", { ...eventData, buttons: 0 });
+  await page.waitForTimeout(60);
+  return { during, released: await snapshot(page) };
+}
+
 async function assertPortraitLayout(page, initial) {
   expect(initial.portraitMobile).toBe(true);
   expect(initial.kiosk).toBe(true);
@@ -126,6 +147,15 @@ async function assertYearInteractions(page) {
   state = await snapshot(page);
   expect(state.year).toBe("2024-25");
 
+  const holdStart = await snapshot(page);
+  const held = await holdPointer(page, "#previousYear", 201, 1_250);
+  const heldYears = Number(holdStart.year.slice(0, 4)) - Number(held.during.year.slice(0, 4));
+  expect(heldYears).toBeGreaterThanOrEqual(2);
+  expect(heldYears).toBeLessThanOrEqual(3);
+  expect(held.released.year).toBe(held.during.year);
+  await page.waitForTimeout(600);
+  expect((await snapshot(page)).year).toBe(held.released.year);
+
   if (state.portraitMobile) {
     const touchStyles = await page.evaluate(() => ({
       picker: getComputedStyle(document.querySelector(".chart-year-picker")).touchAction,
@@ -198,6 +228,21 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
   expect(initial.chart?.width).toBeGreaterThan(0);
   expect(initial.chart?.height).toBeGreaterThan(0);
   expect(initial.horizontalOverflow).toBe(false);
+
+  const legendSizing = await page.evaluate(() => {
+    const legend = document.querySelector(".chart-inline-legend");
+    const background = legend?.querySelector("rect");
+    const longestTextWidth = Array.from(legend?.querySelectorAll("text") || []).reduce((max, text) => {
+      const width = text.getComputedTextLength();
+      return Number.isFinite(width) ? Math.max(max, width) : max;
+    }, 0);
+    return {
+      width: Number(background?.getAttribute("width") || 0),
+      longestTextWidth,
+    };
+  });
+  expect(legendSizing.width).toBeLessThan(290);
+  expect(legendSizing.width - legendSizing.longestTextWidth).toBeGreaterThanOrEqual(52);
 
   if (initial.mobile) {
     const touchGuards = await page.evaluate(() => {
