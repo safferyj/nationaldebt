@@ -1292,6 +1292,15 @@
       .term-definitions { grid-template-columns: 1fr; }
       .source-grid { grid-template-columns: 1fr; }
       .download-content { grid-template-columns: 1fr; }
+      .keyboard-shortcuts {
+        grid-template-columns: 1fr;
+        min-width: 0;
+      }
+      .keyboard-shortcuts > div,
+      .keyboard-shortcuts dd,
+      .keyboard-shortcuts dt {
+        min-width: 0;
+      }
       .download-actions {
         justify-content: stretch;
       }
@@ -1304,9 +1313,11 @@
         min-height: 0;
       }
       .chart-axis-label {
+        color: #a9c0d1;
         font-family: inherit;
         font-size: 0.68rem;
         font-weight: 700;
+        left: -0.45rem;
         width: 1.45rem;
       }
       .measure-rows {
@@ -1322,7 +1333,7 @@
       .measure-lozenge {
         border-radius: 12px;
         gap: 0.25rem;
-        height: 3.7rem;
+        height: 2.7rem;
         padding: 0.45rem 0.5rem;
       }
       .measure-lozenge-name {
@@ -1511,7 +1522,7 @@
         width: 2rem;
       }
       .measure-lozenge {
-        height: 2.5rem;
+        height: 2.3rem;
         padding-bottom: 0.25rem;
         padding-top: 0.25rem;
       }
@@ -2930,7 +2941,7 @@
 
     function fitMeasureLozengeLabels() {
       // Restore full labels before measuring so they can return when space is available.
-      const showFullLabels = chartIsFullscreen();
+      const showFullLabels = chartIsFullscreen() && !isMobilePortraitChartViewport();
       measureRows.querySelectorAll(".measure-lozenge-name[data-short-label]").forEach((name) => {
         name.textContent = name.dataset.fullLabel;
         const lineHeight = Number.parseFloat(getComputedStyle(name).lineHeight);

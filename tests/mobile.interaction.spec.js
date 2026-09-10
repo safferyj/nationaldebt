@@ -45,7 +45,6 @@ async function assertPortraitLayout(page, initial) {
     "#dollarMeasureControl",
     "#dollarBasisControl",
     ".chart-end-actions > button",
-    "#measureRows .measure-lozenge",
   ]) {
     const heights = await page.locator(selector).evaluateAll((elements) => elements
       .filter((element) => !element.hidden)
@@ -54,6 +53,14 @@ async function assertPortraitLayout(page, initial) {
     for (const height of heights) {
       expect(Math.abs(height - 40), `${selector} should be 40px high`).toBeLessThanOrEqual(1.5);
     }
+  }
+
+  const lozengeHeights = await page.locator("#measureRows .measure-lozenge").evaluateAll((elements) => elements
+    .filter((element) => !element.hidden)
+    .map((element) => element.getBoundingClientRect().height));
+  expect(lozengeHeights.length, "measure lozenges should be visible").toBeGreaterThan(0);
+  for (const height of lozengeHeights) {
+    expect(Math.abs(height - 37), "measure lozenges should be approximately 37px high").toBeLessThanOrEqual(1.5);
   }
 
   const grid = initial.grid;
