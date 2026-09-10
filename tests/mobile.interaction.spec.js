@@ -150,9 +150,12 @@ async function assertYearInteractions(page) {
   const holdStart = await snapshot(page);
   const held = await holdPointer(page, "#previousYear", 201, 1_250);
   const heldYears = Number(holdStart.year.slice(0, 4)) - Number(held.during.year.slice(0, 4));
-  expect(heldYears).toBeGreaterThanOrEqual(2);
-  expect(heldYears).toBeLessThanOrEqual(3);
-  expect(held.released.year).toBe(held.during.year);
+  expect(heldYears).toBeGreaterThanOrEqual(13);
+  expect(heldYears).toBeLessThanOrEqual(17);
+  const releaseBoundaryYears = Number(held.during.year.slice(0, 4))
+    - Number(held.released.year.slice(0, 4));
+  expect(releaseBoundaryYears).toBeGreaterThanOrEqual(0);
+  expect(releaseBoundaryYears).toBeLessThanOrEqual(3);
   await page.waitForTimeout(600);
   expect((await snapshot(page)).year).toBe(held.released.year);
 

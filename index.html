@@ -11,8 +11,8 @@
       Design goals
       ------------
       - Use no external libraries or fonts so this file can be opened offline.
-      - Keep the page readable on a phone, while retaining a dense data table on
-        larger screens.
+      - Keep the page readable on a phone, while giving the chart and controls
+        most of the page area on larger screens.
       - Use a high-contrast dark navy canvas with warm amber debt highlights.
       - Prefer native controls and preserve keyboard interactions.
     */
@@ -105,6 +105,7 @@
       background: var(--navy);
       color: #dce9f3;
       border-bottom: 1px solid rgba(255,255,255,0.14);
+      margin-bottom: 0.75rem;
     }
 
     .topbar-inner,
@@ -124,15 +125,32 @@
 
     .wordmark {
       color: #fff;
-      font-size: 0.78rem;
+      font-size: 1.1rem;
       font-weight: 800;
       letter-spacing: 0.15em;
-      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .wordmark:hover {
+      color: #fff;
+    }
+
+    .topbar-nav {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+      justify-content: flex-end;
     }
 
     .topbar a {
       color: #b9e8f0;
       font-size: 0.86rem;
+      white-space: nowrap;
+    }
+
+    .topbar-nav a {
+      text-decoration: none;
     }
 
     .hero {
@@ -393,6 +411,10 @@
       color: #dce9f3;
       overflow: hidden;
       padding: 1.15rem 1.15rem 0.9rem;
+    }
+
+    .chart-section {
+      margin-bottom: 1rem;
     }
 
     .chart-card:fullscreen,
@@ -706,7 +728,7 @@
       transform: rotate(-45deg);
     }
 
-    #chart {
+    #chartSvg {
       display: block;
       height: auto;
       min-height: 540px;
@@ -715,9 +737,9 @@
       width: 100%;
     }
 
-    .chart-card:fullscreen #chart,
-    .chart-card:-webkit-full-screen #chart,
-    .chart-card.is-kiosk #chart {
+    .chart-card:fullscreen #chartSvg,
+    .chart-card:-webkit-full-screen #chartSvg,
+    .chart-card.is-kiosk #chartSvg {
       flex: 1 1 auto;
       height: 100%;
       max-height: 100%;
@@ -725,8 +747,9 @@
       min-width: 0;
     }
 
-    #chart:not(.dragging) { cursor: crosshair; }
-    #chart.dragging { cursor: ew-resize; }
+    #chartSvg { cursor: default; }
+    #chartSvg.plot-hover:not(.dragging) { cursor: crosshair; }
+    #chartSvg.dragging { cursor: ew-resize; }
 
     .chart-inline-legend { cursor: pointer; }
 
@@ -808,7 +831,11 @@
     .detail-card,
     .insight-card,
     .table-card,
-    .sources-card {
+    .usage-card,
+    .sources-card,
+    .definitions-card,
+    .download-card,
+    .about-card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -824,6 +851,13 @@
       font-size: 1.12rem;
       letter-spacing: -0.02em;
       margin-bottom: 0.8rem;
+    }
+
+    .usage-card h3 {
+      color: var(--navy);
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      margin: 1.25rem 0 0.65rem;
     }
 
     .detail-heading {
@@ -1015,8 +1049,49 @@
       margin-top: 0.15rem;
     }
 
-    .sources-card {
-      margin-bottom: 3rem;
+    .usage-card,
+    .sources-card,
+    .definitions-card,
+    .download-card,
+    .about-card {
+      margin-bottom: 1rem;
+    }
+
+    .usage-details,
+    .sources-details,
+    .definitions-details,
+    .download-details,
+    .about-details {
+      border-top: 0;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .download-actions {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .download-content {
+      align-items: center;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: auto minmax(0, 1fr);
+      margin-top: 1rem;
+    }
+
+    .download-details {
+      margin-bottom: 0;
+    }
+
+    .download-details .download-actions {
+      margin-top: 0;
+    }
+
+    .download-description {
+      color: #5d6d7b;
+      font-size: 0.87rem;
+      margin: 0;
     }
 
     .sources-intro {
@@ -1032,6 +1107,27 @@
       display: grid;
       gap: 0.75rem;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .source-group-heading {
+      border-top: 1px solid var(--line);
+      grid-column: 1 / -1;
+      padding-top: 0.9rem;
+    }
+
+    .source-group-heading:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .source-group-heading h3 {
+      margin: 0 0 0.25rem;
+    }
+
+    .source-group-heading p {
+      color: #647483;
+      font-size: 0.82rem;
+      margin: 0;
     }
 
     .source {
@@ -1081,6 +1177,59 @@
       padding-left: 1.2rem;
     }
 
+    .keyboard-shortcut-groups {
+      display: grid;
+      gap: 0.75rem;
+      margin: 0;
+    }
+
+    .keyboard-shortcuts {
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 0.45rem 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+      padding-top: 0.75rem;
+    }
+
+    .keyboard-shortcuts:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .keyboard-shortcuts > div {
+      align-items: baseline;
+      display: grid;
+      gap: 0.55rem;
+      grid-template-columns: max-content minmax(0, 1fr);
+    }
+
+    .keyboard-shortcuts dt,
+    .keyboard-shortcuts dd {
+      margin: 0;
+    }
+
+    .keyboard-shortcuts dt {
+      color: var(--navy);
+    }
+
+    .keyboard-shortcuts dd {
+      color: #5d6d7b;
+      font-size: 0.87rem;
+    }
+
+    kbd {
+      background: #f0f3f6;
+      border: 1px solid #cbd5dd;
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      color: var(--navy);
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.12rem 0.32rem;
+      white-space: nowrap;
+    }
+
     footer {
       border-top: 1px solid var(--line);
       color: #758493;
@@ -1103,6 +1252,12 @@
       .topbar-inner,
       main,
       footer { width: min(var(--max), calc(100% - 1.15rem)); }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 0.7rem 0;
+      }
 
       .chart-card,
       .chart-card *,
@@ -1136,8 +1291,15 @@
       .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .term-definitions { grid-template-columns: 1fr; }
       .source-grid { grid-template-columns: 1fr; }
+      .download-content { grid-template-columns: 1fr; }
+      .download-actions {
+        justify-content: stretch;
+      }
+      .download-actions button {
+        width: 100%;
+      }
       .chart-wrap { min-height: 0; }
-      #chart {
+      #chartSvg {
         height: 360px;
         min-height: 0;
       }
@@ -1356,7 +1518,7 @@
       .measure-lozenge-government-value {
         font-size: 0.56rem;
       }
-      #chart {
+      #chartSvg {
         height: 480px;
       }
       .chart-axis-label {
@@ -1384,7 +1546,11 @@
       .topbar,
       .chart-card,
       .insight-card,
-      .sources-card { display: none !important; }
+      .usage-card,
+      .sources-card,
+      .definitions-card,
+      .download-card,
+      .about-card { display: none !important; }
 
       body,
       .card,
@@ -1404,67 +1570,21 @@
 
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="wordmark">Commonwealth data story</div>
-      <a href="#sources">Sources and methodology</a>
+      <a class="wordmark" href="index.html">nationaldebt</a>
+      <nav class="topbar-nav" aria-label="Page sections">
+        <a href="#chart">Chart</a>
+        <a href="#usage">Usage</a>
+        <a href="#definitions">Definitions</a>
+        <a href="#sources">Sources</a>
+        <a href="#download">Download</a>
+        <a href="#about">About</a>
+      </nav>
     </div>
   </header>
 
   <main id="main">
-    <section class="hero" aria-label="Australia's national debt in context">
-      <div>
-        <p class="kicker">Australia / public finance / 1970-71 to 2024-25</p>
-        <p class="lede">
-          Explore how Australia's Commonwealth debt burden, budget balance and
-          political leadership have moved together over more than five decades.
-          Select any year to see the numbers and the people in office at the
-          end of that financial year.
-        </p>
-        <p class="definition">
-          <strong>What "national debt" means here:</strong>
-          the face value of Australian Government Securities on issue, often
-          called <strong>gross debt</strong>. It is a Commonwealth government
-          debt amount measured at a point in time, not household debt and not
-          Australia's external debt. <strong>External debt</strong> is the
-          total debt owed by Australian residents—including governments,
-          banks, businesses and households—to lenders outside Australia.
-          Net debt is shown separately.
-        </p>
-        <div class="term-definitions" aria-label="Key fiscal terms">
-          <article class="term-definition">
-            <h3>Gross debt</h3>
-            <p>The face value of Australian Government Securities (AGS) on issue. It is a debt amount measured at 30 June.</p>
-          </article>
-          <article class="term-definition">
-            <h3>Net debt</h3>
-            <p>Debt after selected financial assets, such as cash and investments, have been subtracted. In plain language, it shows how much debt remains after those assets help offset it.</p>
-          </article>
-          <article class="term-definition">
-            <h3>Underlying cash balance</h3>
-            <p><strong>Positive (+) = surplus; negative (-) = deficit.</strong> It is the annual cash budget result, measured over a year rather than at a single point in time.</p>
-          </article>
-        </div>
-          <p class="term-abbreviations"><strong>Abbreviations:</strong> PBO means Parliamentary Budget Office; AGS means Australian Government Securities. <strong>Nominal</strong> means the amounts are not adjusted for inflation. <strong>Inflation-adjusted</strong> means earlier amounts are converted to 2024-25 purchasing power using the ABS Consumer Price Index.</p>
-      </div>
-
-      <aside class="hero-rail" aria-label="How to read this page">
-        <h2>How to read it</h2>
-        <p><strong>Debt:</strong> measured at 30 June.</p>
-        <p><strong>Budget balance:</strong> measured over the financial year; <strong>positive (+) = surplus, negative (-) = deficit.</strong></p>
-        <p><strong>Debt burden:</strong> on this page, gross or net debt as a percentage of nominal GDP; it is not the annual interest cost of the debt.</p>
-        <p><strong>Politics:</strong> PM and Treasurer are the office-holders on 30 June.</p>
-      </aside>
-    </section>
-
-    <section aria-labelledby="explorer-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">01 / Explore</p>
-          <h2 id="explorer-title">Move through the history</h2>
-        </div>
-        <p id="rangeSummary">Displayed range: 1970-71 to 2024-25</p>
-      </div>
-
-      <div class="chart-card">
+    <section class="chart-section" aria-label="Interactive Commonwealth fiscal chart">
+      <div id="chart" class="chart-card">
         <div class="chart-controls-row">
           <div class="chart-lens-controls">
             <div id="debtViewControl" class="dollar-basis-control" hidden>
@@ -1508,123 +1628,125 @@
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"><span id="chartAxisLabelText"></span></div>
-          <svg id="chart" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
+          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
       <div id="measureTooltip" class="measure-tooltip" role="tooltip" hidden></div>
-      <p id="chartNote" class="chart-note"></p>
     </section>
 
-    <section class="detail-layout" aria-labelledby="detail-title">
-      <article class="detail-card">
-        <div class="detail-heading">
-          <div>
-            <p class="eyebrow">02 / Selected year</p>
-            <h3 id="detail-title">2024-25</h3>
-          </div>
-          <span id="detailStatus"></span>
+    <section id="usage" class="usage-card" aria-label="Usage">
+      <details class="usage-details">
+        <summary>Usage</summary>
+        <p>Use the chart to explore Commonwealth fiscal data from 1970-71 to 2024-25.</p>
+        <ul>
+          <li><strong>Change the year:</strong> click or tap the arrows around the selected year. Press and hold either arrow to move through the years faster.</li>
+          <li><strong>Choose a view:</strong> switch between percentages and dollar amounts. In the dollar view, you can choose absolute amounts or amounts per person, and current dollars or 2024-25 dollars.</li>
+          <li><strong>Show or hide measures:</strong> use the measure buttons around the chart to choose which measures are displayed. Press and hold a measure button on a touch screen to read a short explanation.</li>
+          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. Drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year.</li>
+          <li><strong>Reset the view:</strong> choose <em>Reset zoom</em> to return to the full history.</li>
+          <li><strong>Share or enlarge:</strong> choose <em>Share view</em> to copy a link to the current chart, or <em>Full screen</em> to give the chart more room.</li>
+          <li><strong>Download the data:</strong> open the Download section below and choose the CSV button to save the complete embedded dataset.</li>
+        </ul>
+        <h3>Keyboard shortcuts</h3>
+        <div class="keyboard-shortcut-groups">
+          <dl class="keyboard-shortcuts" aria-label="View shortcuts">
+            <div><dt><kbd>1</kbd></dt><dd>Percentage of GDP view</dd></div>
+            <div><dt><kbd>2</kbd></dt><dd>Dollar view: absolute, current dollars</dd></div>
+            <div><dt><kbd>3</kbd></dt><dd>Dollar view: absolute, 2024-25 dollars</dd></div>
+            <div><dt><kbd>4</kbd></dt><dd>Dollar view: per person, current dollars</dd></div>
+            <div><dt><kbd>5</kbd></dt><dd>Dollar view: per person, 2024-25 dollars</dd></div>
+            <div><dt><kbd>Tab</kbd></dt><dd>Move to the next chart view</dd></div>
+            <div><dt><kbd>Shift + Tab</kbd></dt><dd>Move to the previous chart view</dd></div>
+          </dl>
+          <dl class="keyboard-shortcuts" aria-label="Top measure shortcuts">
+            <div><dt><kbd>Q</kbd></dt><dd>Show or hide Gross debt</dd></div>
+            <div><dt><kbd>W</kbd></dt><dd>Show or hide Change in gross debt</dd></div>
+            <div><dt><kbd>E</kbd></dt><dd>Show or hide Interest paid</dd></div>
+            <div><dt><kbd>R</kbd></dt><dd>Show or hide Underlying cash balance</dd></div>
+            <div><dt><kbd>T</kbd></dt><dd>Show or hide Gross debt growth</dd></div>
+          </dl>
+          <dl class="keyboard-shortcuts" aria-label="Bottom measure shortcuts">
+            <div><dt><kbd>A</kbd></dt><dd>Show or hide Net debt</dd></div>
+            <div><dt><kbd>S</kbd></dt><dd>Show or hide Change in net debt</dd></div>
+            <div><dt><kbd>D</kbd></dt><dd>Show or hide Net interest payments</dd></div>
+            <div><dt><kbd>F</kbd></dt><dd>Show or hide Fiscal balance</dd></div>
+            <div><dt><kbd>G</kbd></dt><dd>Show or hide Government</dd></div>
+          </dl>
+          <dl class="keyboard-shortcuts" aria-label="Chart navigation shortcuts">
+            <div><dt><kbd>Left Arrow</kbd></dt><dd>Select the previous year</dd></div>
+            <div><dt><kbd>Right Arrow</kbd></dt><dd>Select the next year</dd></div>
+            <div><dt><kbd>Control + Left Arrow</kbd></dt><dd>Pan the chart left</dd></div>
+            <div><dt><kbd>Control + Right Arrow</kbd></dt><dd>Pan the chart right</dd></div>
+            <div><dt><kbd>Control + Up Arrow</kbd></dt><dd>Zoom in around the selected year</dd></div>
+            <div><dt><kbd>Control + Down Arrow</kbd></dt><dd>Zoom out around the selected year</dd></div>
+          </dl>
+          <dl class="keyboard-shortcuts" aria-label="Other shortcuts">
+            <div><dt><kbd>L</kbd></dt><dd>Share the current chart view</dd></div>
+            <div><dt><kbd>0</kbd></dt><dd>Reset the chart to the full history</dd></div>
+            <div><dt><kbd>Space</kbd></dt><dd>Move the chart key to the other side</dd></div>
+            <div><dt><kbd>Control + Enter</kbd></dt><dd>Toggle full screen</dd></div>
+          </dl>
         </div>
-        <div id="detailGrid" class="detail-grid"></div>
-      </article>
-
-      <aside class="insight-card" aria-labelledby="insight-title">
-        <p class="eyebrow">03 / What stands out</p>
-        <h3 id="insight-title">A few landmarks</h3>
-        <div id="insights"></div>
-      </aside>
+      </details>
     </section>
 
-    <section class="table-card" aria-labelledby="table-title">
-      <div class="table-head">
-        <div>
-          <p class="eyebrow">04 / Underlying data</p>
-          <h3 id="table-title">Annual observations</h3>
-        </div>
-        <div class="table-actions">
-          <p>Click a row to select it. The table follows the displayed chart range; the download includes all reported outcomes.</p>
-          <button id="downloadCsv" type="button" class="button-primary">Download all data (CSV)</button>
-        </div>
-      </div>
-      <div class="table-scroll">
-        <table id="dataTable">
-          <caption class="sr-only">Australian Commonwealth fiscal and political history</caption>
-          <thead>
-            <tr>
-              <th scope="col">Financial year</th>
-              <th scope="col">Population<br>(persons)</th>
-              <th scope="col">Gross debt<br>/ person</th>
-              <th scope="col">Net debt<br>/ person</th>
-              <th scope="col">Gross debt<br>(A$bn)</th>
-              <th scope="col">Debt / GDP</th>
-              <th scope="col">Gross debt growth<br>vs prior year</th>
-              <th scope="col">Gross debt change<br>(A$bn)</th>
-              <th scope="col">Gross debt change<br>/ GDP (%)</th>
-              <th scope="col">Gross debt burden<br>change (pp)</th>
-              <th scope="col">Net debt<br>(A$bn)</th>
-              <th scope="col">Net debt / GDP</th>
-              <th scope="col">Net debt change<br>(A$bn)</th>
-              <th scope="col">Net debt change<br>/ GDP (%)</th>
-              <th scope="col">Net debt burden<br>change (pp)</th>
-              <th scope="col">Underlying cash<br>(A$bn; + surplus / - deficit)</th>
-              <th scope="col">Cash / GDP</th>
-              <th scope="col">Interest paid<br>(PBO series; A$bn)</th>
-              <th scope="col">Interest paid<br>/ GDP</th>
-              <th scope="col">Net interest payments<br>(A$bn)</th>
-              <th scope="col">Net interest<br>/ GDP</th>
-              <th scope="col">Government / Prime Minister</th>
-              <th scope="col">Treasurer</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="sources" class="sources-card" aria-labelledby="sources-title">
-      <p class="eyebrow">05 / Sources</p>
-      <h3 id="sources-title">Every series has a paper trail</h3>
-      <div class="sources-intro">
-        The quantitative series and CPI conversion factors are embedded in this
-        file so the page works offline. The links below point to the official
-        source pages and the workbooks used to prepare the embedded snapshot.
-        Values can be revised when a later Budget, National Accounts or CPI
-        vintage is released.
-      </div>
-      <div id="sourceGrid" class="source-grid"></div>
-
-      <details>
-        <summary>Definitions, choices and update notes</summary>
+    <section id="definitions" class="definitions-card" aria-label="Definitions">
+      <details class="definitions-details">
+        <summary>Definitions</summary>
         <ul>
           <li><strong>Gross debt:</strong> face value of Australian Government Securities (AGS) on issue, often referred to as gross debt. The Parliamentary Budget Office (PBO) notes that total AGS on issue includes securities held on behalf of the states and Northern Territory.</li>
           <li><strong>Net debt:</strong> interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. The selected assets are cash and deposits, advances paid, investments, loans and placements.</li>
-          <li><strong>Underlying cash balance:</strong> the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses; negative values are deficits. It is a flow measure and is not the same as the stock of gross debt or its year-to-year change.</li>
+          <li><strong>Underlying cash balance:</strong> the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses; negative values are deficits. It is a flow measure and is not the same as the gross debt amount or its year-to-year change.</li>
           <li><strong>Fiscal balance:</strong> an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses; negative values are deficits. The embedded PBO series begins in 1996-97.</li>
           <li><strong>Budget result in public commentary:</strong> when Australian Commonwealth politicians and media refer without qualification to the Budget being in surplus or deficit, they usually mean the underlying cash balance. The fiscal balance is a separate measure and is normally identified by name.</li>
           <li><strong>Interest paid (PBO series; includes AGS):</strong> the PBO table calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is a gross interest measure and is not reduced by interest receipts. In the chart's % of GDP view it is shown as a share of nominal GDP.</li>
           <li><strong>Net interest payments:</strong> the PBO measure equal to interest paid minus interest receipts. Interest receipts can come from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets; they are not limited to income from debt-backed assets. This is a net measure after interest receipts, whereas the PBO interest-paid series is a gross cash-interest measure; both are shown as shares of nominal GDP in the chart's percentage view.</li>
-          <li><strong>Gross debt growth vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. The selected-year details, table and CSV retain this measure, including the 82.4% increase in 2008-09.</li>
-          <li><strong>Debt burden:</strong> in this page, gross debt burden means gross debt as a percentage of nominal GDP, and net debt burden means net debt as a percentage of nominal GDP. “Debt burden” is descriptive shorthand for debt relative to the size of the economy; it does not mean interest cost or debt-service cost.</li>
-          <li><strong>Debt burden change:</strong> the year-on-year change in the debt-to-GDP ratio, expressed in percentage points. This measure remains available in the selected-year details, table and CSV; the combined chart's % of GDP view instead uses debt-stock change divided by current-year GDP. It avoids unstable net-debt growth percentages when net debt is near zero or negative.</li>
-          <li><strong>Debt-stock change as a share of GDP:</strong> the difference between consecutive debt stocks divided by the current financial year's nominal GDP, expressed as a percentage: <code>(current debt stock - previous debt stock) / current-year GDP * 100</code>. It is a normalized stock-change measure, not the Budget surplus or deficit and not the same as debt-burden change.</li>
-          <li><strong>Dollar debt change:</strong> the current debt stock minus the previous year's debt stock. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode each stock is converted to 2024-25 dollars before the change is calculated. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
+          <li><strong>Gross debt growth vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. This measure includes the 82.4% increase in 2008-09.</li>
+          <li><strong>Change in debt amount as a share of GDP:</strong> the difference between consecutive debt amounts divided by the current financial year's nominal GDP, expressed as a percentage: <code>(current debt amount - previous debt amount) / current-year GDP * 100</code>. It is a normalized measure of debt change, not the Budget surplus or deficit and not the same as a year-on-year change in the debt-to-GDP ratio.</li>
+          <li><strong>Dollar debt change:</strong> the current debt amount minus the previous year's debt amount. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode each debt amount is converted to 2024-25 dollars before the change is calculated. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
           <li><strong>Nominal dollars:</strong> amounts are expressed in the Australian-dollar values recorded in each period, without adjusting for inflation. Comparing dollar levels across decades therefore reflects both economic growth and changes in prices.</li>
           <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2024-25 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
           <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
           <li><strong>Source-audit exception:</strong> the PBO workbook's 2002-03 gross-debt and net-debt percentage-of-GDP cells repeat the 2000-01 ratios and do not reconcile with that workbook's own dollar and GDP cells. This page recalculates those two ratios from the reported amounts: 66,403 / 804,444 = 8.2545% and 46,802 / 804,444 = 5.8179%.</li>
           <li><strong>2012-13 political transition:</strong> the end-of-year political fields use Kevin Rudd and Chris Bowen because they took office on 27 June 2013. The official archived Treasury portal linked below records that transition; the current Treasury history page displays a conflicting 27 July date for Chris Bowen.</li>
-          <li><strong>Chart range:</strong> click and drag across the plot to zoom into a consecutive range of financial years. The reset button restores the full embedded history.</li>
           <li><strong>Year convention:</strong> debt and office-holders are aligned to 30 June. For a year with a change of government, this shows the PM, government and Treasurer in office at the end of the financial year.</li>
-          <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political timeline, update the source metadata, and check the derived values. Keep only reported outcomes in the 15 documented fields; do not add the legacy placeholder to new rows.</li>
         </ul>
       </details>
     </section>
-  </main>
 
-  <footer>
-    <p>Built as a self-contained data story. No runtime data requests, frameworks or chart libraries are required.</p>
-    <p>Data snapshot: Parliamentary Budget Office, Historical Fiscal Data: 2026-27 Budget. Last embedded outcome: 2024-25.</p>
-  </footer>
+    <section id="sources" class="sources-card" aria-label="Sources">
+      <details class="sources-details">
+        <summary>Sources</summary>
+        <div class="sources-intro">
+          The links below are grouped by role: direct data inputs,
+          political-timeline sources, and provenance or background context. None
+          of these links are fetched while the page runs.
+        </div>
+        <div id="sourceGrid" class="source-grid"></div>
+      </details>
+    </section>
+
+    <section id="download" class="download-card" aria-label="Download">
+      <details class="download-details">
+        <summary>Download</summary>
+        <div class="download-content">
+          <div class="download-actions">
+            <button id="downloadCsv" type="button" class="button-primary">Download all data (CSV)</button>
+          </div>
+          <p class="download-description">Download the complete embedded dataset, including all years and derived fields. File size: <strong id="downloadSize"></strong>.</p>
+        </div>
+      </details>
+    </section>
+
+    <section id="about" class="about-card" aria-labelledby="about-title">
+      <details class="about-details">
+        <summary id="about-title">About</summary>
+        <p>Made with care in August 2026 using GPT-5.6 Luna (max).</p>
+        <p><a href="https://github.com/safferyj/nationaldebt" target="_blank" rel="noopener">https://github.com/safferyj/nationaldebt</a></p>
+      </details>
+    </section>
+  </main>
 
   <script>
     /*
@@ -1717,7 +1839,7 @@
       ---------------------------------
       These are the official ABS All Groups CPI index values for Australia
       (Table 17, series A2325846C in the linked CPI release). The first value
-      for each financial year is the June-quarter index used for debt stocks
+      for each financial year is the June-quarter index used for debt amounts
       measured at 30 June. The second value is the average of the September,
       December, March and June quarter indexes used for annual cash and
       interest flows.
@@ -1786,10 +1908,10 @@
     ];
 
     const cpiByFinancialYear = new Map(
-      cpiDeflators.map(([fy, stockIndex, flowIndex]) => ({ fy, stockIndex, flowIndex }))
+      cpiDeflators.map(([fy, debtIndex, flowIndex]) => ({ fy, debtIndex, flowIndex }))
         .map((item) => [item.fy, item])
     );
-    const cpiBase = { stockIndex: 98.43, flowIndex: 97.39 };
+    const cpiBase = { debtIndex: 98.43, flowIndex: 97.39 };
 
     /*
       DATA UPDATE POINT 1C: populationByFinancialYear
@@ -1870,7 +1992,7 @@
       --------------------------------------
       These ranges are keyed by the starting calendar year in the financial
       year label. They show the government and office-holders in place on
-      30 June of each financial year, matching the debt stock date. The
+      30 June of each financial year, matching the debt measurement date. The
       startDate is the start of the displayed administration or PM segment
       used in the political-band tooltip; it is not a separate start date for
       every ministerial appointment.
@@ -1899,20 +2021,22 @@
     ];
 
     /*
-      Source metadata is rendered in the visible Sources section and reused for
-      source links in the selected-year panel. Keep these URLs current when
+      Source metadata is rendered in the visible Sources section. Keep these
+      URLs current when
       the embedded data vintage changes.
     */
     const sources = [
       {
         id: "pbo",
+        group: "context",
         title: "Parliamentary Budget Office (PBO) - Historical Fiscal Data",
-        text: "Primary embedded source for GDP, gross debt, net debt, cash balances, interest and historical fiscal aggregates.",
+        text: "Official PBO dataset landing page and general provenance for the embedded fiscal series; the exact workbook is listed separately.",
         url: "https://www.pbo.gov.au/publications-and-data/data-and-tools/data-portal/historical-fiscal-data",
         linkText: "Open the PBO dataset page"
       },
       {
         id: "pboWorkbook",
+        group: "data",
         title: "PBO (Parliamentary Budget Office) workbook - Historical Fiscal Data: 2026-27 Budget",
         text: "The exact workbook vintage used for the values embedded in this file.",
         url: "https://www.pbo.gov.au/sites/default/files/2026-07/PBO%20-%20Historical%20Fiscal%20Data%20-%202026-27%20Budget.xlsx",
@@ -1920,6 +2044,7 @@
       },
       {
         id: "abs",
+        group: "context",
         title: "Australian Bureau of Statistics - National Accounts",
         text: "The PBO workbook identifies ABS National Accounts as the historical nominal GDP source used for the long series.",
         url: "https://www.abs.gov.au/statistics/economy/national-accounts/australian-national-accounts-national-income-expenditure-and-product/latest-release",
@@ -1927,6 +2052,7 @@
       },
       {
         id: "absCpi",
+        group: "data",
         title: "Australian Bureau of Statistics - Consumer Price Index, Australia",
         text: "Official All Groups CPI for Australia (Table 17, series A2325846C), used to express dollar values in 2024-25 purchasing power.",
         url: "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
@@ -1934,6 +2060,7 @@
       },
       {
         id: "absPopulationHistorical",
+        group: "data",
         title: "Australian Bureau of Statistics - Historical Population, 2021, Table 2",
         text: "Official 30 June population observations from Table 2, used for the 1970-71 to 1979-80 per-capita denominators.",
         url: "https://www.abs.gov.au/statistics/people/population/historical-population/2021/HPDC1.xlsx",
@@ -1941,6 +2068,7 @@
       },
       {
         id: "absPopulationCurrent",
+        group: "data",
         title: "Australian Bureau of Statistics - National, state and territory population, December 2025, Table 1",
         text: "Official estimated resident population at 30 June from the December 2025 release, used for the 1980-81 to 2024-25 per-capita denominators.",
         url: "https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/dec-2025/310101.xlsx",
@@ -1948,6 +2076,7 @@
       },
       {
         id: "budget",
+        group: "context",
         title: "Australian Government Budget",
         text: "Budget papers are the underlying official publication series used by the PBO workbook.",
         url: "https://budget.gov.au/",
@@ -1955,6 +2084,7 @@
       },
       {
         id: "aofm",
+        group: "context",
         title: "Australian Office of Financial Management - Data Hub",
         text: "Official government reference for Commonwealth Government Securities, borrowing and debt-management data.",
         url: "https://www.aofm.gov.au/data-hub",
@@ -1962,6 +2092,7 @@
       },
       {
         id: "pm",
+        group: "political",
         title: "National Archives of Australia - Australia's prime ministers",
         text: "Official historical reference for prime ministers and their periods of office.",
         url: "https://www.naa.gov.au/explore-collection/australias-prime-ministers",
@@ -1969,6 +2100,7 @@
       },
       {
         id: "treasurers",
+        group: "political",
         title: "Australian Treasury Ministers - Previous ministers",
         text: "Official Treasury ministerial history used for the Treasurer field.",
         url: "https://ministers.treasury.gov.au/ministers#previous",
@@ -1976,6 +2108,7 @@
       },
       {
         id: "treasurers2013",
+        group: "political",
         title: "National Library of Australia Web Archive - Treasury Portfolio Ministers Portal, 28 June 2013",
         text: "Official archived Treasury portal recording Wayne Swan's final day and Chris Bowen's appointment as Treasurer on 27 June 2013. This resolves the conflicting 27 July date displayed on the current Treasury history page.",
         url: "https://webarchive.nla.gov.au/awa/20130628052212id_/http://pandora.nla.gov.au/pan/36695/20130628-1520/www.treasurer.gov.au/Default.html",
@@ -1983,11 +2116,30 @@
       },
       {
         id: "parliament",
+        group: "political",
         title: "Parliament of Australia - Governments and oppositions",
         text: "Official parliamentary reference for government formation and political context.",
         url: "https://www.aph.gov.au/About_Parliament/House_of_Representatives/Powers_practice_n_procedure/Practice7/HTML/Chapter3/2_-_Governments_and_Oppositions",
         linkText: "Open the parliamentary reference"
       },
+    ];
+
+    const sourceGroups = [
+      {
+        key: "data",
+        title: "Direct data inputs",
+        text: "These sources supply values embedded in the fiscal, CPI or population arrays used by the page."
+      },
+      {
+        key: "political",
+        title: "Political timeline sources",
+        text: "These sources were used to prepare the embedded government, prime minister and Treasurer timeline."
+      },
+      {
+        key: "context",
+        title: "Provenance and background context",
+        text: "These are official landing pages or background references that explain the data's origin or subject matter; they are not independently read for embedded values."
+      }
     ];
 
     /*
@@ -2017,28 +2169,10 @@
       return `${prefix}${formatNumber(value)}%`;
     };
 
-    const formatPp = (value, signed = false) => {
-      if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
-      const prefix = signed && value > 0 ? "+" : "";
-      return `${prefix}${formatNumber(value)} pp`;
-    };
-
-    const formatBillions = (value, signed = false) => {
-      if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
-      const billions = Math.abs(value) / 1000;
-      const sign = value < 0 ? "-A$" : signed && value > 0 ? "+A$" : "A$";
-      return `${sign}${formatNumber(billions)}b`;
-    };
-
     const formatPerCapita = (value, signed = false) => {
       if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
       const sign = value < 0 ? "-A$" : signed && value > 0 ? "+A$" : "A$";
       return `${sign}${formatNumber(Math.abs(value), 0)} per capita`;
-    };
-
-    const formatTableBillions = (value) => {
-      if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
-      return `${value < 0 ? "-" : ""}${formatNumber(Math.abs(value) / 1000)}`;
     };
 
     const formatDateDdMmYyyy = (isoDate) => {
@@ -2078,7 +2212,7 @@
         fiscalPct,
         interest,
         agsInterest,
-        cpiStockFactor: cpiBase.stockIndex / cpi.stockIndex,
+        cpiDebtFactor: cpiBase.debtIndex / cpi.debtIndex,
         cpiFlowFactor: cpiBase.flowIndex / cpi.flowIndex,
         political: lookup(politicalTimeline, year)
       };
@@ -2130,7 +2264,7 @@
       const nominalBillions = row[key] / 1000;
       if (state.dollarBasis === "nominal") return nominalBillions;
       const isFlow = key === "ucb" || key === "fiscal" || key === "interest" || key === "agsInterest";
-      return nominalBillions * (isFlow ? row.cpiFlowFactor : row.cpiStockFactor);
+      return nominalBillions * (isFlow ? row.cpiFlowFactor : row.cpiDebtFactor);
     };
     const getNominalDollarsPerCapita = (row, key) =>
       hasNumericValue(row[key]) && hasNumericValue(row.population)
@@ -2141,9 +2275,9 @@
       if (nominalDollarsPerCapita === null) return null;
       if (state.dollarBasis === "nominal") return nominalDollarsPerCapita;
       const isFlow = key === "ucb" || key === "fiscal" || key === "interest" || key === "agsInterest";
-      return nominalDollarsPerCapita * (isFlow ? row.cpiFlowFactor : row.cpiStockFactor);
+      return nominalDollarsPerCapita * (isFlow ? row.cpiFlowFactor : row.cpiDebtFactor);
     };
-    /* Compare adjusted debt stocks so real debt change remains a stock measure. */
+    /* Compare adjusted debt amounts so real debt change is measured consistently. */
     const getDebtChangeDollars = (row, key, perCapita) => {
       if (row.index === 0) return null;
       const previous = rows[row.index - 1];
@@ -2190,25 +2324,10 @@
         : "A$ billions (nominal)";
     };
 
-    const getChartNote = (mode) => {
-      if (state.mode === "debt" && state.debtView === "dollars") {
-        if (state.dollarMeasure === "perCapita") {
-          return state.dollarBasis === "real"
-            ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. Results are shown per capita using ABS population at 30 June; the fiscal balance is unavailable before 1996-97. Interest lines are off by default."
-            : "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Results are shown per capita using ABS population at 30 June; nominal dollars are not adjusted for inflation; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.";
-        }
-        return state.dollarBasis === "real"
-          ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. The fiscal balance is unavailable before 1996-97. Interest lines are off by default."
-          : "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Nominal dollars are not adjusted for inflation; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.";
-      }
-      return mode.note;
-    };
-
     const chartModes = {
       debt: {
         title: "Debt, budget, changes and interest (% of GDP)",
         axisLabel: "% of GDP",
-        note: "Gross and net debt, underlying cash balance, fiscal balance and the two interest series are shown relative to nominal GDP; positive budget-balance values are surpluses and negative values are deficits. The PBO interest-paid series is an annual general-government cash-interest flow that includes interest relating to AGS on issue, while debt is measured at 30 June. Debt-change lines show the difference between consecutive debt stocks divided by current-year nominal GDP, expressed as percentages, and are unavailable for the first year. The fiscal balance, direct gross-debt-growth and interest lines are off by default. Use the measure lozenges to show direct gross debt growth versus the previous year's debt, including the 82.4% increase in 2008-09; enabling it expands the chart's vertical scale. Percentage-point changes in the debt-to-GDP ratio remain available in the selected-year details, table and CSV.",
         get series() {
           if (state.debtView === "dollars") {
             const perCapita = state.dollarMeasure === "perCapita";
@@ -2276,16 +2395,16 @@
     // These explanations are deliberately static so the term's meaning does
     // not change when the selected year or chart lens changes.
     const measureExplanations = {
-      gross: "Gross debt is the face value of Australian Government Securities (AGS) on issue. It is a debt stock measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory.",
-      net: "Net debt is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt stock measured at 30 June.",
-      ucb: "The underlying cash balance is the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt stock or debt-stock change.",
+      gross: "Gross debt is the face value of Australian Government Securities (AGS) on issue. It is a debt amount measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory.",
+      net: "Net debt is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt amount measured at 30 June.",
+      ucb: "The underlying cash balance is the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt amount or change in debt amount.",
       fiscal: "The fiscal balance is an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses and negative values are deficits. The embedded PBO series begins in 1996-97.",
-      grossChange: "Gross debt change is the difference between consecutive gross-debt stocks. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar stock difference or per-capita equivalent. It is not the Budget surplus or deficit.",
-      grossGrowth: "Gross debt growth versus prior debt is the derived percentage (current gross debt minus previous gross debt) divided by previous gross debt, multiplied by 100. It measures the percentage change in the gross-debt stock, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only.",
-      netChange: "Net debt change is the difference between consecutive net-debt stocks. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar stock difference or per-capita equivalent. It is not the Budget surplus or deficit.",
+      grossChange: "Gross debt change is the difference between consecutive gross debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit.",
+      grossGrowth: "Gross debt growth versus prior debt is the derived percentage (current gross debt minus previous gross debt) divided by previous gross debt, multiplied by 100. It measures the percentage change in the gross debt amount, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only.",
+      netChange: "Net debt change is the difference between consecutive net debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit.",
       agsInterest: "The PBO table calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP.",
       interest: "Net interest payments are the PBO measure of interest paid minus interest receipts. Interest receipts can include receipts from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets. It is an annual flow and is shown as a share of nominal GDP in the percentage view.",
-      government: "Government shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the selected-year details, table or tooltips."
+      government: "Government shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the archived reference page or tooltips."
     };
 
     // Keep the selector grouping stable across lenses; only each lozenge's value
@@ -2318,7 +2437,7 @@
       g: "government"
     };
 
-    const chart = document.getElementById("chart");
+    const chart = document.getElementById("chartSvg");
     const chartWrap = document.getElementById("chartWrap");
     const chartTooltip = document.getElementById("chartTooltip");
     const measureTooltip = document.getElementById("measureTooltip");
@@ -2327,15 +2446,9 @@
     const chartCard = document.querySelector(".chart-card");
     const chartControlsRow = document.querySelector(".chart-controls-row");
     const chartYearPicker = document.querySelector(".chart-year-picker");
-    const detailTitle = document.getElementById("detail-title");
-    const detailStatus = document.getElementById("detailStatus");
-    const detailGrid = document.getElementById("detailGrid");
-    const insights = document.getElementById("insights");
-    const tableBody = document.querySelector("#dataTable tbody");
     const selectedYearLabel = document.getElementById("selectedYearLabel");
     const previousYear = document.getElementById("previousYear");
     const nextYear = document.getElementById("nextYear");
-    const rangeSummary = document.getElementById("rangeSummary");
     const resetView = document.getElementById("resetView");
     const fullscreenChart = document.getElementById("fullscreenChart");
     const shareView = document.getElementById("shareView");
@@ -2343,6 +2456,7 @@
     const shareUrlInput = document.getElementById("shareUrlInput");
     const copyShareUrl = document.getElementById("copyShareUrl");
     const closeShareFallback = document.getElementById("closeShareFallback");
+    const downloadSize = document.getElementById("downloadSize");
     const debtViewControl = document.getElementById("debtViewControl");
     const debtViewButtons = Array.from(document.querySelectorAll("[data-debt-view]"));
     const dollarMeasureControl = document.getElementById("dollarMeasureControl");
@@ -2369,11 +2483,6 @@
     };
     const minimumZoomYears = 3;
     const wheelZoomFactor = 1.25;
-
-    const sourceLink = (id, text = id) => {
-      const source = sources.find((item) => item.id === id);
-      return source ? `<a href="${source.url}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text);
-    };
 
     const selectedRow = () => rows[state.selected];
     const visibleRows = () => rows.slice(state.start, state.end + 1);
@@ -2658,9 +2767,9 @@
           return `${formatPct(row.fiscalPct)} of GDP where available; accrual-based result`;
         case "grossChange":
         case "netChange":
-          return "Difference between consecutive debt stocks; not the Budget surplus or deficit";
+          return "Difference between consecutive debt amounts; not the Budget surplus or deficit";
         case "grossGrowth":
-          return "Direct growth versus previous gross-debt stock";
+          return "Direct growth versus previous gross debt amount";
         case "agsInterest":
           return `${formatPct(getPercentOfGdp(row, "agsInterest"))} of GDP; annual gross interest flow`;
         case "interest":
@@ -2864,128 +2973,11 @@
       if (button) button.click();
     }
 
-    function renderDetail() {
+    function renderYearPicker() {
       const row = selectedRow();
-      detailTitle.textContent = row.fy;
-      detailStatus.innerHTML = `<span class="party-pill">Historical outcome</span>`;
       selectedYearLabel.textContent = row.fy;
       previousYear.disabled = row.index === 0;
       nextYear.disabled = row.index === rows.length - 1;
-
-      const populationSource = row.year <= 1979
-        ? sourceLink("absPopulationHistorical", "ABS Historical Population")
-        : sourceLink("absPopulationCurrent", "ABS population estimates");
-      const treasurerSource = row.year === 2012
-        ? `${sourceLink("treasurers", "Treasury minister history")}; ${sourceLink("treasurers2013", "archived 2013 transition record")}`
-        : sourceLink("treasurers", "Treasury minister history");
-      detailGrid.innerHTML = `
-        <dl class="detail-item">
-          <dt>Gross debt</dt>
-          <dd>${formatBillions(row.gross)}</dd>
-          <small>${formatPct(row.grossPct)} of GDP</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Gross debt growth vs previous year</dt>
-          <dd>${formatPct(row.grossChange, true)}</dd>
-          <small>Derived from adjacent PBO observations</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Gross debt burden change</dt>
-          <dd>${formatPp(getDebtBurdenChange(row, "grossPct"), true)}</dd>
-          <small>Percentage-point change in the gross debt-to-GDP ratio from the previous year</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Change in gross debt / GDP</dt>
-          <dd>${formatPct(getDebtChangeOverGdp(row, "gross"), true)}</dd>
-          <small>Difference between consecutive gross-debt stocks divided by current-year nominal GDP</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Net debt</dt>
-          <dd>${formatBillions(row.net)}</dd>
-          <small>${formatPct(row.netPct)} of GDP</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Net debt burden change</dt>
-          <dd>${formatPp(getDebtBurdenChange(row, "netPct"), true)}</dd>
-          <small>Percentage-point change in the net debt-to-GDP ratio from the previous year</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Change in net debt / GDP</dt>
-          <dd>${formatPct(getDebtChangeOverGdp(row, "net"), true)}</dd>
-          <small>Difference between consecutive net-debt stocks divided by current-year nominal GDP</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Nominal GDP</dt>
-          <dd>${formatBillions(row.gdp)}</dd>
-          <small>${sourceLink("abs", "ABS / PBO historical GDP")}</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Population at 30 June</dt>
-          <dd>${formatNumber(row.population, 0)}</dd>
-          <small>${populationSource}; used for per-capita values</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Gross debt per capita</dt>
-          <dd>${formatPerCapita(getNominalDollarsPerCapita(row, "gross"))}</dd>
-          <small>Nominal gross debt divided by population</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Net debt per capita</dt>
-          <dd>${formatPerCapita(getNominalDollarsPerCapita(row, "net"))}</dd>
-          <small>Nominal net debt divided by population</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Underlying cash balance (+ surplus / - deficit)</dt>
-          <dd>${formatBillions(row.ucb, true)}</dd>
-          <small>${formatPct(row.ucbPct)} of GDP; negative means deficit</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Fiscal balance</dt>
-          <dd>${formatBillions(row.fiscal, true)}</dd>
-          <small>${formatPct(row.fiscalPct)} of GDP where available</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Interest paid (PBO series; includes AGS)</dt>
-          <dd>${formatBillions(row.agsInterest)}</dd>
-          <small>${formatPct(getPercentOfGdp(row, "agsInterest"))} of nominal GDP; all general-government cash interest measured over the year</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Net interest payments</dt>
-          <dd>${formatBillions(row.interest)}</dd>
-          <small>${formatPct(getPercentOfGdp(row, "interest"))} of nominal GDP; after interest receipts</small>
-        </dl>
-        <dl class="detail-item wide">
-          <dt>Government in power</dt>
-          <dd><span class="party-pill ${esc(row.political.party)}">${esc(row.political.government)}</span></dd>
-          <small>Aligned to 30 June; ${sourceLink("parliament", "Parliamentary government history")}</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Prime Minister</dt>
-          <dd>${esc(row.political.pm)}</dd>
-          <small>${sourceLink("pm", "National Archives")}</small>
-        </dl>
-        <dl class="detail-item">
-          <dt>Treasurer</dt>
-          <dd>${esc(row.political.treasurer)}</dd>
-          <small>${treasurerSource}</small>
-        </dl>
-      `;
-    }
-
-    function renderInsights() {
-      const peakDebt = rows.reduce((best, row) => row.grossPct > best.grossPct ? row : best, rows[0]);
-      const lowDebt = rows.reduce((best, row) => row.grossPct < best.grossPct ? row : best, rows[0]);
-      const largestDeficit = rows.reduce((best, row) => row.ucb < best.ucb ? row : best, rows[0]);
-      const biggestDebtJump = rows.filter((row) => row.grossChange !== null)
-        .reduce((best, row) => row.grossChange > best.grossChange ? row : best, rows[1]);
-      const row = selectedRow();
-
-      insights.innerHTML = `
-        <p><span class="insight-number">${formatPct(lowDebt.grossPct)}</span> was the lowest gross-debt burden in the embedded series, in ${esc(lowDebt.fy)}.</p>
-        <p>The burden peaked at <span class="insight-number">${formatPct(peakDebt.grossPct)}</span> in ${esc(peakDebt.fy)}.</p>
-        <p>The largest annual increase in gross debt was <span class="insight-number">${formatPct(biggestDebtJump.grossChange, true)}</span> in ${esc(biggestDebtJump.fy)}.</p>
-        <p>The largest underlying cash deficit was <span class="insight-number">${formatBillions(largestDeficit.ucb)}</span> in ${esc(largestDeficit.fy)}. The selected year is ${esc(row.fy)}.</p>
-      `;
     }
 
     function svgText(x, y, text, attributes = "") {
@@ -3024,9 +3016,40 @@
       return places;
     }
 
-    function chartXFromPointer(event) {
+    function chartPointFromPointer(event) {
       const rect = chart.getBoundingClientRect();
-      const scaledX = (event.clientX - rect.left) * chartLayout.width / rect.width;
+      if (!rect.width || !rect.height) return null;
+      return {
+        x: (event.clientX - rect.left) * chartLayout.width / rect.width,
+        y: (event.clientY - rect.top) * chartLayout.height / rect.height
+      };
+    }
+
+    function chartPlotBottom() {
+      const bandY = chartLayout.height - 38;
+      return state.showGovernment ? bandY - 7 : chartLayout.height - 24;
+    }
+
+    function isPointerInPlot(event) {
+      const point = chartPointFromPointer(event);
+      if (!point) return false;
+      return point.x >= chartLayout.margin.left
+        && point.x <= chartLayout.width - chartLayout.margin.right
+        && point.y >= chartLayout.margin.top
+        && point.y <= chartPlotBottom();
+    }
+
+    function updatePlotHoverState(event) {
+      chart.classList.toggle("plot-hover", isPointerInPlot(event));
+    }
+
+    function clearPlotHoverState() {
+      chart.classList.remove("plot-hover");
+    }
+
+    function chartXFromPointer(event) {
+      const point = chartPointFromPointer(event);
+      const scaledX = point?.x ?? chartLayout.margin.left;
       return Math.max(
         chartLayout.margin.left,
         Math.min(chartLayout.width - chartLayout.margin.right, scaledX)
@@ -3068,7 +3091,7 @@
     }
 
     function handleWheelZoom(event) {
-      if (event.ctrlKey || event.deltaY === 0) return;
+      if (event.ctrlKey || event.deltaY === 0 || !isPointerInPlot(event)) return;
       event.preventDefault();
       const view = visibleRows();
       if (view.length < 2) return;
@@ -3114,6 +3137,7 @@
     function beginRangeSelection(event) {
       const isPan = event.button === 2;
       if (!isPan && event.button !== 0) return;
+      if (!isPointerInPlot(event)) return;
       dragState.active = true;
       dragState.mode = isPan ? "pan" : "zoom";
       dragState.pointerId = event.pointerId;
@@ -3360,12 +3384,9 @@
       const allValues = activeSeries.flatMap((series) => view.map((row) => series.get(row)))
         .filter((value) => value !== null && value !== undefined && !Number.isNaN(value));
       const chartAxisLabel = getChartAxisLabel(mode);
-      const chartNote = getChartNote(mode);
 
       chartAxisLabelText.textContent = chartAxisLabel;
-      document.getElementById("chartNote").textContent = `${chartNote} Solid horizontal line marks exactly zero; dashed lines are regular tick intervals.`;
       const fullHistoryShown = state.start === 0 && state.end === rows.length - 1;
-      rangeSummary.textContent = `Displayed range: ${view[0].fy} to ${view[view.length - 1].fy}`;
       resetView.disabled = fullHistoryShown;
       resetView.textContent = "Reset zoom";
       resetView.title = fullHistoryShown
@@ -3537,56 +3558,24 @@
       }
     }
 
-    function renderTable() {
-      const view = visibleRows();
-      tableBody.innerHTML = view.map((row) => `
-        <tr data-index="${row.index}" class="${row.index === state.selected ? "selected" : ""}" tabindex="0" aria-selected="${row.index === state.selected}">
-          <td>${esc(row.fy)}<span class="table-sub">Outcome</span></td>
-          <td>${formatNumber(row.population, 0)}</td>
-          <td>${formatPerCapita(getNominalDollarsPerCapita(row, "gross"))}</td>
-          <td>${formatPerCapita(getNominalDollarsPerCapita(row, "net"))}</td>
-          <td>${formatTableBillions(row.gross)}</td>
-          <td>${formatPct(row.grossPct)}</td>
-          <td>${formatPct(row.grossChange, true)}</td>
-          <td>${formatTableBillions(getNominalDebtChange(row, "gross"))}</td>
-          <td>${formatPct(getDebtChangeOverGdp(row, "gross"), true)}</td>
-          <td>${formatPp(getDebtBurdenChange(row, "grossPct"), true)}</td>
-          <td>${formatTableBillions(row.net)}</td>
-          <td>${formatPct(row.netPct)}</td>
-          <td>${formatTableBillions(getNominalDebtChange(row, "net"))}</td>
-          <td>${formatPct(getDebtChangeOverGdp(row, "net"), true)}</td>
-          <td>${formatPp(getDebtBurdenChange(row, "netPct"), true)}</td>
-          <td>${formatTableBillions(row.ucb)}</td>
-          <td>${formatPct(row.ucbPct)}</td>
-          <td>${formatTableBillions(row.agsInterest)}</td>
-          <td>${formatPct(getPercentOfGdp(row, "agsInterest"))}</td>
-          <td>${formatTableBillions(row.interest)}</td>
-          <td>${formatPct(getPercentOfGdp(row, "interest"))}</td>
-          <td><span class="party-pill ${esc(row.political.party)}">${esc(row.political.government)}</span><span class="table-sub">${esc(row.political.pm)}</span></td>
-          <td>${esc(row.political.treasurer)}</td>
-        </tr>
-      `).join("");
-
-      tableBody.querySelectorAll("tr[data-index]").forEach((tableRow) => {
-        const selectRow = () => {
-          state.selected = Number(tableRow.dataset.index);
-          renderAll();
-        };
-        tableRow.addEventListener("click", selectRow);
-      });
-    }
-
     function renderSources() {
-      document.getElementById("sourceGrid").innerHTML = sources.map((source) => `
+      const sourceCard = (source) => `
         <article class="source">
           <h4>${esc(source.title)}</h4>
           <p>${esc(source.text)}</p>
           <a href="${source.url}" target="_blank" rel="noopener">${esc(source.linkText)}</a>
         </article>
+      `;
+      document.getElementById("sourceGrid").innerHTML = sourceGroups.map((group) => `
+        <div class="source-group-heading">
+          <h3>${esc(group.title)}</h3>
+          <p>${esc(group.text)}</p>
+        </div>
+        ${sources.filter((source) => source.group === group.key).map(sourceCard).join("")}
       `).join("");
     }
 
-    function downloadCsv() {
+    function buildCsv() {
       const headers = [
         "financial_year", "population_persons", "gross_debt_per_capita_aud",
         "net_debt_per_capita_aud", "nominal_gdp_m", "gross_debt_m", "gross_debt_pct_gdp",
@@ -3616,6 +3605,21 @@
       const csv = [headers, ...csvRows].map((line) =>
         line.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")
       ).join("\n");
+      return csv;
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return `${bytes} bytes`;
+      const kilobytes = bytes / 1024;
+      return `${kilobytes >= 10 ? kilobytes.toFixed(0) : kilobytes.toFixed(1)} KB`;
+    }
+
+    function updateDownloadSize() {
+      downloadSize.textContent = formatFileSize(new Blob([buildCsv()]).size);
+    }
+
+    function downloadCsv() {
+      const csv = buildCsv();
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -3636,10 +3640,8 @@
       renderDollarMeasureControl();
       renderDollarBasisControl();
       renderMeasureRows();
-      renderDetail();
-      renderInsights();
+      renderYearPicker();
       renderChart();
-      renderTable();
       scheduleMeasureLozengeLabelFit();
     }
 
@@ -3758,7 +3760,7 @@
     });
 
     const YEAR_HOLD_DELAY = 500;
-    const YEAR_HOLD_INTERVAL = 500;
+    const YEAR_HOLD_INTERVAL = 1000 / 20;
     let yearHold = null;
     let suppressedYearClickButton = null;
     let suppressedYearClickTimeout = 0;
@@ -3939,9 +3941,11 @@
     });
 
     chart.addEventListener("pointerdown", beginRangeSelection);
+    chart.addEventListener("pointermove", updatePlotHoverState);
     chart.addEventListener("pointermove", updateRangeSelection);
     chart.addEventListener("pointerup", finishRangeSelection);
     chart.addEventListener("pointercancel", cancelRangeSelection);
+    chart.addEventListener("pointerleave", clearPlotHoverState);
     chart.addEventListener("wheel", handleWheelZoom, { passive: false });
     chart.addEventListener("contextmenu", (event) => event.preventDefault());
     chartCard.addEventListener("contextmenu", (event) => {
@@ -4000,6 +4004,24 @@
     }, true);
 
     document.getElementById("downloadCsv").addEventListener("click", downloadCsv);
+    function openAndScrollToHash(hash, behavior = "smooth") {
+      if (!hash) return false;
+      const target = document.querySelector(hash);
+      if (!target) return false;
+      const details = target.matches("details") ? target : target.querySelector("details");
+      if (details) details.open = true;
+      target.scrollIntoView({ behavior, block: "start" });
+      return true;
+    }
+
+    document.querySelectorAll(".topbar-nav a").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        if (!document.querySelector(link.hash)) return;
+        event.preventDefault();
+        window.history.pushState(null, "", link.hash);
+        openAndScrollToHash(link.hash);
+      });
+    });
     chartWrap.addEventListener("mouseleave", hideTooltip);
     window.addEventListener("scroll", () => {
       if (activeMeasureTooltipButton) positionMeasureTooltip(activeMeasureTooltipButton);
@@ -4007,11 +4029,17 @@
     window.addEventListener("resize", handleViewportResize);
 
     renderSources();
+    updateDownloadSize();
     renderFullscreenControl();
     applyUrlState();
     renderAll();
     if (isMobilePortraitChartViewport()) setKioskMode(true);
     clearShareUrl();
+    if (window.location.hash) {
+      window.requestAnimationFrame(() => {
+        openAndScrollToHash(window.location.hash, "auto");
+      });
+    }
   </script>
 </body>
 </html>

@@ -14,7 +14,7 @@ function captureBrowserErrors(page) {
 
 async function loadApp(page) {
   await page.goto(appUrl, { waitUntil: "load" });
-  await page.waitForSelector("#chart");
+  await page.waitForSelector("#chartSvg");
   await page.waitForFunction(() => (
     document.querySelectorAll("#measureRows .measure-lozenge").length === 10
   ));
@@ -55,8 +55,8 @@ async function snapshot(page) {
       fullscreen: Boolean(document.fullscreenElement || document.webkitFullscreenElement),
       fullscreenText: text("#fullscreenChart"),
       year: text("#selectedYearLabel"),
-      chart: rect("#chart"),
-      chartHeight: rect("#chart")?.height || 0,
+      chart: rect("#chartSvg"),
+      chartHeight: rect("#chartSvg")?.height || 0,
       chartWrap: rect("#chartWrap"),
       axisText: rect("#chartAxisLabelText"),
       axisLabel: rect("#chartAxisLabel"),

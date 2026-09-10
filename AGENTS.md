@@ -36,7 +36,7 @@
 - The HTML body provides the semantic shell and empty dynamic containers for the chart, measure controls, selected-year details, insights, table, and sources.
 - The inline script first declares the source snapshots:
   - `fiscalRows`: PBO fiscal observations in compact array form.
-  - `cpiDeflators`: ABS June-quarter stock factors and financial-year-average flow factors.
+  - `cpiDeflators`: ABS June-quarter debt factors and financial-year-average flow factors.
   - `populationByFinancialYear`: ABS 30 June population denominators.
   - `politicalTimeline`: government and office-holders aligned to 30 June.
   - `sources`: source metadata reused by the visible source grid and inline citations.
@@ -52,9 +52,9 @@
 - Keep the documented `fiscalRows` field order: financial year, nominal GDP, gross debt, gross-debt/GDP, gross-debt growth, net debt, net-debt/GDP, underlying cash balance, underlying-cash/GDP, headline cash balance, headline-cash/GDP, fiscal balance, fiscal-balance/GDP, net interest payments, and the PBO interest-paid series.
 - The fiscal values are stored in millions of Australian dollars; percentages are stored as numeric percentage values. `null` represents an unavailable observation, notably the fiscal balance before 1996-97.
 - Existing rows retain a legacy trailing `false` placeholder after the 15 documented fields. It is ignored by destructuring and is not a reported data field; do not treat it as a new column when updating the dataset.
-- Preserve the distinction between stocks measured at 30 June and annual flows. Use the June-quarter CPI factor for debt stocks and the financial-year-average CPI factor for cash, fiscal, and interest flows.
+- Preserve the distinction between debt amounts measured at 30 June and annual flows. Use the June-quarter CPI factor for debt amounts and the financial-year-average CPI factor for cash, fiscal, and interest flows.
 - Use the existing derived-value helpers (`getPercentOfGdp`, `getDollarBillions`, `getDollarPerCapita`, `getDebtChangeDollars`, `getNominalDebtChange`, `getDebtChangeOverGdp`, and `getDebtBurdenChange`) instead of duplicating formulas in renderers.
-- Debt-stock change, debt growth, debt-burden change, budget balance, and interest are different measures. Do not label one as another or infer the Budget result from a change in debt stock.
+- Change in debt amount, debt growth, debt-burden change, budget balance, and interest are different measures. Do not label one as another or infer the Budget result from a change in debt amount.
 - The documented 2002-03 PBO ratio correction and the 2012-13 political transition are deliberate source-audit decisions. Preserve them unless the source methodology is intentionally revised.
 - When updating the embedded vintage, update the relevant data arrays, `cpiBase`, source metadata, visible definitions/update notes, and any date/range copy together. Keep source links and source IDs consistent with `sourceLink()`.
 
@@ -64,6 +64,7 @@
 - Dynamic HTML and SVG are assembled with template strings. Escape interpolated values with `esc()`; use `svgText()` for SVG text and preserve `rel="noopener"` on external links.
 - Follow the existing render pipeline: change state in an event handler, then re-render the affected surface (or call `renderAll()` when multiple surfaces depend on it). Do not update one display while leaving the detail panel, table, tooltip, or CSV output stale.
 - Adding or renaming a measure requires coordinated updates to `chartModes.debt`, selector labels/short labels, `measureExplanations`, `measureRowLayout`, `tooltipSeriesKeys`, keyboard shortcut mappings, chart notes, table/detail output, and CSV headers/rows as applicable.
-- Keep `aria-pressed`, `aria-disabled`, live output, focus restoration, SVG point labels, and the chart `<desc>` synchronized with interaction changes. Existing keyboard shortcuts are part of the UI contract: `1`-`5` select lenses, `Tab`/`Shift+Tab` cycle lenses, `Q`-`T` and `A`-`G` toggle measures, `L` shares, `0` resets, Escape remains available for browser-native behavior, arrows select years, Control+arrows pan/zoom, Space moves the legend, and Control+Enter toggles full screen. Pressing and holding either year button repeats year changes at approximately two changes per second after the hold delay; a normal click or tap still changes the year once.
+- Keep `aria-pressed`, `aria-disabled`, live output, focus restoration, SVG point labels, and the chart `<desc>` synchronized with interaction changes. Existing keyboard shortcuts are part of the UI contract: `1`-`5` select lenses, `Tab`/`Shift+Tab` cycle lenses, `Q`-`T` and `A`-`G` toggle measures, `L` shares, `0` resets, Escape remains available for browser-native behavior, arrows select years, Control+arrows pan/zoom, Space moves the legend, and Control+Enter toggles full screen. Pressing and holding either year button repeats year changes at approximately 20 changes per second after the hold delay; a normal click or tap still changes the year once.
+- On desktop, the crosshair cursor and mouse wheel/drag zoom behavior are limited to the SVG plotting rectangle; chart margins, axis labels, and the axis title retain normal pointer behavior.
 - Preserve the selected-year convention: debt and political office-holders refer to 30 June, while budget and interest values cover the financial year ending on that date.
 - Keep the source/definition text close to the implementation when changing methodology. This page is designed to be auditable, so derived formulas, exceptions, units, and source vintage should remain visible in the Sources section.

@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Archived content removed from the Commonwealth fiscal data story.">
+  <title>Archived Commonwealth data story content</title>
+  <style>
+    :root {
+      --ink: #182230;
+      --muted: #617083;
+      --paper: #f6f7f9;
+      --card: #fff;
+      --line: #dfe5eb;
+      --navy: #0c1d2f;
+      --navy-2: #122b42;
+      --amber: #f1b84b;
+      --cyan: #60c7de;
+      --shadow: 0 14px 40px rgba(12, 29, 47, 0.09);
+      --radius: 18px;
+      --max: 1240px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(var(--max), calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 3rem 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    p { margin-top: 0; }
+
+    h1,
+    h2,
+    h3 { color: var(--navy); }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: -0.05em;
+      line-height: 0.98;
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 2.7vw, 2.35rem);
+      letter-spacing: -0.04em;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.12rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.8rem;
+    }
+
+    .eyebrow {
+      color: #b77913;
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      margin-bottom: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 2rem;
+      align-items: end;
+    }
+
+    .lede {
+      max-width: 760px;
+      color: #4d5c6c;
+      font-size: clamp(1.06rem, 1.6vw, 1.27rem);
+      margin-bottom: 1.4rem;
+    }
+
+    .definition {
+      max-width: 820px;
+      border-left: 4px solid var(--amber);
+      color: #3f4e5e;
+      padding: 0.15rem 0 0.15rem 1rem;
+    }
+
+    .definition strong { color: var(--navy); }
+
+    .term-definitions {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 1.35rem 0 0;
+    }
+
+    .term-definition {
+      background: #edf4f7;
+      border: 1px solid #d9e7ec;
+      border-radius: 12px;
+      padding: 0.85rem 0.95rem;
+    }
+
+    .term-definition h3 {
+      font-size: 0.86rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .term-definition p,
+    .term-abbreviations {
+      color: #526675;
+      font-size: 0.82rem;
+    }
+
+    .term-abbreviations {
+      margin: 0.75rem 0 0;
+    }
+
+    .hero-rail {
+      background: var(--navy);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      color: #dce9f3;
+      padding: 1.4rem;
+    }
+
+    .hero-rail h2 {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-rail p {
+      color: #b9cddd;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-rail p:last-child { margin-bottom: 0; }
+    .hero-rail strong { color: var(--amber); }
+
+    .chart-note {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.79rem;
+      margin: 2rem 0;
+      padding: 0.65rem 0.15rem 0.1rem;
+    }
+
+    .detail-layout {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+      margin: 1rem 0;
+    }
+
+    .detail-card,
+    .insight-card,
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+    }
+
+    .detail-heading {
+      align-items: baseline;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 0.85rem;
+      justify-content: space-between;
+    }
+
+    .detail-heading h3 { margin-bottom: 0.2rem; }
+
+    .party-pill {
+      background: #e8eef4;
+      border-radius: 999px;
+      color: #40566a;
+      display: inline-flex;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.52rem;
+      white-space: nowrap;
+    }
+
+    .party-pill.labor {
+      background: #f9e0e6;
+      color: #963a4c;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 1rem;
+    }
+
+    .detail-item {
+      border-top: 2px solid #edf0f3;
+      padding-top: 0.55rem;
+    }
+
+    .detail-item.wide { grid-column: span 2; }
+
+    .detail-item dt {
+      color: #71808d;
+      font-size: 0.76rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    .detail-item dd {
+      color: var(--navy);
+      font-size: 1rem;
+      font-weight: 750;
+      margin: 0;
+    }
+
+    .detail-item small {
+      color: #6f7f8d;
+      display: block;
+      font-size: 0.77rem;
+      font-weight: 500;
+      margin-top: 0.16rem;
+    }
+
+    .insight-card {
+      background: var(--navy-2);
+      color: #dce9f3;
+    }
+
+    .insight-card h3 { color: #fff; }
+
+    .insight-card p {
+      color: #b9cddd;
+      font-size: 0.9rem;
+    }
+
+    .insight-card p:last-child { margin-bottom: 0; }
+
+    .insight-number {
+      color: var(--amber);
+      font-size: 1.25rem;
+      font-weight: 850;
+    }
+
+    .table-card { margin-top: 1rem; }
+
+    .table-head {
+      align-items: end;
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+    }
+
+    .table-head p {
+      color: var(--muted);
+      font-size: 0.83rem;
+      margin-bottom: 0;
+      text-align: right;
+    }
+
+    .table-scroll {
+      max-height: 620px;
+      overflow: auto;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.82rem;
+      min-width: 1180px;
+      width: 100%;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e6ebef;
+      padding: 0.66rem 0.55rem;
+      text-align: right;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f3f6;
+      color: #526475;
+      font-size: 0.7rem;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+      position: sticky;
+      text-transform: uppercase;
+      top: 0;
+      z-index: 1;
+    }
+
+    th:first-child,
+    td:first-child {
+      background: #fff;
+      left: 0;
+      position: sticky;
+      text-align: left;
+      z-index: 2;
+    }
+
+    th:first-child { z-index: 3; }
+    td:first-child { font-weight: 800; }
+
+    .archive-notes {
+      border-top: 1px solid var(--line);
+      color: #5d6d7b;
+      font-size: 0.87rem;
+      margin-top: 1.25rem;
+      padding-top: 0.95rem;
+    }
+
+    .archive-notes ul {
+      margin-bottom: 0;
+      padding-left: 1.2rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      color: #758493;
+      font-size: 0.79rem;
+      margin-top: 2rem;
+      padding: 1rem 0 2.5rem;
+    }
+
+    footer p:last-child { margin-bottom: 0; }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(var(--max), calc(100% - 1.15rem));
+        padding: 2rem 0;
+      }
+
+      .hero,
+      .detail-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .term-definitions {
+        grid-template-columns: 1fr;
+      }
+
+      .table-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .table-head p { text-align: left; }
+      .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 480px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-item.wide { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-label="Australia's national debt in context">
+      <div>
+        <p class="lede">
+          Explore how Australia's Commonwealth debt burden, budget balance and
+          political leadership have moved together over more than five decades.
+          Select any year to see the numbers and the people in office at the
+          end of that financial year.
+        </p>
+        <p class="definition">
+          <strong>What "national debt" means here:</strong>
+          the face value of Australian Government Securities on issue, often
+          called <strong>gross debt</strong>. It is a Commonwealth government
+          debt amount measured at a point in time, not household debt and not
+          Australia's external debt. <strong>External debt</strong> is the
+          total debt owed by Australian residents—including governments,
+          banks, businesses and households—to lenders outside Australia.
+          Net debt is shown separately.
+        </p>
+        <div class="term-definitions" aria-label="Key fiscal terms">
+          <article class="term-definition">
+            <h3>Gross debt</h3>
+            <p>The face value of Australian Government Securities (AGS) on issue. It is a debt amount measured at 30 June.</p>
+          </article>
+          <article class="term-definition">
+            <h3>Net debt</h3>
+            <p>Debt after selected financial assets, such as cash and investments, have been subtracted. In plain language, it shows how much debt remains after those assets help offset it.</p>
+          </article>
+          <article class="term-definition">
+            <h3>Underlying cash balance</h3>
+            <p><strong>Positive (+) = surplus; negative (-) = deficit.</strong> It is the annual cash budget result, measured over a year rather than at a single point in time.</p>
+          </article>
+        </div>
+        <p class="term-abbreviations"><strong>Abbreviations:</strong> PBO means Parliamentary Budget Office; AGS means Australian Government Securities. <strong>Nominal</strong> means the amounts are not adjusted for inflation. <strong>Inflation-adjusted</strong> means earlier amounts are converted to 2024-25 purchasing power using the ABS Consumer Price Index.</p>
+      </div>
+
+      <aside class="hero-rail" aria-label="How to read this page">
+        <h2>How to read it</h2>
+        <p><strong>Debt:</strong> measured at 30 June.</p>
+        <p><strong>Budget balance:</strong> measured over the financial year; <strong>positive (+) = surplus, negative (-) = deficit.</strong></p>
+        <p><strong>Debt burden:</strong> on this page, gross or net debt as a percentage of nominal GDP; it is not the annual interest cost of the debt.</p>
+        <p><strong>Politics:</strong> PM and Treasurer are the office-holders on 30 June.</p>
+      </aside>
+    </section>
+
+    <p class="chart-note">Gross and net debt are amounts measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt amounts and are not the Budget surplus or deficit. Debt amounts use June-quarter CPI and flows use financial-year-average CPI. Results are shown per capita using ABS population at 30 June; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.</p>
+
+    <section class="detail-layout" aria-labelledby="detail-title">
+      <article class="detail-card">
+        <div class="detail-heading">
+          <div>
+            <p class="eyebrow">02 / Selected year</p>
+            <h2 id="detail-title">2024-25</h2>
+          </div>
+          <span class="party-pill">Historical outcome</span>
+        </div>
+        <div class="detail-grid">
+          <dl class="detail-item">
+            <dt>Gross debt</dt>
+            <dd>A$928.6b</dd>
+            <small>33.4% of GDP</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Gross debt growth vs previous year</dt>
+            <dd>+2.4%</dd>
+            <small>Derived from adjacent PBO observations</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Gross debt burden change</dt>
+            <dd>-0.4 pp</dd>
+            <small>Percentage-point change in the gross debt-to-GDP ratio</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Change in gross debt / GDP</dt>
+            <dd>+0.8%</dd>
+            <small>Consecutive gross debt amounts divided by current-year GDP</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Net debt</dt>
+            <dd>A$532.3b</dd>
+            <small>19.2% of GDP</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Net debt burden change</dt>
+            <dd>+0.8 pp</dd>
+            <small>Percentage-point change in the net debt-to-GDP ratio</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Change in net debt / GDP</dt>
+            <dd>+1.5%</dd>
+            <small>Consecutive net debt amounts divided by current-year GDP</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Nominal GDP</dt>
+            <dd>A$2,778.9b</dd>
+            <small>Nominal GDP for the financial year</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Population at 30 June</dt>
+            <dd>2,778,897</dd>
+            <small>Used for per-capita values</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Gross debt per capita</dt>
+            <dd>A$334,175</dd>
+            <small>Nominal gross debt divided by population</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Net debt per capita</dt>
+            <dd>A$191,567</dd>
+            <small>Nominal net debt divided by population</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Underlying cash balance (+ surplus / - deficit)</dt>
+            <dd>-A$10.0b</dd>
+            <small>-0.4% of GDP; negative means deficit</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Fiscal balance</dt>
+            <dd>-A$44.8b</dd>
+            <small>-1.6% of GDP</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Interest paid (PBO series; includes AGS)</dt>
+            <dd>A$24.3b</dd>
+            <small>0.9% of nominal GDP</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Net interest payments</dt>
+            <dd>A$13.7b</dd>
+            <small>0.5% of nominal GDP; after interest receipts</small>
+          </dl>
+          <dl class="detail-item wide">
+            <dt>Government in power</dt>
+            <dd><span class="party-pill labor">Australian Labor Party</span></dd>
+            <small>Aligned to 30 June</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Prime Minister</dt>
+            <dd>Anthony Albanese</dd>
+            <small>Office-holder at 30 June</small>
+          </dl>
+          <dl class="detail-item">
+            <dt>Treasurer</dt>
+            <dd>Jim Chalmers</dd>
+            <small>Office-holder at 30 June</small>
+          </dl>
+        </div>
+      </article>
+
+      <aside class="insight-card" aria-labelledby="insight-title">
+        <p class="eyebrow">03 / What stands out</p>
+        <h2 id="insight-title">A few landmarks</h2>
+        <p><span class="insight-number">4.7%</span> was the lowest gross-debt burden in the embedded series, in 2007-08.</p>
+        <p>The burden peaked at <span class="insight-number">39.1%</span> in 2020-21.</p>
+        <p>The largest annual increase in gross debt was <span class="insight-number">+82.4%</span> in 2008-09.</p>
+        <p>The largest underlying cash deficit was <span class="insight-number">-A$134.2b</span> in 2020-21. The selected year was 2024-25.</p>
+      </aside>
+    </section>
+
+    <section class="table-card" aria-labelledby="table-title">
+      <div class="table-head">
+        <div>
+          <p class="eyebrow">04 / Underlying data</p>
+          <h2 id="table-title">Annual observations</h2>
+        </div>
+        <p>The compact source observations below preserve the embedded fiscal snapshot.</p>
+      </div>
+      <div class="table-scroll">
+        <table id="archivedDataTable">
+          <caption>Archived Commonwealth fiscal observations</caption>
+          <thead>
+            <tr>
+              <th scope="col">Financial year</th>
+              <th scope="col">Nominal GDP<br>($m)</th>
+              <th scope="col">Gross debt<br>($m)</th>
+              <th scope="col">Gross debt<br>/ GDP (%)</th>
+              <th scope="col">Gross debt growth<br>(%)</th>
+              <th scope="col">Net debt<br>($m)</th>
+              <th scope="col">Net debt<br>/ GDP (%)</th>
+              <th scope="col">Underlying cash<br>($m)</th>
+              <th scope="col">Cash / GDP<br>(%)</th>
+              <th scope="col">Headline cash<br>($m)</th>
+              <th scope="col">Fiscal balance<br>($m)</th>
+              <th scope="col">Net interest<br>($m)</th>
+              <th scope="col">Interest paid<br>(PBO; $m)</th>
+            </tr>
+          </thead>
+          <tbody id="archivedDataRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="archive-notes" aria-label="Archived chart and update notes">
+      <ul>
+        <li><strong>Chart range:</strong> click and drag across the plot to zoom into a consecutive range of financial years. The reset button restores the full embedded history.</li>
+        <li><strong>Updating this file:</strong> replace <code>fiscalRows</code> with the next PBO workbook extraction, extend <code>cpiDeflators</code> and <code>populationByFinancialYear</code> from the linked ABS releases, extend the political timeline, update the source metadata, and check the derived values. Keep only reported outcomes in the 15 documented fields; do not add the legacy placeholder to new rows.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built as a self-contained data story. No runtime data requests, frameworks or chart libraries are required.</p>
+    <p>Data snapshot: Parliamentary Budget Office, Historical Fiscal Data: 2026-27 Budget. Last embedded outcome: 2024-25.</p>
+  </footer>
+
+  <script>
+    const fiscalRows = [
+      ["1970-71",40432,10887,26.9267,null,344,0.8508,901,2.2284,50,0.1237,null,null,-189,580],
+      ["1971-72",44613,11490,25.7548,5.5387,-496,-1.1118,886,1.986,-101,-0.2264,null,null,-245,614],
+      ["1972-73",49892,12217,24.4869,6.3272,-790,-1.5834,348,0.6975,-629,-1.2607,null,null,-252,675],
+      ["1973-74",60445,12809,21.1912,4.8457,-1851,-3.0623,1150,1.9026,-125,-0.2068,null,null,-286,712],
+      ["1974-75",71356,14785,20.7201,15.4267,-1901,-2.6641,181,0.2537,-2467,-3.4573,null,null,-242,893],
+      ["1975-76",83467,17940,21.4935,21.3392,-341,-0.4085,-1499,-1.7959,-3539,-4.24,null,null,-330,1001],
+      ["1976-77",96338,20845,21.6374,16.1929,898,0.9321,-1266,-1.3141,-2796,-2.9023,null,null,-62,1485],
+      ["1977-78",105208,23957,22.7711,14.9292,2896,2.7526,-2037,-1.9362,-3361,-3.1946,null,null,4,1740],
+      ["1978-79",118923,28120,23.6456,17.377,4983,4.1901,-2142,-1.8012,-3216,-2.7043,null,null,254,2080],
+      ["1979-80",134805,29321,21.7507,4.271,6244,4.6319,-1322,-0.9807,-2024,-1.5014,null,null,440,2356],
+      ["1980-81",152581,30189,19.7856,2.9603,6356,4.1657,-184,-0.1206,-1146,-0.7511,null,null,620,2723],
+      ["1981-82",176115,31060,17.6362,2.8852,5919,3.3609,348,0.1976,-660,-0.3748,null,null,680,3058],
+      ["1982-83",189688,37071,19.5431,19.3529,9151,4.8242,-3348,-1.765,-4711,-2.4836,null,null,896,3580],
+      ["1983-84",213941,45437,21.2381,22.5675,16015,7.4857,-7008,-3.2757,-8144,-3.8067,null,null,1621,4558],
+      ["1984-85",235787,54420,23.0802,19.7702,21896,9.2863,-6037,-2.5604,-6959,-2.9514,null,null,2813,5952],
+      ["1985-86",261198,63089,24.1537,15.9298,26889,10.2945,-5122,-1.961,-5932,-2.2711,null,null,3952,7394],
+      ["1986-87",286715,67172,23.4281,6.4718,29136,10.162,-2434,-0.8489,-2979,-1.039,null,null,4762,8339],
+      ["1987-88",324994,62794,19.3216,-6.5176,27344,8.4137,1452,0.4468,2109,0.6489,null,null,4503,8139],
+      ["1988-89",368757,56854,15.4177,-9.4595,21981,5.9608,5421,1.4701,5589,1.5156,null,null,4475,8222],
+      ["1989-90",405241,48399,11.9433,-14.8714,16123,3.9786,5942,1.4663,7159,1.7666,null,null,4549,8064],
+      ["1990-91",415894,48723,11.7152,0.6694,16915,4.0671,-438,-0.1053,1125,0.2705,null,null,3636,6994],
+      ["1991-92",423875,58826,13.8781,20.7356,31041,7.3231,-12631,-2.9799,-10475,-2.4712,null,null,3810,6819],
+      ["1992-93",444848,76509,17.1989,30.0598,55218,12.4128,-18118,-4.0729,-15647,-3.5174,null,null,3986,6487],
+      ["1993-94",467286,90889,19.4504,18.7952,70223,15.0278,-18185,-3.8916,-14738,-3.154,null,null,5628,7709],
+      ["1994-95",496599,105466,21.2377,16.0382,83492,16.8128,-14160,-2.8514,-12614,-2.5401,null,null,7292,9144],
+      ["1995-96",529787,110166,20.7944,4.4564,95831,18.0886,-11109,-2.0969,-5921,-1.1176,null,null,8861,10325],
+      ["1996-97",557533,111067,19.9212,0.8179,96281,17.2691,-6099,-1.0939,1142,0.2048,-4342,-0.7788,9489,10653],
+      ["1997-98",590253,93664,15.8684,-15.6689,82935,14.0508,149,0.0252,15303,2.5926,-2115,-0.3583,8279,9453],
+      ["1998-99",622917,85331,13.6986,-8.8967,72065,11.569,3889,0.6243,10837,1.7397,3748,0.6017,8649,9299],
+      ["1999-00",663843,75536,11.3786,-11.4788,57661,8.6859,13007,1.9593,22507,3.3904,11645,1.7542,7514,8509],
+      ["2000-01",708764,66403,9.3688,-12.0909,46802,6.6033,5872,0.8285,11545,1.6289,5820,0.8211,6195,7335],
+      ["2001-02",757685,63004,8.3153,-5.1187,42263,5.5779,-1067,-0.1408,2355,0.3108,-3164,-0.4176,5352,6270],
+      ["2002-03",804444,66403,8.2545,5.3949,46802,5.8179,7370,0.9162,7141,0.8877,5088,0.6325,6195,7335],
+      ["2003-04",865471,54750,6.326,-17.5489,26995,3.1191,7990,0.9232,7538,0.871,5749,0.6643,3040,4096],
+      ["2004-05",926930,55151,5.9499,0.7324,15604,1.6834,13577,1.4647,12438,1.3418,11892,1.2829,2502,3902],
+      ["2005-06",1001309,54070,5.3999,-1.9601,331,0.0331,15757,1.5736,14160,1.4141,16094,1.6073,2303,4628],
+      ["2006-07",1091056,53264,4.8819,-1.4907,-24288,-2.2261,17190,1.5755,26720,2.449,16365,1.4999,228,3959],
+      ["2007-08",1182238,55442,4.6896,4.0891,-39958,-3.3799,19754,1.6709,28181,2.3837,20475,1.7319,-1015,3754],
+      ["2008-09",1265515,101147,7.9926,82.4375,-11285,-0.8917,-27013,-2.1345,-31336,-2.4761,-30445,-2.4057,-1196,3970],
+      ["2009-10",1308555,147133,11.2439,45.4645,47874,3.6585,-54494,-4.1644,-56516,-4.319,-54400,-4.1573,2386,6411],
+      ["2010-11",1422950,191292,13.4433,30.013,90660,6.3713,-47463,-3.3355,-51106,-3.5916,-52802,-3.7107,4608,9551],
+      ["2011-12",1505777,233976,15.5386,22.3135,153443,10.1903,-43360,-2.8796,-47023,-3.1228,-45474,-3.02,6609,10875],
+      ["2012-13",1543718,257378,16.6726,10.0019,159594,10.3383,-18834,-1.22,-20954,-1.3574,-24842,-1.6092,8285,11846],
+      ["2013-14",1606317,319487,19.8894,24.1314,209559,13.0459,-48456,-3.0166,-52479,-3.267,-45390,-2.8257,10843,13972],
+      ["2014-15",1630787,368738,22.611,15.4157,245817,15.0735,-37867,-2.322,-38936,-2.3876,-42206,-2.5881,10868,13924],
+      ["2015-16",1664441,420420,25.2589,14.0159,303467,18.2324,-39606,-2.3795,-49088,-2.9492,-39513,-2.374,12041,14977],
+      ["2016-17",1764693,500979,28.389,19.1616,322320,18.2649,-33151,-1.8786,-43008,-2.4371,-36865,-2.089,12365,15290],
+      ["2017-18",1848929,531937,28.77,6.1795,341961,18.4951,-10141,-0.5485,-25878,-1.3996,-6493,-0.3512,13135,16568],
+      ["2018-19",1955185,541992,27.7208,1.8903,373566,19.1064,-690,-0.0353,-7199,-0.3682,1350,0.069,15149,18951],
+      ["2019-20",1989006,684298,34.404,26.2561,491217,24.6966,-85272,-4.2872,-93868,-4.7193,-95844,-4.8187,13280,16524],
+      ["2020-21",2091023,816991,39.0714,19.3911,592221,28.3221,-134171,-6.4165,-137535,-6.5774,-136108,-6.5092,14290,17102],
+      ["2021-22",2336902,895253,38.3094,9.5793,515650,22.0655,-31962,-1.3677,-33302,-1.425,-35061,-1.5003,14977,17423],
+      ["2022-23",2577013,889790,34.528,-0.6102,491013,19.0536,22064,0.8562,14103,0.5473,21926,0.8508,11852,18862],
+      ["2023-24",2680025,906939,33.8407,1.9273,491469,18.3382,15779,0.5888,13963,0.521,11996,0.4476,12264,22774],
+      ["2024-25",2778897,928639,33.4175,2.3927,532346,19.1567,-9990,-0.3595,-21765,-0.7832,-44806,-1.6124,13725,24270]
+    ];
+
+    const format = (value) => value === null ? "n/a" : Number(value).toLocaleString("en-AU", {
+      maximumFractionDigits: 4
+    });
+
+    document.getElementById("archivedDataRows").innerHTML = fiscalRows.map((row) => `
+      <tr>
+        <td>${row[0]}</td>
+        <td>${format(row[1])}</td>
+        <td>${format(row[2])}</td>
+        <td>${format(row[3])}</td>
+        <td>${format(row[4])}</td>
+        <td>${format(row[5])}</td>
+        <td>${format(row[6])}</td>
+        <td>${format(row[7])}</td>
+        <td>${format(row[8])}</td>
+        <td>${format(row[9])}</td>
+        <td>${format(row[11])}</td>
+        <td>${format(row[13])}</td>
+        <td>${format(row[14])}</td>
+      </tr>
+    `).join("");
+  </script>
+</body>
+</html>
