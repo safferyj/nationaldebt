@@ -1607,7 +1607,7 @@
           <li><strong>Debt burden:</strong> in this page, gross debt burden means gross debt as a percentage of nominal GDP, and net debt burden means net debt as a percentage of nominal GDP. “Debt burden” is descriptive shorthand for debt relative to the size of the economy; it does not mean interest cost or debt-service cost.</li>
           <li><strong>Debt burden change:</strong> the year-on-year change in the debt-to-GDP ratio, expressed in percentage points. This measure remains available in the selected-year details, table and CSV; the combined chart's % of GDP view instead uses debt-stock change divided by current-year GDP. It avoids unstable net-debt growth percentages when net debt is near zero or negative.</li>
           <li><strong>Debt-stock change as a share of GDP:</strong> the difference between consecutive debt stocks divided by the current financial year's nominal GDP, expressed as a percentage: <code>(current debt stock - previous debt stock) / current-year GDP * 100</code>. It is a normalized stock-change measure, not the Budget surplus or deficit and not the same as debt-burden change.</li>
-          <li><strong>Dollar debt change:</strong> the current debt stock minus the previous year's debt stock. In Per capita mode it is the change in debt per person; in inflation-adjusted mode each stock is converted to 2024-25 dollars before the change is calculated. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
+          <li><strong>Dollar debt change:</strong> the current debt stock minus the previous year's debt stock. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode each stock is converted to 2024-25 dollars before the change is calculated. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
           <li><strong>Nominal dollars:</strong> amounts are expressed in the Australian-dollar values recorded in each period, without adjusting for inflation. Comparing dollar levels across decades therefore reflects both economic growth and changes in prices.</li>
           <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2024-25 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
           <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
@@ -2033,7 +2033,7 @@
     const formatPerCapita = (value, signed = false) => {
       if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
       const sign = value < 0 ? "-A$" : signed && value > 0 ? "+A$" : "A$";
-      return `${sign}${formatNumber(Math.abs(value), 0)} per person`;
+      return `${sign}${formatNumber(Math.abs(value), 0)} per capita`;
     };
 
     const formatTableBillions = (value) => {
@@ -2182,8 +2182,8 @@
       }
       if (state.mode === "debt" && state.dollarMeasure === "perCapita") {
         return state.dollarBasis === "real"
-          ? "A$ per person (2024-25 dollars)"
-          : "A$ per person (nominal)";
+          ? "A$ per capita (2024-25 dollars)"
+          : "A$ per capita (nominal)";
       }
       return state.dollarBasis === "real"
         ? "A$ billions (2024-25 dollars)"
@@ -2194,8 +2194,8 @@
       if (state.mode === "debt" && state.debtView === "dollars") {
         if (state.dollarMeasure === "perCapita") {
           return state.dollarBasis === "real"
-            ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. Results are shown per person using ABS population at 30 June; the fiscal balance is unavailable before 1996-97. Interest lines are off by default."
-            : "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Results are shown per person using ABS population at 30 June; nominal dollars are not adjusted for inflation; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.";
+            ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. Results are shown per capita using ABS population at 30 June; the fiscal balance is unavailable before 1996-97. Interest lines are off by default."
+            : "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Results are shown per capita using ABS population at 30 June; nominal dollars are not adjusted for inflation; the fiscal balance is unavailable before 1996-97. Interest lines are off by default.";
         }
         return state.dollarBasis === "real"
           ? "Gross and net debt are stocks measured at 30 June; underlying cash, fiscal balance and interest series are annual flows; debt changes compare consecutive debt stocks and are not the Budget surplus or deficit. Stock values use June-quarter CPI and flows use financial-year-average CPI. The fiscal balance is unavailable before 1996-97. Interest lines are off by default."
@@ -3182,7 +3182,7 @@
       if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
       if (suffix === "%") return `${formatNumber(value)}%`;
       if (suffix === "pp") return `${formatNumber(value)} pp`;
-      if (suffix === "perPerson") return formatPerCapita(value).replace(" per person", "/person");
+      if (suffix === "perPerson") return formatPerCapita(value).replace(" per capita", "");
       const sign = value < 0 ? "-A$" : "A$";
       return `${sign}${formatNumber(Math.abs(value))}b`;
     };
