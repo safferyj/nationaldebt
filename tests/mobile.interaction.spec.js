@@ -74,11 +74,19 @@ async function assertTouchZoomGesture(page) {
   });
   expect(await page.locator("#resetView").isDisabled()).toBe(true);
 
+  const beforeDragYear = (await snapshot(page)).year;
   await dispatchTouchSequence(page, [
     { type: "pointerdown", pointerId: 1, x: 0.2 },
+    { type: "pointermove", pointerId: 1, x: 0.3 },
+  ]);
+  const middleDragYear = (await snapshot(page)).year;
+  await dispatchTouchSequence(page, [
     { type: "pointermove", pointerId: 1, x: 0.8 },
     { type: "pointerup", pointerId: 1, x: 0.8, buttons: 0 },
   ]);
+  const afterDragYear = (await snapshot(page)).year;
+  expect(middleDragYear).not.toBe(beforeDragYear);
+  expect(afterDragYear).not.toBe(middleDragYear);
   expect(await page.locator("#resetView").isDisabled()).toBe(true);
 
   await dispatchTouchSequence(page, [
