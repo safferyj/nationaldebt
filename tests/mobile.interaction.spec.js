@@ -99,8 +99,9 @@ async function assertChartPointHitTargets(page) {
   expect(metrics.hitCount).toBe(metrics.visibleCount);
   expect(metrics.hitRadius).toBeGreaterThan(metrics.visibleRadius);
 
+  const beforeTap = (await snapshot(page)).year;
   await page.locator(".chart-point-hit").first().dispatchEvent("click");
-  expect((await snapshot(page)).year).toBe("1970-71");
+  expect((await snapshot(page)).year).toBe(beforeTap);
 }
 
 async function assertChartTooltipDismissal(page) {

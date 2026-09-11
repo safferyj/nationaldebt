@@ -4405,6 +4405,7 @@
         || touchZoomState.pointers.size > 0
       ) return;
       const pointIndex = chartPointIndexFromEvent(event);
+      if (pointIndex !== null && window.matchMedia("(pointer: coarse)").matches) return;
       const index = pointIndex === null
         ? rowIndexFromChartX(chartXFromPointer(event))
         : pointIndex;
