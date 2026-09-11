@@ -55,6 +55,23 @@ async function dispatchTouchSequence(page, sequence) {
   await page.waitForTimeout(40);
 }
 
+async function chartTouchPositions(page) {
+  return page.locator("#chartSvg").evaluate((chart) => {
+    const width = chart.viewBox.baseVal.width;
+    const left = 75 / width;
+    const right = (width - 22) / width;
+    const span = right - left;
+    return {
+      edge: left + span * 0.02,
+      zoomStart: left + span * 0.12,
+      scrubStart: left + span * 0.25,
+      scrubMiddle: left + span * 0.5,
+      scrubEnd: left + span * 0.75,
+      zoomEnd: left + span * 0.88,
+    };
+  });
+}
+
 async function chartYearEndpoints(page) {
   return page.evaluate(() => {
     const years = Array.from(document.querySelectorAll("#chartSvg text"), (text) => text.textContent.trim())
@@ -74,15 +91,16 @@ async function assertTouchZoomGesture(page) {
   });
   expect(await page.locator("#resetView").isDisabled()).toBe(true);
 
+  const touch = await chartTouchPositions(page);
   const beforeDragYear = (await snapshot(page)).year;
   await dispatchTouchSequence(page, [
-    { type: "pointerdown", pointerId: 1, x: 0.2 },
-    { type: "pointermove", pointerId: 1, x: 0.3 },
+    { type: "pointerdown", pointerId: 1, x: touch.scrubStart },
+    { type: "pointermove", pointerId: 1, x: touch.scrubMiddle },
   ]);
   const middleDragYear = (await snapshot(page)).year;
   await dispatchTouchSequence(page, [
-    { type: "pointermove", pointerId: 1, x: 0.8 },
-    { type: "pointerup", pointerId: 1, x: 0.8, buttons: 0 },
+    { type: "pointermove", pointerId: 1, x: touch.scrubEnd },
+    { type: "pointerup", pointerId: 1, x: touch.scrubEnd, buttons: 0 },
   ]);
   const afterDragYear = (await snapshot(page)).year;
   expect(middleDragYear).not.toBe(beforeDragYear);
@@ -90,15 +108,15 @@ async function assertTouchZoomGesture(page) {
   expect(await page.locator("#resetView").isDisabled()).toBe(true);
 
   await dispatchTouchSequence(page, [
-    { type: "pointerdown", pointerId: 1, x: 0.8 },
-    { type: "pointerdown", pointerId: 2, x: 0.2 },
-    { type: "pointermove", pointerId: 1, x: 0.15 },
-    { type: "pointermove", pointerId: 2, x: 0.85 },
-    { type: "pointerup", pointerId: 1, x: 0.15, buttons: 0 },
+    { type: "pointerdown", pointerId: 1, x: touch.zoomEnd },
+    { type: "pointerdown", pointerId: 2, x: touch.zoomStart },
+    { type: "pointermove", pointerId: 1, x: touch.zoomStart },
+    { type: "pointermove", pointerId: 2, x: touch.zoomEnd },
+    { type: "pointerup", pointerId: 1, x: touch.zoomStart, buttons: 0 },
   ]);
   expect(await page.locator("#resetView").isDisabled()).toBe(true);
   await dispatchTouchSequence(page, [
-    { type: "pointerup", pointerId: 2, x: 0.85, buttons: 0 },
+    { type: "pointerup", pointerId: 2, x: touch.zoomEnd, buttons: 0 },
   ]);
   expect(await page.locator("#resetView").isDisabled()).toBe(false);
   const zoomedYears = await chartYearEndpoints(page);
@@ -113,6 +131,7 @@ async function assertTouchZoomGesture(page) {
 
 async function assertTouchPointerCleanup(page) {
   await page.keyboard.press("0");
+  const touch = await chartTouchPositions(page);
   await dispatchTouchSequence(page, [
     { type: "pointerdown", pointerId: 11, x: 0.9 },
     { type: "pointermove", pointerId: 11, x: 0.02 },
@@ -124,31 +143,29 @@ async function assertTouchPointerCleanup(page) {
   ]);
   await dispatchTouchSequence(page, [
     { type: "pointerdown", pointerId: 12, x: 0.9 },
-    { type: "pointermove", pointerId: 12, x: 0.6 },
-    { type: "pointerup", pointerId: 12, x: 0.6, buttons: 0 },
+    { type: "pointermove", pointerId: 12, x: touch.scrubMiddle },
+    { type: "pointerup", pointerId: 12, x: touch.scrubMiddle, buttons: 0 },
   ]);
   expect((await snapshot(page)).year).not.toBe("1970-71");
   expect(await page.locator("#chartSvg").evaluate((chart) => chart.classList.contains("dragging"))).toBe(false);
 
   await page.keyboard.press("0");
-  const chartEdgeX = await page.locator("#chartSvg").evaluate((chart) => (
-    (75 + 6) / chart.viewBox.baseVal.width
-  ));
+  const updatedTouch = await chartTouchPositions(page);
   await dispatchTouchSequence(page, [
-    { type: "pointerdown", pointerId: 13, x: chartEdgeX },
-    { type: "pointerdown", pointerId: 14, x: 0.38 },
-    { type: "pointermove", pointerId: 13, x: chartEdgeX },
-    { type: "pointermove", pointerId: 14, x: 0.38 },
-    { type: "pointerup", pointerId: 13, x: chartEdgeX, buttons: 0 },
-    { type: "pointerup", pointerId: 14, x: 0.38, buttons: 0 },
+    { type: "pointerdown", pointerId: 13, x: updatedTouch.edge },
+    { type: "pointerdown", pointerId: 14, x: updatedTouch.scrubMiddle },
+    { type: "pointermove", pointerId: 13, x: updatedTouch.edge },
+    { type: "pointermove", pointerId: 14, x: updatedTouch.scrubMiddle },
+    { type: "pointerup", pointerId: 13, x: updatedTouch.edge, buttons: 0 },
+    { type: "pointerup", pointerId: 14, x: updatedTouch.scrubMiddle, buttons: 0 },
   ]);
   expect(await page.locator("#resetView").isDisabled()).toBe(false);
   const edgeZoomYear = (await snapshot(page)).year;
 
   await dispatchTouchSequence(page, [
-    { type: "pointerdown", pointerId: 15, x: 0.38 },
-    { type: "pointermove", pointerId: 15, x: 0.12 },
-    { type: "pointerup", pointerId: 15, x: 0.12, buttons: 0 },
+    { type: "pointerdown", pointerId: 15, x: updatedTouch.scrubMiddle },
+    { type: "pointermove", pointerId: 15, x: updatedTouch.zoomStart },
+    { type: "pointerup", pointerId: 15, x: updatedTouch.zoomStart, buttons: 0 },
   ]);
   expect((await snapshot(page)).year).not.toBe(edgeZoomYear);
   expect(await page.locator("#chartSvg").evaluate((chart) => chart.classList.contains("dragging"))).toBe(false);
