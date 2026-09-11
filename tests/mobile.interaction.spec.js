@@ -111,6 +111,49 @@ async function assertTouchZoomGesture(page) {
   expect(await page.locator("#resetView").isDisabled()).toBe(true);
 }
 
+async function assertTouchPointerCleanup(page) {
+  await page.keyboard.press("0");
+  await dispatchTouchSequence(page, [
+    { type: "pointerdown", pointerId: 11, x: 0.9 },
+    { type: "pointermove", pointerId: 11, x: 0.02 },
+  ]);
+  expect((await snapshot(page)).year).toBe("1970-71");
+
+  await dispatchTouchSequence(page, [
+    { type: "lostpointercapture", pointerId: 11, x: 0.02, buttons: 0 },
+  ]);
+  await dispatchTouchSequence(page, [
+    { type: "pointerdown", pointerId: 12, x: 0.9 },
+    { type: "pointermove", pointerId: 12, x: 0.6 },
+    { type: "pointerup", pointerId: 12, x: 0.6, buttons: 0 },
+  ]);
+  expect((await snapshot(page)).year).not.toBe("1970-71");
+  expect(await page.locator("#chartSvg").evaluate((chart) => chart.classList.contains("dragging"))).toBe(false);
+
+  await page.keyboard.press("0");
+  const chartEdgeX = await page.locator("#chartSvg").evaluate((chart) => (
+    (75 + 6) / chart.viewBox.baseVal.width
+  ));
+  await dispatchTouchSequence(page, [
+    { type: "pointerdown", pointerId: 13, x: chartEdgeX },
+    { type: "pointerdown", pointerId: 14, x: 0.38 },
+    { type: "pointermove", pointerId: 13, x: chartEdgeX },
+    { type: "pointermove", pointerId: 14, x: 0.38 },
+    { type: "pointerup", pointerId: 13, x: chartEdgeX, buttons: 0 },
+    { type: "pointerup", pointerId: 14, x: 0.38, buttons: 0 },
+  ]);
+  expect(await page.locator("#resetView").isDisabled()).toBe(false);
+  const edgeZoomYear = (await snapshot(page)).year;
+
+  await dispatchTouchSequence(page, [
+    { type: "pointerdown", pointerId: 15, x: 0.38 },
+    { type: "pointermove", pointerId: 15, x: 0.12 },
+    { type: "pointerup", pointerId: 15, x: 0.12, buttons: 0 },
+  ]);
+  expect((await snapshot(page)).year).not.toBe(edgeZoomYear);
+  expect(await page.locator("#chartSvg").evaluate((chart) => chart.classList.contains("dragging"))).toBe(false);
+}
+
 async function assertPortraitLayout(page, initial) {
   expect(initial.portraitMobile).toBe(true);
   expect(initial.kiosk).toBe(true);
@@ -409,6 +452,7 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
   await assertTooltipInteractions(page, initial);
   if (await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)) {
     await assertTouchZoomGesture(page);
+    await assertTouchPointerCleanup(page);
   }
 
   const final = await snapshot(page);

@@ -3372,6 +3372,11 @@
         ended: false
       });
 
+      if (touchZoomState.pointers.size === 1) {
+        touchZoomState.activePointerIds = [event.pointerId];
+        captureTouchPointers(event, [event.pointerId]);
+        return;
+      }
       if (touchZoomState.pointers.size !== 2) return;
       touchZoomState.active = true;
       touchZoomState.activePointerIds = Array.from(touchZoomState.pointers.keys());
@@ -3390,6 +3395,7 @@
       if (!touchZoomState.active) {
         if (pointer.moved) {
           event.preventDefault();
+          captureTouchPointers(event, [event.pointerId]);
           const selectedIndex = rowIndexFromChartX(pointer.currentX);
           if (selectedIndex !== null && selectedIndex !== state.selected) {
             hideTooltip();
@@ -3458,6 +3464,21 @@
       clearTouchZoomState();
       clearDragSelection();
       if (wasActive || wasMoved) dragState.suppressClickUntil = Date.now() + 250;
+    }
+
+    function cancelAllTouchInteractions() {
+      if (!touchZoomState.pointers.size) return;
+      const wasActive = touchZoomState.active;
+      const wasMoved = Array.from(touchZoomState.pointers.values()).some((pointer) => pointer.moved);
+      clearTouchZoomState();
+      clearDragSelection();
+      if (wasActive || wasMoved) dragState.suppressClickUntil = Date.now() + 250;
+    }
+
+    function handleLostTouchPointerCapture(event) {
+      const pointer = touchZoomState.pointers.get(event.pointerId);
+      if (!pointer || pointer.ended) return;
+      cancelTouchRangeSelection(event);
     }
 
     function updatePanRange() {
@@ -4302,6 +4323,13 @@
     chart.addEventListener("pointermove", updateRangeSelection);
     chart.addEventListener("pointerup", finishRangeSelection);
     chart.addEventListener("pointercancel", cancelRangeSelection);
+    chart.addEventListener("lostpointercapture", handleLostTouchPointerCapture);
+    document.addEventListener("pointerup", finishRangeSelection);
+    document.addEventListener("pointercancel", cancelRangeSelection);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) cancelAllTouchInteractions();
+    });
+    window.addEventListener("blur", cancelAllTouchInteractions);
     chart.addEventListener("pointerleave", clearPlotHoverState);
     chart.addEventListener("wheel", handleWheelZoom, { passive: false });
     chart.addEventListener("contextmenu", (event) => event.preventDefault());
