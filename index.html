@@ -772,6 +772,10 @@
 
     .chart-tooltip[hidden] { display: none; }
 
+    @media (pointer: coarse) {
+      .chart-tooltip { pointer-events: auto; }
+    }
+
     .chart-tooltip strong {
       color: #fff;
       display: block;
@@ -3602,6 +3606,35 @@
       legendAnimationFrame = null;
     }
 
+    function chartPointIndexFromEvent(event) {
+      const clientX = Number(event.clientX);
+      const clientY = Number(event.clientY);
+      let nearestIndex = null;
+      let nearestDistance = Infinity;
+      if (Number.isFinite(clientX) && Number.isFinite(clientY)) {
+        chart.querySelectorAll(".chart-point-hit").forEach((point) => {
+          const rect = point.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          const normalizedX = (clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+          const normalizedY = (clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+          const distance = normalizedX ** 2 + normalizedY ** 2;
+          if (distance > 1 || distance >= nearestDistance) return;
+          const index = Number(point.dataset.index);
+          if (Number.isInteger(index)) {
+            nearestIndex = index;
+            nearestDistance = distance;
+          }
+        });
+      }
+      if (nearestIndex !== null) return nearestIndex;
+
+      const pointTarget = event.target instanceof Element
+        ? event.target.closest(".chart-point-hit, .chart-point")
+        : null;
+      const pointIndex = pointTarget ? Number(pointTarget.dataset.index) : null;
+      return Number.isInteger(pointIndex) ? pointIndex : null;
+    }
+
     function moveLegendToOtherSide() {
       const legend = chart.querySelector(".chart-inline-legend");
       if (!legend) return;
@@ -3687,6 +3720,16 @@
 
     function hideTooltip() {
       chartTooltip.hidden = true;
+    }
+
+    let dismissedChartTooltipPointerId = null;
+    let suppressNextChartTooltipClick = false;
+
+    function dismissChartTooltip(event) {
+      hideTooltip();
+      dismissedChartTooltipPointerId = event.pointerId ?? null;
+      event.preventDefault();
+      event.stopPropagation();
     }
 
     let activeMeasureTooltipButton = null;
@@ -3843,6 +3886,18 @@
         }
       });
 
+      if (window.matchMedia("(pointer: coarse)").matches) {
+        const chartPointHitRadius = 14;
+        /* Keep the visual markers small while making touch targets forgiving. */
+        activeSeries.forEach((series) => {
+          view.forEach((row, viewIndex) => {
+            const value = series.get(row);
+            if (value === null || value === undefined || Number.isNaN(value)) return;
+            svg += `<circle class="chart-point-hit" data-index="${row.index}" data-series="${esc(series.key)}" cx="${xFor(viewIndex)}" cy="${yFor(value)}" r="${chartPointHitRadius}" fill="#fff" fill-opacity="0" stroke="none" pointer-events="all" aria-hidden="true"></circle>`;
+          });
+        });
+      }
+
       activeSeries.forEach((series) => {
         view.forEach((row, viewIndex) => {
           const value = series.get(row);
@@ -3911,7 +3966,7 @@
           legend.dataset.rightOffset = String(sizedRightOffset);
         }
       }
-      chart.querySelectorAll(".chart-point").forEach((point) => {
+      chart.querySelectorAll(".chart-point-hit, .chart-point").forEach((point) => {
         const index = Number(point.dataset.index);
         point.addEventListener("mouseenter", () => showTooltip(point, index, point.dataset.series));
         point.addEventListener("mouseleave", hideTooltip);
@@ -4349,7 +4404,10 @@
         || touchZoomState.active
         || touchZoomState.pointers.size > 0
       ) return;
-      const index = rowIndexFromChartX(chartXFromPointer(event));
+      const pointIndex = chartPointIndexFromEvent(event);
+      const index = pointIndex === null
+        ? rowIndexFromChartX(chartXFromPointer(event))
+        : pointIndex;
       if (index === null) return;
       state.selected = index;
       renderAll();
@@ -4365,9 +4423,12 @@
     fullscreenChart.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    chartTooltip.addEventListener("pointerdown", dismissChartTooltip);
+    chartTooltip.addEventListener("click", dismissChartTooltip);
     measureTooltip.addEventListener("pointerdown", dismissMeasureTooltip);
     measureTooltip.addEventListener("click", dismissMeasureTooltip);
     document.addEventListener("pointerdown", (event) => {
+      if (suppressNextChartTooltipClick) suppressNextChartTooltipClick = false;
       if (!activeMeasureTooltipButton) return;
       const target = event.target instanceof Element ? event.target : null;
       if (!target?.closest("#measureTooltip")) dismissMeasureTooltip(event);
@@ -4379,9 +4440,22 @@
       suppressNextMeasureTooltipClick = true;
       dismissedMeasureTooltipPointerId = null;
     }, true);
+    document.addEventListener("pointerup", (event) => {
+      if (dismissedChartTooltipPointerId === null || event.pointerId !== dismissedChartTooltipPointerId) return;
+      event.preventDefault();
+      event.stopPropagation();
+      suppressNextChartTooltipClick = true;
+      dismissedChartTooltipPointerId = null;
+    }, true);
     document.addEventListener("click", (event) => {
       if (!suppressNextMeasureTooltipClick) return;
       suppressNextMeasureTooltipClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
+    document.addEventListener("click", (event) => {
+      if (!suppressNextChartTooltipClick) return;
+      suppressNextChartTooltipClick = false;
       event.preventDefault();
       event.stopPropagation();
     }, true);
@@ -4389,6 +4463,12 @@
       if (event.pointerId === dismissedMeasureTooltipPointerId) {
         dismissedMeasureTooltipPointerId = null;
         suppressNextMeasureTooltipClick = false;
+      }
+    }, true);
+    document.addEventListener("pointercancel", (event) => {
+      if (event.pointerId === dismissedChartTooltipPointerId) {
+        dismissedChartTooltipPointerId = null;
+        suppressNextChartTooltipClick = false;
       }
     }, true);
 

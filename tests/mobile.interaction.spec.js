@@ -84,6 +84,45 @@ async function chartYearEndpoints(page) {
   });
 }
 
+async function assertChartPointHitTargets(page) {
+  const metrics = await page.evaluate(() => {
+    const hitPoints = Array.from(document.querySelectorAll(".chart-point-hit"));
+    const visiblePoints = Array.from(document.querySelectorAll(".chart-point"));
+    return {
+      hitCount: hitPoints.length,
+      visibleCount: visiblePoints.length,
+      hitRadius: Number(hitPoints[0]?.getAttribute("r") || 0),
+      visibleRadius: Number(visiblePoints[0]?.getAttribute("r") || 0),
+    };
+  });
+  expect(metrics.hitCount).toBeGreaterThan(0);
+  expect(metrics.hitCount).toBe(metrics.visibleCount);
+  expect(metrics.hitRadius).toBeGreaterThan(metrics.visibleRadius);
+
+  await page.locator(".chart-point-hit").first().dispatchEvent("click");
+  expect((await snapshot(page)).year).toBe("1970-71");
+}
+
+async function assertChartTooltipDismissal(page) {
+  const point = page.locator(".chart-point-hit").nth(10);
+  await point.dispatchEvent("mouseenter");
+
+  const tooltip = page.locator("#chartTooltip");
+  expect(await tooltip.isHidden()).toBe(false);
+  expect(await tooltip.evaluate((element) => getComputedStyle(element).pointerEvents)).toBe("auto");
+  const opened = await snapshot(page);
+  const tooltipBox = await tooltip.boundingBox();
+  if (!tooltipBox) throw new Error("No chart tooltip bounding box available");
+
+  await page.touchscreen.tap(
+    tooltipBox.x + tooltipBox.width / 2,
+    tooltipBox.y + tooltipBox.height / 2,
+  );
+  await page.waitForTimeout(80);
+  expect(await tooltip.isHidden()).toBe(true);
+  expect((await snapshot(page)).year).toBe(opened.year);
+}
+
 async function assertTouchZoomGesture(page) {
   await page.evaluate(() => {
     const reset = document.querySelector("#resetView");
@@ -455,6 +494,7 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
     expect(touchGuards.controlTouchEndPrevented).toBe(true);
     expect(touchGuards.controlClicks).toBe(1);
     expect(touchGuards.shareSelectPrevented).toBe(false);
+    await assertChartPointHitTargets(page);
   }
 
   if (initial.portraitMobile) {
@@ -470,6 +510,7 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
   if (await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)) {
     await assertTouchZoomGesture(page);
     await assertTouchPointerCleanup(page);
+    await assertChartTooltipDismissal(page);
   }
 
   const final = await snapshot(page);
