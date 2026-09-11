@@ -14,7 +14,16 @@ function captureBrowserErrors(page) {
 
 async function loadApp(page) {
   await page.goto(appUrl, { waitUntil: "load" });
-  await page.waitForSelector("#chartSvg");
+  await page.waitForFunction(() => {
+    const isVisible = (element) => {
+      if (!element) return false;
+      const style = getComputedStyle(element);
+      const box = element.getBoundingClientRect();
+      return style.display !== "none" && box.width > 0 && box.height > 0;
+    };
+    return isVisible(document.querySelector("#chartSvg"))
+      || isVisible(document.querySelector(".landscape-warning"));
+  });
   await page.waitForFunction(() => (
     document.querySelectorAll("#measureRows .measure-lozenge").length === 10
   ));
@@ -50,6 +59,8 @@ async function snapshot(page) {
       height: window.innerHeight,
       portraitMobile: window.matchMedia("(max-width: 760px) and (orientation: portrait)").matches,
       mobile: window.matchMedia("(max-width: 760px)").matches,
+      landscapeWarning: visible(".landscape-warning"),
+      landscapeWarningText: text(".landscape-warning"),
       kiosk: document.querySelector(".chart-card")?.classList.contains("is-kiosk") || false,
       bodyKiosk: document.body.classList.contains("kiosk-open"),
       fullscreen: Boolean(document.fullscreenElement || document.webkitFullscreenElement),

@@ -1,5 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0c1d2f"/>
-  <path d="M10 45 21 34l9 6 14-20 10 7" fill="none" stroke="#60c7de" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
-  <circle cx="44" cy="20" r="5" fill="#f1b84b"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <rect width="280" height="280" rx="24" fill="#0c1d2f"/>
+  <path
+    transform="translate(0 12)"
+    d="M-8 286
+       C18 249 39 212 66 178
+       C83 153 96 139 108 141
+       C117 143 123 150 128 153
+       C136 128 141 93 148 73
+       C154 51 160 25 168 17
+       C176 18 182 23 188 27
+       C197 39 201 60 208 72
+       C220 77 236 82 248 85"
+    fill="none"
+    stroke="#f1b84b"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="26"/>
+  <path
+    transform="translate(0 12)"
+    d="M62 277
+       C64 274 66 271 68 270
+       C81 268 94 270 107 267
+       C116 265 122 262 128 258
+       C135 236 141 208 148 190
+       C154 173 161 153 168 147
+       C176 170 182 203 188 222
+       C194 237 201 251 208 258
+       C220 264 235 267 248 258"
+    fill="none"
+    stroke="#60c7de"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="26"/>
 </svg>

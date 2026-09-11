@@ -11,6 +11,17 @@ test("renders cleanly on the mobile profile", async ({ page }) => {
 
   const state = await snapshot(page);
   expect(state.measureCount).toBe(10);
+  if (state.landscapeWarning) {
+    expect(state.portraitMobile).toBe(false);
+    expect(state.landscapeWarningText).toContain("Please turn your device upright");
+    expect(state.landscapeWarningText).toContain("more vertical space");
+    expect(state.chart?.width).toBe(0);
+    expect(state.chart?.height).toBe(0);
+    expect(state.horizontalOverflow).toBe(false);
+    expect(browserErrors).toEqual([]);
+    return;
+  }
+
   expect(state.chart?.width).toBeGreaterThan(0);
   expect(state.chart?.height).toBeGreaterThan(0);
   expect(state.axisLabel?.height).toBeGreaterThan(0);

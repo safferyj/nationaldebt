@@ -32,6 +32,77 @@ async function holdPointer(page, selector, pointerId, duration) {
   return { during, released: await snapshot(page) };
 }
 
+async function dispatchTouchSequence(page, sequence) {
+  await page.evaluate((events) => {
+    const chart = document.querySelector("#chartSvg");
+    if (!chart) throw new Error("Missing #chartSvg");
+    const rect = chart.getBoundingClientRect();
+    const clientY = rect.top + rect.height * 0.5;
+    events.forEach(({ type, pointerId, x, buttons = 1 }) => {
+      chart.dispatchEvent(new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerId,
+        pointerType: "touch",
+        isPrimary: pointerId === 1,
+        clientX: rect.left + rect.width * x,
+        clientY,
+        button: 0,
+        buttons,
+      }));
+    });
+  }, sequence);
+  await page.waitForTimeout(40);
+}
+
+async function chartYearEndpoints(page) {
+  return page.evaluate(() => {
+    const years = Array.from(document.querySelectorAll("#chartSvg text"), (text) => text.textContent.trim())
+      .filter((text) => /^\d{4}$/.test(text));
+    return {
+      first: years[0] || "",
+      last: years[years.length - 1] || "",
+      count: years.length,
+    };
+  });
+}
+
+async function assertTouchZoomGesture(page) {
+  await page.evaluate(() => {
+    const reset = document.querySelector("#resetView");
+    if (reset && !reset.disabled) reset.click();
+  });
+  expect(await page.locator("#resetView").isDisabled()).toBe(true);
+
+  await dispatchTouchSequence(page, [
+    { type: "pointerdown", pointerId: 1, x: 0.2 },
+    { type: "pointermove", pointerId: 1, x: 0.8 },
+    { type: "pointerup", pointerId: 1, x: 0.8, buttons: 0 },
+  ]);
+  expect(await page.locator("#resetView").isDisabled()).toBe(true);
+
+  await dispatchTouchSequence(page, [
+    { type: "pointerdown", pointerId: 1, x: 0.8 },
+    { type: "pointerdown", pointerId: 2, x: 0.2 },
+    { type: "pointermove", pointerId: 1, x: 0.15 },
+    { type: "pointermove", pointerId: 2, x: 0.85 },
+    { type: "pointerup", pointerId: 1, x: 0.15, buttons: 0 },
+  ]);
+  expect(await page.locator("#resetView").isDisabled()).toBe(true);
+  await dispatchTouchSequence(page, [
+    { type: "pointerup", pointerId: 2, x: 0.85, buttons: 0 },
+  ]);
+  expect(await page.locator("#resetView").isDisabled()).toBe(false);
+  const zoomedYears = await chartYearEndpoints(page);
+  expect(zoomedYears.count).toBeGreaterThan(1);
+  expect(zoomedYears.first).not.toBe("1970");
+  expect(zoomedYears.last).not.toBe("2024");
+  expect(await page.locator("#chartSvg").evaluate((chart) => chart.classList.contains("dragging"))).toBe(false);
+
+  await page.keyboard.press("0");
+  expect(await page.locator("#resetView").isDisabled()).toBe(true);
+}
+
 async function assertPortraitLayout(page, initial) {
   expect(initial.portraitMobile).toBe(true);
   expect(initial.kiosk).toBe(true);
@@ -235,6 +306,17 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
   const initial = await snapshot(page);
 
   expect(initial.measureCount).toBe(10);
+  if (initial.landscapeWarning) {
+    expect(initial.portraitMobile).toBe(false);
+    expect(initial.landscapeWarningText).toContain("Please turn your device upright");
+    expect(initial.landscapeWarningText).toContain("more vertical space");
+    expect(initial.chart?.width).toBe(0);
+    expect(initial.chart?.height).toBe(0);
+    expect(initial.horizontalOverflow).toBe(false);
+    expect(browserErrors, `${testInfo.project.name} browser errors`).toEqual([]);
+    return;
+  }
+
   expect(initial.chart?.width).toBeGreaterThan(0);
   expect(initial.chart?.height).toBeGreaterThan(0);
   expect(initial.horizontalOverflow).toBe(false);
@@ -317,6 +399,9 @@ test("supports the complete mobile interaction checklist", async ({ page }, test
   const fullscreenSupported = await assertFullscreenBehavior(page, initial);
   await assertYearInteractions(page);
   await assertTooltipInteractions(page, initial);
+  if (await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)) {
+    await assertTouchZoomGesture(page);
+  }
 
   const final = await snapshot(page);
   expect(final.measureCount).toBe(10);

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="An interactive, source-linked history of Australian Commonwealth gross debt, budget balances, GDP, governments, prime ministers and treasurers from 1970-71 to 2024-25.">
   <title>nationaldebt.au</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
 
   <style>
     /*
@@ -1476,6 +1476,54 @@
       }
     }
 
+    @media (min-width: 761px) and (max-width: 1199px) and (pointer: fine) {
+      .chart-controls-row {
+        align-items: stretch;
+        display: grid;
+        gap: 0.55rem 1rem;
+        grid-template-areas:
+          "lenses lenses"
+          "year actions";
+        grid-template-columns: max-content minmax(0, 1fr);
+        margin: -0.65rem 0 0.45rem;
+        padding-bottom: 0.45rem;
+      }
+
+      .chart-lens-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        grid-area: lenses;
+        justify-content: flex-start;
+        min-width: 0;
+        width: 100%;
+      }
+
+      .chart-lens-controls > .dollar-basis-control {
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+
+      .dollar-basis-switch {
+        width: 100%;
+      }
+
+      .dollar-basis-switch button {
+        min-width: 0;
+      }
+
+      .chart-year-picker {
+        grid-area: year;
+        margin-left: 0;
+      }
+
+      .chart-end-actions {
+        flex-wrap: nowrap;
+        grid-area: actions;
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
     @media (max-width: 760px) and (orientation: portrait) {
       .chart-controls-row {
         --chart-control-height: 2.5rem;
@@ -1778,7 +1826,7 @@
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"><span id="chartAxisLabelText"></span></div>
-          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, drag across the plot to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
+          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click anywhere to select the nearest year, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1793,7 +1841,7 @@
           <li><strong>Change the year:</strong> click or tap the arrows around the selected year. Press and hold either arrow to move through the years faster.</li>
           <li><strong>Choose a view:</strong> switch between percentages and dollar amounts. In the dollar view, you can choose absolute amounts or amounts per person, and current dollars or 2024-25 dollars.</li>
           <li><strong>Show or hide measures:</strong> use the measure buttons around the chart to choose which measures are displayed. Press and hold a measure button on a touch screen to read a short explanation.</li>
-          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. Drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year.</li>
+          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. On a touch screen, place two fingers on the plot and move them to set the two edges of a zoom range; the fingers can cross before both are released. With a mouse, drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year.</li>
           <li><strong>Reset the view:</strong> choose <em>Reset zoom</em> to return to the full history.</li>
           <li><strong>Share or enlarge:</strong> choose <em>Share view</em> to copy a link to the current chart, or <em>Full screen</em> to give the chart more room.</li>
           <li><strong>Download the data:</strong> open the Download section below and choose the CSV button to save the complete embedded dataset.</li>
@@ -2637,6 +2685,12 @@
       moved: false,
       suppressClickUntil: 0
     };
+    const touchZoomState = {
+      active: false,
+      pointers: new Map(),
+      activePointerIds: []
+    };
+    const touchMoveThreshold = 6;
     const minimumZoomYears = 3;
     const wheelZoomFactor = 1.25;
 
@@ -3259,11 +3313,11 @@
       zoomViewport(zoomingIn, anchorIndex);
     }
 
-    function updateDragSelection() {
+    function updateDragSelection(startX = dragState.startX, currentX = dragState.currentX) {
       const selection = chart.querySelector("#dragSelection");
       if (!selection) return;
-      const x = Math.min(dragState.startX, dragState.currentX);
-      const width = Math.abs(dragState.currentX - dragState.startX);
+      const x = Math.min(startX, currentX);
+      const width = Math.abs(currentX - startX);
       selection.setAttribute("x", String(x));
       selection.setAttribute("width", String(width));
       selection.setAttribute("display", "block");
@@ -3273,6 +3327,129 @@
       const selection = chart.querySelector("#dragSelection");
       if (selection) selection.setAttribute("display", "none");
       chart.classList.remove("dragging");
+    }
+
+    function captureTouchPointers(event, pointerIds = touchZoomState.activePointerIds) {
+      if (!event.isTrusted || !chart.setPointerCapture) return;
+      pointerIds.forEach((pointerId) => {
+        if (!touchZoomState.pointers.get(pointerId)?.ended) {
+          chart.setPointerCapture(pointerId);
+        }
+      });
+    }
+
+    function releaseTouchPointers() {
+      if (!chart.hasPointerCapture || !chart.releasePointerCapture) return;
+      touchZoomState.activePointerIds.forEach((pointerId) => {
+        if (chart.hasPointerCapture(pointerId)) chart.releasePointerCapture(pointerId);
+      });
+    }
+
+    function clearTouchZoomState() {
+      releaseTouchPointers();
+      touchZoomState.active = false;
+      touchZoomState.pointers.clear();
+      touchZoomState.activePointerIds = [];
+    }
+
+    function updateTouchDragSelection() {
+      const pointers = touchZoomState.activePointerIds
+        .map((pointerId) => touchZoomState.pointers.get(pointerId))
+        .filter(Boolean);
+      if (pointers.length !== 2) return;
+      updateDragSelection(pointers[0].currentX, pointers[1].currentX);
+    }
+
+    function beginTouchRangeSelection(event) {
+      if (!isPointerInPlot(event) || touchZoomState.active) return;
+      if (touchZoomState.pointers.size >= 2) return;
+
+      const currentX = chartXFromPointer(event);
+      touchZoomState.pointers.set(event.pointerId, {
+        currentX,
+        startX: currentX,
+        moved: false,
+        ended: false
+      });
+
+      if (touchZoomState.pointers.size !== 2) return;
+      touchZoomState.active = true;
+      touchZoomState.activePointerIds = Array.from(touchZoomState.pointers.keys());
+      chart.classList.add("dragging");
+      event.preventDefault();
+      captureTouchPointers(event);
+      updateTouchDragSelection();
+    }
+
+    function updateTouchRangeSelection(event) {
+      const pointer = touchZoomState.pointers.get(event.pointerId);
+      if (!pointer) return;
+
+      pointer.currentX = chartXFromPointer(event);
+      pointer.moved ||= Math.abs(pointer.currentX - pointer.startX) >= touchMoveThreshold;
+      if (!touchZoomState.active) {
+        if (pointer.moved) event.preventDefault();
+        return;
+      }
+
+      event.preventDefault();
+      captureTouchPointers(event, [event.pointerId]);
+      updateTouchDragSelection();
+    }
+
+    function finishTouchRangeSelection(event) {
+      const pointer = touchZoomState.pointers.get(event.pointerId);
+      if (!pointer) return;
+
+      pointer.currentX = chartXFromPointer(event);
+      pointer.ended = true;
+      if (!touchZoomState.active) {
+        const wasMoved = pointer.moved;
+        clearTouchZoomState();
+        if (wasMoved) dragState.suppressClickUntil = Date.now() + 250;
+        return;
+      }
+
+      event.preventDefault();
+      const complete = touchZoomState.activePointerIds.every((pointerId) =>
+        touchZoomState.pointers.get(pointerId)?.ended
+      );
+      if (!complete) return;
+
+      const pointers = touchZoomState.activePointerIds.map((pointerId) =>
+        touchZoomState.pointers.get(pointerId)
+      );
+      const view = visibleRows();
+      const firstIndex = rowIndexFromChartX(
+        Math.min(...pointers.map((pointer) => pointer.currentX)),
+        view
+      );
+      const lastIndex = rowIndexFromChartX(
+        Math.max(...pointers.map((pointer) => pointer.currentX)),
+        view
+      );
+      clearTouchZoomState();
+      clearDragSelection();
+      dragState.suppressClickUntil = Date.now() + 250;
+      if (firstIndex === null || lastIndex === null || firstIndex === lastIndex) return;
+
+      state.start = Math.min(firstIndex, lastIndex);
+      state.end = Math.max(firstIndex, lastIndex);
+      if (state.selected < state.start || state.selected > state.end) {
+        state.selected = state.end;
+      }
+      renderAll();
+    }
+
+    function cancelTouchRangeSelection(event) {
+      const pointer = touchZoomState.pointers.get(event.pointerId);
+      if (!pointer) return;
+
+      const wasActive = touchZoomState.active;
+      const wasMoved = pointer.moved;
+      clearTouchZoomState();
+      clearDragSelection();
+      if (wasActive || wasMoved) dragState.suppressClickUntil = Date.now() + 250;
     }
 
     function updatePanRange() {
@@ -3291,6 +3468,10 @@
     }
 
     function beginRangeSelection(event) {
+      if (event.pointerType === "touch") {
+        beginTouchRangeSelection(event);
+        return;
+      }
       const isPan = event.button === 2;
       if (!isPan && event.button !== 0) return;
       if (!isPointerInPlot(event)) return;
@@ -3307,6 +3488,10 @@
     }
 
     function updateRangeSelection(event) {
+      if (event.pointerType === "touch") {
+        updateTouchRangeSelection(event);
+        return;
+      }
       if (!dragState.active || event.pointerId !== dragState.pointerId) return;
       dragState.currentX = chartXFromPointer(event);
       if (Math.abs(dragState.currentX - dragState.startX) < 6) return;
@@ -3321,6 +3506,10 @@
     }
 
     function finishRangeSelection(event) {
+      if (event.pointerType === "touch") {
+        finishTouchRangeSelection(event);
+        return;
+      }
       if (!dragState.active || event.pointerId !== dragState.pointerId) return;
       dragState.currentX = chartXFromPointer(event);
       const wasDrag = dragState.moved;
@@ -3350,6 +3539,10 @@
     }
 
     function cancelRangeSelection(event) {
+      if (event.pointerType === "touch") {
+        cancelTouchRangeSelection(event);
+        return;
+      }
       if (!dragState.active || event.pointerId !== dragState.pointerId) return;
       dragState.active = false;
       dragState.mode = null;
@@ -3566,7 +3759,7 @@
       const tickCount = Math.round((max - min) / tickStep);
       const tickDecimals = decimalPlacesForStep(tickStep);
       let svg = `
-        <desc>Interactive line chart. Click to inspect the nearest financial year, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
+        <desc>Interactive line chart. Click to inspect the nearest financial year, use two fingers on a touch screen to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
         <rect x="0" y="0" width="${width}" height="${height}" fill="#0c1d2f"></rect>
       `;
 
@@ -4115,7 +4308,11 @@
       event.preventDefault();
     }, true);
     chart.addEventListener("click", (event) => {
-      if (Date.now() < dragState.suppressClickUntil) return;
+      if (
+        Date.now() < dragState.suppressClickUntil
+        || touchZoomState.active
+        || touchZoomState.pointers.size > 0
+      ) return;
       const index = rowIndexFromChartX(chartXFromPointer(event));
       if (index === null) return;
       state.selected = index;
