@@ -1713,7 +1713,7 @@
   <div class="landscape-warning" role="status" aria-live="polite">
     <div class="landscape-warning-card">
       <strong>Please turn your device upright</strong>
-      <p>This page needs more horizontal space than this landscape view provides. Rotate your phone to portrait to continue.</p>
+      <p>This page needs more vertical space than this landscape view provides. Rotate your phone to portrait to continue.</p>
     </div>
   </div>
   <a class="skip-link" href="#main">Skip to the data story</a>
@@ -1854,7 +1854,7 @@
           <li><strong>Net interest payments:</strong> the PBO measure equal to interest paid minus interest receipts. Interest receipts can come from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets; they are not limited to income from debt-backed assets. This is a net measure after interest receipts, whereas the PBO interest-paid series is a gross cash-interest measure; both are shown as shares of nominal GDP in the chart's percentage view.</li>
           <li><strong>Gross debt growth vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. This measure includes the 82.4% increase in 2008-09.</li>
           <li><strong>Change in debt amount as a share of GDP:</strong> the difference between consecutive debt amounts divided by the current financial year's nominal GDP, expressed as a percentage: <code>(current debt amount - previous debt amount) / current-year GDP * 100</code>. It is a normalized measure of debt change, not the Budget surplus or deficit and not the same as a year-on-year change in the debt-to-GDP ratio.</li>
-          <li><strong>Dollar debt change:</strong> the current debt amount minus the previous year's debt amount. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode each debt amount is converted to 2024-25 dollars before the change is calculated. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
+          <li><strong>Dollar debt change:</strong> the current debt amount minus the previous year's debt amount. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode the nominal change is converted to 2024-25 dollars using the current year's June-quarter CPI factor. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
           <li><strong>Nominal dollars:</strong> amounts are expressed in the Australian-dollar values recorded in each period, without adjusting for inflation. Comparing dollar levels across decades therefore reflects both economic growth and changes in prices.</li>
           <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2024-25 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
           <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
@@ -1892,7 +1892,7 @@
     <section id="about" class="about-card" aria-labelledby="about-title">
       <details class="about-details">
         <summary id="about-title">About</summary>
-        <p>Made with care in August 2026 using GPT-5.6 Luna (max).</p>
+        <p>Made with care in September 2026 using GPT-5.6 Luna (max).</p>
         <p><a href="https://github.com/safferyj/nationaldebt" target="_blank" rel="noopener">https://github.com/safferyj/nationaldebt</a></p>
       </details>
     </section>
@@ -2427,18 +2427,24 @@
       const isFlow = key === "ucb" || key === "fiscal" || key === "interest" || key === "agsInterest";
       return nominalDollarsPerCapita * (isFlow ? row.cpiFlowFactor : row.cpiDebtFactor);
     };
-    /* Compare adjusted debt amounts so real debt change is measured consistently. */
+    /* Express the nominal debt change in the selected year's purchasing power. */
     const getDebtChangeDollars = (row, key, perCapita) => {
       if (row.index === 0) return null;
       const previous = rows[row.index - 1];
-      const currentValue = perCapita
-        ? getDollarPerCapita(row, key)
-        : getDollarBillions(row, key);
-      const previousValue = perCapita
-        ? getDollarPerCapita(previous, key)
-        : getDollarBillions(previous, key);
-      if (currentValue === null || previousValue === null) return null;
-      return currentValue - previousValue;
+      let nominalChange;
+      if (perCapita) {
+        const currentValue = getNominalDollarsPerCapita(row, key);
+        const previousValue = getNominalDollarsPerCapita(previous, key);
+        if (currentValue === null || previousValue === null) return null;
+        nominalChange = currentValue - previousValue;
+      } else {
+        const debtChange = getNominalDebtChange(row, key);
+        if (debtChange === null) return null;
+        nominalChange = debtChange / 1000;
+      }
+      return state.dollarBasis === "nominal"
+        ? nominalChange
+        : nominalChange * row.cpiDebtFactor;
     };
     const getNominalDebtChange = (row, key) => {
       if (row.index === 0 || !hasNumericValue(row[key])) return null;
