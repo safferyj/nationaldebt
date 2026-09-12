@@ -32,6 +32,29 @@ async function holdPointer(page, selector, pointerId, duration) {
   return { during, released: await snapshot(page) };
 }
 
+async function longPressChartPoint(page, selector, pointerId) {
+  const locator = page.locator(selector);
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`No bounding box for long-press target ${selector}`);
+  const eventData = {
+    pointerId,
+    pointerType: "touch",
+    isPrimary: true,
+    clientX: box.x + box.width / 2,
+    clientY: box.y + box.height / 2,
+    button: 0,
+    buttons: 1,
+  };
+  await locator.dispatchEvent("pointerdown", eventData);
+  await page.waitForTimeout(650);
+  const open = await page.evaluate(() => ({
+    hidden: document.querySelector("#chartTooltip")?.hidden ?? true,
+    text: document.querySelector("#chartTooltip")?.textContent?.trim() || "",
+  }));
+  await locator.dispatchEvent("pointerup", { ...eventData, buttons: 0 });
+  return open;
+}
+
 async function dispatchTouchSequence(page, sequence) {
   await page.evaluate((events) => {
     const chart = document.querySelector("#chartSvg");
@@ -105,16 +128,21 @@ async function assertChartPointHitTargets(page) {
 }
 
 async function assertChartTooltipDismissal(page) {
-  const point = page.locator(".chart-point-hit").nth(10);
-  await point.dispatchEvent("mouseenter");
-
   const tooltip = page.locator("#chartTooltip");
-  expect(await tooltip.isHidden()).toBe(false);
   expect(await tooltip.evaluate((element) => getComputedStyle(element).pointerEvents)).toBe("auto");
+  const openedTooltip = await longPressChartPoint(page, ".chart-point-hit", 301);
+  expect(openedTooltip.hidden).toBe(false);
+  expect(openedTooltip.text.length).toBeGreaterThan(0);
   const opened = await snapshot(page);
+
+  await tapCenter(page, "#previousYear");
+  expect((await snapshot(page)).year).toBe(opened.year);
+  expect(await tooltip.isHidden()).toBe(true);
+
+  const reopenedTooltip = await longPressChartPoint(page, ".chart-point-hit", 302);
+  expect(reopenedTooltip.hidden).toBe(false);
   const tooltipBox = await tooltip.boundingBox();
   if (!tooltipBox) throw new Error("No chart tooltip bounding box available");
-
   await page.touchscreen.tap(
     tooltipBox.x + tooltipBox.width / 2,
     tooltipBox.y + tooltipBox.height / 2,

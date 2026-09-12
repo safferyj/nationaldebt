@@ -1830,7 +1830,7 @@
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
           <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"><span id="chartAxisLabelText"></span></div>
-          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click or drag with one finger to select the nearest year on a touch screen, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
+          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1845,7 +1845,7 @@
           <li><strong>Change the year:</strong> click or tap the arrows around the selected year. Press and hold either arrow to move through the years faster.</li>
           <li><strong>Choose a view:</strong> switch between percentages and dollar amounts. In the dollar view, you can choose absolute amounts or amounts per person, and current dollars or 2024-25 dollars.</li>
           <li><strong>Show or hide measures:</strong> use the measure buttons around the chart to choose which measures are displayed. Press and hold a measure button on a touch screen to read a short explanation.</li>
-          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. On a touch screen, drag one finger to move the selected year as you go, or place two fingers on the plot and move them to set the two edges of a zoom range; the fingers can cross before both are released. With a mouse, drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year.</li>
+          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. On a touch screen, briefly press and hold a data point to show its details, then tap the popup or elsewhere to dismiss it. Drag one finger to move the selected year as you go, or place two fingers on the plot and move them to set the two edges of a zoom range; the fingers can cross before both are released. With a mouse, drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year.</li>
           <li><strong>Reset the view:</strong> choose <em>Reset zoom</em> to return to the full history.</li>
           <li><strong>Share or enlarge:</strong> choose <em>Share view</em> to copy a link to the current chart, or <em>Full screen</em> to give the chart more room.</li>
           <li><strong>Download the data:</strong> open the Download section below and choose the CSV button to save the complete embedded dataset.</li>
@@ -2694,6 +2694,14 @@
       pointers: new Map(),
       activePointerIds: []
     };
+    const chartPointLongPressState = {
+      pointerId: null,
+      point: null,
+      startX: 0,
+      startY: 0,
+      timer: null,
+      triggered: false
+    };
     const touchMoveThreshold = 6;
     const minimumZoomYears = 3;
     const wheelZoomFactor = 1.25;
@@ -3279,6 +3287,17 @@
       return view[viewIndex].index;
     }
 
+    function chartXFromRowIndex(index, view = visibleRows()) {
+      const viewIndex = view.findIndex((row) => row.index === index);
+      if (viewIndex < 0) return null;
+      const plotWidth = chartLayout.width - chartLayout.margin.left - chartLayout.margin.right;
+      return chartLayout.margin.left + (
+        view.length === 1
+          ? plotWidth / 2
+          : viewIndex * plotWidth / (view.length - 1)
+      );
+    }
+
     function zoomViewport(zoomingIn, anchorIndex = state.selected) {
       const currentLength = state.end - state.start + 1;
       const requestedLength = zoomingIn
@@ -3361,12 +3380,23 @@
         .map((pointerId) => touchZoomState.pointers.get(pointerId))
         .filter(Boolean);
       if (pointers.length !== 2) return;
-      updateDragSelection(pointers[0].currentX, pointers[1].currentX);
+      const view = visibleRows();
+      const snappedX = pointers.map((pointer) => {
+        const index = rowIndexFromChartX(pointer.currentX, view);
+        return chartXFromRowIndex(index, view) ?? pointer.currentX;
+      });
+      updateDragSelection(snappedX[0], snappedX[1]);
     }
 
     function beginTouchRangeSelection(event) {
       if (!isPointerInPlot(event) || touchZoomState.active) return;
       if (touchZoomState.pointers.size >= 2) return;
+      if (
+        chartPointLongPressState.pointerId !== null
+        && chartPointLongPressState.pointerId !== event.pointerId
+      ) {
+        resetChartPointLongPress();
+      }
 
       const currentX = chartXFromPointer(event);
       touchZoomState.pointers.set(event.pointerId, {
@@ -3396,6 +3426,7 @@
 
       pointer.currentX = chartXFromPointer(event);
       pointer.moved ||= Math.abs(pointer.currentX - pointer.startX) >= touchMoveThreshold;
+      if (pointer.moved) resetChartPointLongPress();
       if (!touchZoomState.active) {
         if (pointer.moved) {
           event.preventDefault();
@@ -3423,6 +3454,7 @@
       pointer.ended = true;
       if (!touchZoomState.active) {
         const wasMoved = pointer.moved;
+        finishChartPointLongPress(event.pointerId);
         clearTouchZoomState();
         if (wasMoved) dragState.suppressClickUntil = Date.now() + 250;
         return;
@@ -3465,6 +3497,7 @@
 
       const wasActive = touchZoomState.active;
       const wasMoved = pointer.moved;
+      resetChartPointLongPress();
       clearTouchZoomState();
       clearDragSelection();
       if (wasActive || wasMoved) dragState.suppressClickUntil = Date.now() + 250;
@@ -3474,6 +3507,7 @@
       if (!touchZoomState.pointers.size) return;
       const wasActive = touchZoomState.active;
       const wasMoved = Array.from(touchZoomState.pointers.values()).some((pointer) => pointer.moved);
+      resetChartPointLongPress();
       clearTouchZoomState();
       clearDragSelection();
       if (wasActive || wasMoved) dragState.suppressClickUntil = Date.now() + 250;
@@ -3668,11 +3702,37 @@
       legendAnimationFrame = window.requestAnimationFrame(animate);
     }
 
-    function showTooltip(point, index, hoveredSeriesKey) {
+    let chartTooltipPersistent = false;
+
+    function resetChartPointLongPress() {
+      if (chartPointLongPressState.timer !== null) {
+        window.clearTimeout(chartPointLongPressState.timer);
+      }
+      chartPointLongPressState.pointerId = null;
+      chartPointLongPressState.point = null;
+      chartPointLongPressState.startX = 0;
+      chartPointLongPressState.startY = 0;
+      chartPointLongPressState.timer = null;
+      chartPointLongPressState.triggered = false;
+    }
+
+    function finishChartPointLongPress(pointerId) {
+      if (chartPointLongPressState.pointerId !== pointerId) return;
+      if (chartPointLongPressState.timer !== null) {
+        window.clearTimeout(chartPointLongPressState.timer);
+        chartPointLongPressState.timer = null;
+      }
+      if (!chartPointLongPressState.triggered) {
+        resetChartPointLongPress();
+      }
+    }
+
+    function showTooltip(point, index, hoveredSeriesKey, persistent = false) {
       const row = rows[index];
       const mode = chartModes[state.mode];
       const rect = chartWrap.getBoundingClientRect();
       const pointRect = point.getBoundingClientRect();
+      chartTooltipPersistent = persistent;
       const seriesByKey = new Map(mode.series.map((series) => [series.key, series]));
       const axisLabel = getChartAxisLabel(mode);
       const seriesLines = tooltipSeriesKeys.map((key) => {
@@ -3720,6 +3780,8 @@
 
     function hideTooltip() {
       chartTooltip.hidden = true;
+      chartTooltipPersistent = false;
+      resetChartPointLongPress();
     }
 
     let dismissedChartTooltipPointerId = null;
@@ -3831,7 +3893,7 @@
       const tickCount = Math.round((max - min) / tickStep);
       const tickDecimals = decimalPlacesForStep(tickStep);
       let svg = `
-        <desc>Interactive line chart. Click or drag with one finger on a touch screen to inspect the nearest financial year, use two fingers to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
+        <desc>Interactive line chart. Click or drag with one finger on a touch screen to inspect the nearest financial year, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
         <rect x="0" y="0" width="${width}" height="${height}" fill="#0c1d2f"></rect>
       `;
 
@@ -3870,13 +3932,25 @@
         }
       }
 
-      /* Year labels are thinned on wide ranges, but the first and last years
-         are always retained. */
+      /* Year labels are thinned on wide ranges and follow a regular interval. */
       const labelEvery = view.length > 30 ? 5 : view.length > 15 ? 3 : 1;
+      const minimumYearLabelGap = 28;
+      const labelIndexes = [];
       view.forEach((row, index) => {
-        if (index === 0 || index === view.length - 1 || index % labelEvery === 0) {
-          svg += svgText(xFor(index), height - 8, row.fy.slice(0, 4), 'fill="#a9c0d1" text-anchor="middle" font-size="11"');
-        }
+        if (index % labelEvery === 0) labelIndexes.push(index);
+      });
+      const finalIndex = view.length - 1;
+      const previousLabelIndex = labelIndexes[labelIndexes.length - 1];
+      if (
+        finalIndex > 0
+        && finalIndex % labelEvery !== 0
+        && xFor(finalIndex) - xFor(previousLabelIndex) >= minimumYearLabelGap
+      ) {
+        labelIndexes.push(finalIndex);
+      }
+      labelIndexes.forEach((index) => {
+        const row = view[index];
+        svg += svgText(xFor(index), height - 8, row.fy.slice(0, 4), 'fill="#a9c0d1" text-anchor="middle" font-size="11"');
       });
 
       activeSeries.forEach((series) => {
@@ -3968,10 +4042,69 @@
       }
       chart.querySelectorAll(".chart-point-hit, .chart-point").forEach((point) => {
         const index = Number(point.dataset.index);
-        point.addEventListener("mouseenter", () => showTooltip(point, index, point.dataset.series));
-        point.addEventListener("mouseleave", hideTooltip);
-        point.addEventListener("focus", () => showTooltip(point, index, point.dataset.series));
-        point.addEventListener("blur", hideTooltip);
+        point.addEventListener("mouseenter", () => {
+          if (window.matchMedia("(pointer: coarse)").matches) return;
+          showTooltip(point, index, point.dataset.series);
+        });
+        point.addEventListener("mouseleave", () => {
+          if (window.matchMedia("(pointer: coarse)").matches) return;
+          hideTooltip();
+        });
+        point.addEventListener("focus", () => {
+          if (window.matchMedia("(pointer: coarse)").matches) return;
+          showTooltip(point, index, point.dataset.series);
+        });
+        point.addEventListener("blur", () => {
+          if (window.matchMedia("(pointer: coarse)").matches) return;
+          hideTooltip();
+        });
+        point.addEventListener("pointerdown", (event) => {
+          if (event.pointerType === "mouse") return;
+          hideTooltip();
+          chartPointLongPressState.pointerId = event.pointerId;
+          chartPointLongPressState.point = point;
+          chartPointLongPressState.startX = event.clientX;
+          chartPointLongPressState.startY = event.clientY;
+          chartPointLongPressState.triggered = false;
+          chartPointLongPressState.timer = window.setTimeout(() => {
+            if (
+              chartPointLongPressState.pointerId !== event.pointerId
+              || chartPointLongPressState.point !== point
+            ) return;
+            chartPointLongPressState.timer = null;
+            chartPointLongPressState.triggered = true;
+            showTooltip(point, index, point.dataset.series, true);
+          }, 550);
+        });
+        point.addEventListener("pointermove", (event) => {
+          if (
+            chartPointLongPressState.pointerId !== event.pointerId
+            || chartPointLongPressState.point !== point
+            || chartPointLongPressState.timer === null
+          ) return;
+          const movedX = Math.abs(event.clientX - chartPointLongPressState.startX);
+          const movedY = Math.abs(event.clientY - chartPointLongPressState.startY);
+          if (movedX > 10 || movedY > 10) resetChartPointLongPress();
+        });
+        point.addEventListener("pointerup", (event) => {
+          finishChartPointLongPress(event.pointerId);
+        });
+        point.addEventListener("pointercancel", (event) => {
+          if (chartPointLongPressState.pointerId === event.pointerId) {
+            resetChartPointLongPress();
+          }
+        });
+        point.addEventListener("contextmenu", (event) => {
+          if (chartPointLongPressState.point === point && chartPointLongPressState.triggered) {
+            event.preventDefault();
+          }
+        });
+        point.addEventListener("click", (event) => {
+          if (chartPointLongPressState.point !== point || !chartPointLongPressState.triggered) return;
+          event.preventDefault();
+          event.stopPropagation();
+          resetChartPointLongPress();
+        });
       });
       if (legend) {
         ["pointerdown", "pointermove", "pointerup"].forEach((eventName) => {
@@ -4399,6 +4532,12 @@
       event.preventDefault();
     }, true);
     chart.addEventListener("click", (event) => {
+      if (chartPointLongPressState.triggered) {
+        event.preventDefault();
+        event.stopPropagation();
+        resetChartPointLongPress();
+        return;
+      }
       if (
         Date.now() < dragState.suppressClickUntil
         || touchZoomState.active
@@ -4430,8 +4569,12 @@
     measureTooltip.addEventListener("click", dismissMeasureTooltip);
     document.addEventListener("pointerdown", (event) => {
       if (suppressNextChartTooltipClick) suppressNextChartTooltipClick = false;
-      if (!activeMeasureTooltipButton) return;
       const target = event.target instanceof Element ? event.target : null;
+      if (chartTooltipPersistent && !target?.closest("#chartTooltip")) {
+        dismissChartTooltip(event);
+        return;
+      }
+      if (!activeMeasureTooltipButton) return;
       if (!target?.closest("#measureTooltip")) dismissMeasureTooltip(event);
     }, true);
     document.addEventListener("pointerup", (event) => {
