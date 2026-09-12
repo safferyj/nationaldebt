@@ -2882,11 +2882,11 @@
       const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
       if (maxScrollY < 1) return;
 
-      // iOS browsers may collapse their bottom toolbar after a small page scroll.
+      // iOS browsers may collapse their bottom toolbar after a toolbar-sized page scroll.
       const root = document.documentElement;
       const previousScrollBehavior = root.style.scrollBehavior;
       root.style.scrollBehavior = "auto";
-      window.scrollTo(0, 1);
+      window.scrollTo(0, Math.min(64, maxScrollY));
       root.style.scrollBehavior = previousScrollBehavior;
     }
 
