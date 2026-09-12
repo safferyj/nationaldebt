@@ -4669,9 +4669,11 @@
     applyUrlState();
     renderAll();
     if (isMobilePortraitChartViewport()) {
-      collapseMobileBrowserChrome();
       window.requestAnimationFrame(() => {
-        if (isMobilePortraitChartViewport()) setKioskMode(true);
+        collapseMobileBrowserChrome();
+        window.requestAnimationFrame(() => {
+          if (isMobilePortraitChartViewport()) setKioskMode(true);
+        });
       });
     }
     clearShareUrl();
