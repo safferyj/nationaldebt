@@ -453,7 +453,7 @@
 
     .chart-controls-row::after {
       background: rgba(174, 205, 222, 0.24);
-      bottom: -0.15rem;
+      bottom: -2.5px;
       content: "";
       height: 1px;
       left: 0;
@@ -1285,6 +1285,9 @@
       .chart-card button {
         touch-action: manipulation;
       }
+      .chart-controls-row::after {
+        bottom: -0.5px;
+      }
 
       .hero {
         grid-template-columns: 1fr;
@@ -1492,6 +1495,9 @@
         margin: -0.65rem 0 0.45rem;
         padding-bottom: 0.45rem;
       }
+      .chart-controls-row::after {
+        bottom: -0.5px;
+      }
 
       .chart-lens-controls {
         display: flex;
@@ -1650,6 +1656,9 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         margin: -0.65rem 0 0.45rem;
         padding-bottom: 0.45rem;
+      }
+      .chart-controls-row::after {
+        bottom: -0.5px;
       }
       .chart-lens-controls {
         display: contents;
