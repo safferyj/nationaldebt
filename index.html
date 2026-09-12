@@ -2868,6 +2868,19 @@
       return window.matchMedia("(max-width: 760px) and (orientation: portrait)").matches;
     }
 
+    function collapseMobileBrowserChrome() {
+      if (!isMobilePortraitChartViewport() || window.scrollY > 0) return;
+      const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScrollY < 1) return;
+
+      // iOS browsers may collapse their bottom toolbar after a small page scroll.
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, 1);
+      root.style.scrollBehavior = previousScrollBehavior;
+    }
+
     function updateChartLayout() {
       const rect = chart.getBoundingClientRect();
       const responsiveLayout = chartIsFullscreen() || isMobileChartViewport();
@@ -4646,7 +4659,12 @@
     renderFullscreenControl();
     applyUrlState();
     renderAll();
-    if (isMobilePortraitChartViewport()) setKioskMode(true);
+    if (isMobilePortraitChartViewport()) {
+      collapseMobileBrowserChrome();
+      window.requestAnimationFrame(() => {
+        if (isMobilePortraitChartViewport()) setKioskMode(true);
+      });
+    }
     clearShareUrl();
     if (window.location.hash) {
       window.requestAnimationFrame(() => {
