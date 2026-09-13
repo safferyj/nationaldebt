@@ -2878,6 +2878,28 @@
       return window.matchMedia("(max-width: 760px) and (orientation: portrait)").matches;
     }
 
+    function collapseMobileBrowserChrome() {
+      if (!isMobilePortraitChartViewport() || window.scrollY > 0) return;
+      const scrollElement = document.scrollingElement;
+      const maxScrollY = Math.max(
+        0,
+        (scrollElement?.scrollHeight ?? document.documentElement.scrollHeight) - window.innerHeight
+      );
+      if (maxScrollY < 1) return;
+
+      // Some iOS browsers only process toolbar collapse while the document is still scrollable.
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      const targetScrollY = Math.min(1, maxScrollY);
+      window.scrollBy(0, targetScrollY);
+      if (window.scrollY < targetScrollY) {
+        if (scrollElement) scrollElement.scrollTop = targetScrollY;
+        document.body.scrollTop = targetScrollY;
+      }
+      root.style.scrollBehavior = previousScrollBehavior;
+    }
+
     function updateChartLayout() {
       const rect = chart.getBoundingClientRect();
       const responsiveLayout = chartIsFullscreen() || isMobileChartViewport();
@@ -4661,7 +4683,14 @@
     renderFullscreenControl();
     applyUrlState();
     renderAll();
-    if (isMobilePortraitChartViewport()) setKioskMode(true);
+    if (isMobilePortraitChartViewport()) {
+      window.requestAnimationFrame(() => {
+        collapseMobileBrowserChrome();
+        window.setTimeout(() => {
+          if (isMobilePortraitChartViewport()) setKioskMode(true);
+        }, 150);
+      });
+    }
     clearShareUrl();
     if (window.location.hash) {
       window.requestAnimationFrame(() => {
