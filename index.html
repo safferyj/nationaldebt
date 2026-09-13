@@ -1398,7 +1398,7 @@
       }
       .dollar-basis-switch button {
         flex: 1 1 0;
-        font-size: 0.64rem;
+        font-size: 0.7rem;
         line-height: 1.05;
         min-width: 0;
         padding: 0.3rem 0.2rem;
@@ -1443,7 +1443,7 @@
       .chart-end-actions > button {
         align-items: center;
         display: inline-flex;
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         justify-content: center;
         line-height: 1.05;
         min-width: 0;
@@ -1676,7 +1676,7 @@
       }
       .dollar-basis-switch button {
         flex: 1 1 0;
-        font-size: 0.64rem;
+        font-size: 0.7rem;
         line-height: 1.05;
         min-width: 0;
         padding: 0.3rem 0.2rem;
@@ -1729,7 +1729,7 @@
       .chart-end-actions > button {
         align-items: center;
         display: inline-flex;
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         justify-content: center;
         line-height: 1.05;
         min-width: 0;
@@ -1813,7 +1813,7 @@
             <div id="dollarBasisControl" class="dollar-basis-control" hidden>
               <div class="dollar-basis-switch" role="group" aria-label="Choose dollar basis">
                 <button id="basisNominal" type="button" data-basis="nominal" aria-pressed="true">Nominal</button>
-                <button id="basisReal" type="button" data-basis="real" aria-pressed="false">2024-25 dollars</button>
+                <button id="basisReal" type="button" data-basis="real" aria-pressed="false" aria-label="Real, 2024-25 dollars" title="Real, 2024-25 dollars">Real</button>
               </div>
             </div>
           </div>
@@ -2533,11 +2533,11 @@
       }
       if (state.mode === "debt" && state.dollarMeasure === "perCapita") {
         return state.dollarBasis === "real"
-          ? "A$ per capita (2024-25 dollars)"
+          ? "A$ per capita (real, 2024-25 dollars)"
           : "A$ per capita (nominal)";
       }
       return state.dollarBasis === "real"
-        ? "A$ billions (2024-25 dollars)"
+        ? "A$ billions (real, 2024-25 dollars)"
         : "A$ billions (nominal)";
     };
 
