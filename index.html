@@ -558,7 +558,7 @@
     .chart-fullscreen-button {
       background: linear-gradient(145deg, #173650, #071522);
       border: 1px solid rgba(185, 242, 255, 0.52);
-      border-radius: 12px;
+      border-radius: 16px;
       color: #dce9f3;
       height: var(--chart-control-height);
       padding: 0.45rem 0.8rem;
@@ -627,20 +627,28 @@
     }
 
     .chart-axis-label {
+      align-items: center;
       color: #dce9f3;
+      display: flex;
       font-size: 0.9rem;
       font-weight: 700;
-      height: 2rem;
+      height: 100%;
+      justify-content: center;
       left: 0;
       pointer-events: none;
       position: absolute;
       text-align: center;
-      top: 50%;
-      transform: translateY(-50%) rotate(-90deg);
-      transform-origin: center;
+      top: 0;
       white-space: nowrap;
       width: 2rem;
       z-index: 2;
+    }
+
+    .chart-axis-label > span {
+      display: block;
+      line-height: 1;
+      transform: rotate(-90deg);
+      white-space: nowrap;
     }
 
     .chart-card:fullscreen .chart-wrap,
@@ -1647,7 +1655,9 @@
       }
     }
 
-    @media (min-width: 901px) and (orientation: landscape) and (pointer: coarse) {
+    @media
+      (min-width: 761px) and (orientation: portrait) and (pointer: coarse),
+      (min-width: 901px) and (orientation: landscape) and (pointer: coarse) {
       .chart-controls-row {
         --chart-control-height: 2.8rem;
         align-items: stretch;
@@ -3895,7 +3905,14 @@
         : "Reset chart zoom to show the full history");
 
       if (!allValues.length) {
-        chart.innerHTML = svgText(500, chartLayout.height / 2, "Select at least one available series.", 'fill="#dce9f3" text-anchor="middle" font-size="18"');
+        const emptySeriesMessageX = margin.left + innerWidth / 2;
+        const emptySeriesMessageY = margin.top + innerHeight / 2;
+        chart.innerHTML = svgText(
+          emptySeriesMessageX,
+          emptySeriesMessageY,
+          "Select at least one available series.",
+          'dominant-baseline="middle" fill="#dce9f3" text-anchor="middle" font-size="18"'
+        );
         return;
       }
 

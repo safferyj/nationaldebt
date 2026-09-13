@@ -25,6 +25,7 @@ test("renders cleanly on the mobile profile", async ({ page }) => {
   expect(state.chart?.width).toBeGreaterThan(0);
   expect(state.chart?.height).toBeGreaterThan(0);
   expect(state.axisLabel?.height).toBeGreaterThan(0);
+  expect(state.controlOverflow, "Chart controls must remain inside the chart card").toEqual([]);
   expect(state.horizontalOverflow).toBe(false);
 
   if (state.portraitMobile) {

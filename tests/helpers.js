@@ -53,6 +53,40 @@ async function snapshot(page) {
       const box = element.getBoundingClientRect();
       return !element.hidden && style.display !== "none" && box.width > 0 && box.height > 0;
     };
+    const chartCard = document.querySelector(".chart-card");
+    const chartCardBox = chartCard?.getBoundingClientRect();
+    const controlSelectors = [
+      ".chart-controls-row",
+      "#debtViewControl",
+      "#dollarMeasureControl",
+      "#dollarBasisControl",
+      ".chart-year-picker",
+      ".chart-end-actions",
+      "#fullscreenChart",
+      "#resetView",
+      "#shareView",
+    ];
+    const controlOverflow = controlSelectors.reduce((overflowing, selector) => {
+      const element = document.querySelector(selector);
+      if (
+        !element
+        || element.hidden
+        || getComputedStyle(element).display === "none"
+        || getComputedStyle(element).visibility === "hidden"
+        || !chartCardBox
+      ) return overflowing;
+      const box = element.getBoundingClientRect();
+      const overflow = {
+        left: Math.max(0, chartCardBox.left - box.left),
+        top: Math.max(0, chartCardBox.top - box.top),
+        right: Math.max(0, box.right - chartCardBox.right),
+        bottom: Math.max(0, box.bottom - chartCardBox.bottom),
+      };
+      if (Object.values(overflow).some((value) => value > 1)) {
+        overflowing.push({ selector, overflow });
+      }
+      return overflowing;
+    }, []);
 
     return {
       width: window.innerWidth,
@@ -71,6 +105,7 @@ async function snapshot(page) {
       chartWrap: rect("#chartWrap"),
       axisText: rect("#chartAxisLabelText"),
       axisLabel: rect("#chartAxisLabel"),
+      controlOverflow,
       horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
       visualScale: window.visualViewport?.scale || 1,
       measureCount: document.querySelectorAll("#measureRows .measure-lozenge").length,

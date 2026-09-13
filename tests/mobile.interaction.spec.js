@@ -33,7 +33,11 @@ async function holdPointer(page, selector, pointerId, duration) {
 }
 
 async function longPressChartPoint(page, selector, pointerId) {
-  const locator = page.locator(selector);
+  const matches = page.locator(selector);
+  if (await matches.count() === 0) {
+    throw new Error(`No long-press target for ${selector}`);
+  }
+  const locator = matches.first();
   const box = await locator.boundingBox();
   if (!box) throw new Error(`No bounding box for long-press target ${selector}`);
   const eventData = {
@@ -151,6 +155,67 @@ async function assertChartTooltipDismissal(page) {
   expect(await tooltip.isHidden()).toBe(true);
   expect((await snapshot(page)).year).toBe(opened.year);
 }
+
+async function assertAxisAndEmptySeriesMessage(page) {
+  await page.locator("#viewDollars").click();
+  await page.locator("#measurePerCapita").click();
+  await page.locator("#basisReal").click();
+  expect(axisCenterError(await snapshot(page))).toBeLessThanOrEqual(8);
+  const axisAndMeasureGeometry = await page.evaluate(() => {
+    const axis = document.querySelector("#chartAxisLabelText").getBoundingClientRect();
+    const measures = document.querySelector("#measureRows").getBoundingClientRect();
+    return {
+      overlap: !(
+        axis.right <= measures.left
+        || axis.left >= measures.right
+        || axis.bottom <= measures.top
+        || axis.top >= measures.bottom
+      ),
+    };
+  });
+  expect(axisAndMeasureGeometry.overlap).toBe(false);
+
+  const selectedSeriesButtons = page.locator(
+    '#measureRows button[data-series][aria-pressed="true"]:not(:disabled)',
+  );
+  const initialSeriesCount = await page.locator("#measureRows button[data-series]:not(:disabled)").count();
+  expect(initialSeriesCount).toBeGreaterThan(0);
+  while (await selectedSeriesButtons.count()) {
+    await selectedSeriesButtons.first().click();
+  }
+
+  const message = await page.locator("#chartSvg text").evaluate((element) => {
+    const svg = element.ownerSVGElement;
+    const viewBox = svg.viewBox.baseVal;
+    const margin = { top: 16, right: 22, left: 75 };
+    const plotBottom = document.querySelector('[data-toggle="government"]')?.getAttribute("aria-pressed") === "true"
+      ? viewBox.height - 45
+      : viewBox.height - 24;
+    return {
+      text: element.textContent,
+      x: Number(element.getAttribute("x")),
+      y: Number(element.getAttribute("y")),
+      expectedX: margin.left + (viewBox.width - margin.left - margin.right) / 2,
+      expectedY: margin.top + (plotBottom - margin.top) / 2,
+    };
+  });
+  expect(message.text).toBe("Select at least one available series.");
+  expect(Math.abs(message.x - message.expectedX)).toBeLessThanOrEqual(1);
+  expect(Math.abs(message.y - message.expectedY)).toBeLessThanOrEqual(1);
+}
+
+test("centres the axis title and empty-series message within the plot area", async ({ page }) => {
+  const browserErrors = captureBrowserErrors(page);
+  await loadApp(page);
+  const initial = await snapshot(page);
+  if (initial.landscapeWarning) {
+    expect(browserErrors).toEqual([]);
+    return;
+  }
+
+  await assertAxisAndEmptySeriesMessage(page);
+  expect(browserErrors).toEqual([]);
+});
 
 async function assertTouchZoomGesture(page) {
   await page.evaluate(() => {
