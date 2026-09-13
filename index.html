@@ -2652,6 +2652,7 @@
     const chartAxisLabelText = document.getElementById("chartAxisLabelText");
     const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
+    const chartSection = chartCard.closest(".chart-section");
     const chartControlsRow = document.querySelector(".chart-controls-row");
     const chartYearPicker = document.querySelector(".chart-year-picker");
     const selectedYearLabel = document.getElementById("selectedYearLabel");
@@ -2889,6 +2890,11 @@
     }
 
     function setKioskMode(active) {
+      if (active && isMobileChartViewport()) {
+        chartSection.style.minHeight = `${Math.ceil(chartCard.getBoundingClientRect().height)}px`;
+      } else if (!active) {
+        chartSection.style.minHeight = "";
+      }
       chartCard.classList.toggle("is-kiosk", active);
       document.body.classList.toggle("kiosk-open", active);
       renderFullscreenControl();
