@@ -626,31 +626,6 @@
       position: relative;
     }
 
-    .chart-axis-label {
-      align-items: center;
-      color: #dce9f3;
-      display: flex;
-      font-size: 0.9rem;
-      font-weight: 700;
-      height: 100%;
-      justify-content: center;
-      left: 0;
-      pointer-events: none;
-      position: absolute;
-      text-align: center;
-      top: 0;
-      white-space: nowrap;
-      width: 2rem;
-      z-index: 2;
-    }
-
-    .chart-axis-label > span {
-      display: block;
-      line-height: 1;
-      transform: rotate(-90deg);
-      white-space: nowrap;
-    }
-
     .chart-card:fullscreen .chart-wrap,
     .chart-card:-webkit-full-screen .chart-wrap,
     .chart-card.is-kiosk .chart-wrap {
@@ -1332,14 +1307,6 @@
         height: 360px;
         min-height: 0;
       }
-      .chart-axis-label {
-        color: #a9c0d1;
-        font-family: inherit;
-        font-size: 0.68rem;
-        font-weight: 700;
-        left: -0.45rem;
-        width: 1.45rem;
-      }
       .measure-rows {
         display: grid;
         gap: 0.45rem;
@@ -1491,7 +1458,26 @@
       }
     }
 
-    @media (min-width: 761px) and (max-width: 1199px) and (pointer: fine) {
+    @media (min-width: 761px) and (pointer: fine) {
+      .dollar-basis-switch button {
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
+      }
+      #debtViewControl .dollar-basis-switch button {
+        flex: 0 0 4.6rem;
+        width: 4.6rem;
+      }
+      #dollarMeasureControl .dollar-basis-switch button {
+        flex: 0 0 4.6rem;
+        width: 4.6rem;
+      }
+      #dollarBasisControl .dollar-basis-switch button {
+        flex: 0 0 4.6rem;
+        width: 4.6rem;
+      }
+    }
+
+    @media (min-width: 761px) and (max-width: 1279px) and (pointer: fine) {
       .chart-controls-row {
         align-items: stretch;
         display: grid;
@@ -1602,20 +1588,6 @@
       }
       #chartSvg {
         height: 480px;
-      }
-      .chart-axis-label {
-        align-items: center;
-        display: flex;
-        height: 100%;
-        justify-content: center;
-        top: 0;
-        transform: none;
-      }
-      .chart-axis-label > span {
-        display: block;
-        line-height: 1;
-        transform: rotate(-90deg);
-        white-space: nowrap;
       }
     }
 
@@ -1848,7 +1820,6 @@
         </div>
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
-          <div id="chartAxisLabel" class="chart-axis-label" aria-hidden="true"><span id="chartAxisLabelText"></span></div>
           <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
@@ -2550,6 +2521,9 @@
         ? "A$ billions (real, 2024-25 dollars)"
         : "A$ billions (nominal)";
     };
+    const getCompactChartAxisLabel = (label) => label
+      .replace(" (real, 2024-25 dollars)", " (real)")
+      .replace(" / gross debt growth %", " / debt growth %");
 
     const chartModes = {
       debt: {
@@ -2668,7 +2642,6 @@
     const chartWrap = document.getElementById("chartWrap");
     const chartTooltip = document.getElementById("chartTooltip");
     const measureTooltip = document.getElementById("measureTooltip");
-    const chartAxisLabelText = document.getElementById("chartAxisLabelText");
     const measureRows = document.getElementById("measureRows");
     const chartCard = document.querySelector(".chart-card");
     const chartSection = chartCard.closest(".chart-section");
@@ -3892,8 +3865,22 @@
       const allValues = activeSeries.flatMap((series) => view.map((row) => series.get(row)))
         .filter((value) => value !== null && value !== undefined && !Number.isNaN(value));
       const chartAxisLabel = getChartAxisLabel(mode);
-
-      chartAxisLabelText.textContent = chartAxisLabel;
+      const chartRect = chart.getBoundingClientRect();
+      const svgScale = chartRect.width > 0 && chartRect.height > 0
+        ? Math.min(chartRect.width / width, chartRect.height / height)
+        : 1;
+      const shortChart = chartRect.height > 0 && chartRect.height < 320;
+      const visualChartAxisLabel = shortChart
+        ? getCompactChartAxisLabel(chartAxisLabel)
+        : chartAxisLabel;
+      const axisTitlePixelSize = shortChart ? 10.88 : 14.4;
+      const axisTitleFontSize = axisTitlePixelSize / svgScale;
+      const axisTitleX = margin.left / 2;
+      const axisTitleY = margin.top + innerHeight / 2;
+      chart.setAttribute(
+        "aria-label",
+        `Interactive historical fiscal chart. Current vertical axis: ${chartAxisLabel}. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.`
+      );
       const fullHistoryShown = state.start === 0 && state.end === rows.length - 1;
       resetView.disabled = fullHistoryShown;
       resetView.textContent = "Reset zoom";
@@ -3925,7 +3912,7 @@
       const tickCount = Math.round((max - min) / tickStep);
       const tickDecimals = decimalPlacesForStep(tickStep);
       let svg = `
-        <desc>Interactive line chart. Click or drag with one finger on a touch screen to inspect the nearest financial year, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
+        <desc>Interactive line chart. The vertical axis shows ${esc(chartAxisLabel)}. Click or drag with one finger on a touch screen to inspect the nearest financial year, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, use keys 1 through 5 to choose a lens, use Tab and Shift plus Tab to cycle through lenses, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
         <rect x="0" y="0" width="${width}" height="${height}" fill="#0c1d2f"></rect>
       `;
 
@@ -3941,6 +3928,13 @@
           : formatNumber(value, tickDecimals);
         svg += svgText(margin.left - 10, y + 4, tickLabel, 'fill="#a9c0d1" text-anchor="end" font-size="11"');
       }
+
+      svg += svgText(
+        axisTitleX,
+        axisTitleY,
+        visualChartAxisLabel,
+        `id="chartAxisLabelText" aria-hidden="true" data-full-label="${esc(chartAxisLabel)}" data-compact="${shortChart}" fill="#dce9f3" text-anchor="middle" dominant-baseline="middle" font-size="${axisTitleFontSize}" font-weight="700" transform="rotate(-90 ${axisTitleX} ${axisTitleY})"`
+      );
 
       if (state.showGovernment) {
         /* Political strip: contiguous runs are merged so party changes are
@@ -4383,11 +4377,38 @@
 
     function clearYearHold() {
       if (!yearHold) return null;
-      window.clearTimeout(yearHold.delayId);
-      window.clearInterval(yearHold.intervalId);
+      window.clearTimeout(yearHold.timerId);
       const completed = yearHold;
       yearHold = null;
       return completed;
+    }
+
+    function scheduleYearHoldRepeat(hold, delay = YEAR_HOLD_DELAY) {
+      hold.timerId = window.setTimeout(() => {
+        if (yearHold !== hold) return;
+        const now = window.performance.now();
+        if (now < hold.nextRepeatAt) {
+          scheduleYearHoldRepeat(hold, hold.nextRepeatAt - now);
+          return;
+        }
+
+        // Catch up missed deadlines so throttled timers do not reduce the
+        // number of changes produced by a sustained hold.
+        const repeatsDue = Math.floor((now - hold.nextRepeatAt) / YEAR_HOLD_INTERVAL) + 1;
+        hold.nextRepeatAt += repeatsDue * YEAR_HOLD_INTERVAL;
+        hold.repeated = true;
+        for (let index = 0; index < repeatsDue; index += 1) {
+          if (yearHold !== hold) return;
+          if (moveSelectedYear(hold.offset)) continue;
+          const completed = clearYearHold();
+          if (completed?.repeated) suppressNextYearClick(completed.button);
+          return;
+        }
+
+        if (yearHold === hold) {
+          scheduleYearHoldRepeat(hold, Math.max(0, hold.nextRepeatAt - window.performance.now()));
+        }
+      }, Math.max(0, delay));
     }
 
     function startYearHold(button, offset, event) {
@@ -4401,24 +4422,11 @@
         offset,
         pointerId: event.pointerId,
         repeated: false,
-        delayId: 0,
-        intervalId: 0
+        nextRepeatAt: window.performance.now() + YEAR_HOLD_DELAY,
+        timerId: 0
       };
       yearHold = hold;
-      hold.delayId = window.setTimeout(() => {
-        if (yearHold !== hold) return;
-        hold.repeated = true;
-        const repeat = () => {
-          if (yearHold !== hold) return;
-          if (moveSelectedYear(hold.offset)) return;
-          const completed = clearYearHold();
-          if (completed?.repeated) suppressNextYearClick(completed.button);
-        };
-        repeat();
-        if (yearHold === hold) {
-          hold.intervalId = window.setInterval(repeat, YEAR_HOLD_INTERVAL);
-        }
-      }, YEAR_HOLD_DELAY);
+      scheduleYearHoldRepeat(hold);
     }
 
     function finishYearHoldForButton(button) {

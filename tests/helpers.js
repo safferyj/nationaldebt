@@ -87,6 +87,19 @@ async function snapshot(page) {
       }
       return overflowing;
     }, []);
+    const axisText = rect("#chartAxisLabelText");
+    const chartElement = document.querySelector("#chartSvg");
+    let plotCenter = null;
+    if (chartElement?.viewBox?.baseVal && chartElement.getScreenCTM()) {
+      const viewBox = chartElement.viewBox.baseVal;
+      const showGovernment = document.querySelector('[data-toggle="government"]')?.getAttribute("aria-pressed") === "true";
+      const plotBottom = showGovernment ? viewBox.height - 45 : viewBox.height - 24;
+      const point = new DOMPoint(
+        viewBox.width / 2,
+        16 + (plotBottom - 16) / 2,
+      ).matrixTransform(chartElement.getScreenCTM());
+      plotCenter = { x: point.x, y: point.y };
+    }
 
     return {
       width: window.innerWidth,
@@ -103,8 +116,8 @@ async function snapshot(page) {
       chart: rect("#chartSvg"),
       chartHeight: rect("#chartSvg")?.height || 0,
       chartWrap: rect("#chartWrap"),
-      axisText: rect("#chartAxisLabelText"),
-      axisLabel: rect("#chartAxisLabel"),
+      axisText,
+      plotCenter,
       controlOverflow,
       horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
       visualScale: window.visualViewport?.scale || 1,
@@ -179,9 +192,10 @@ async function longPress(page, selector, pointerId) {
 }
 
 function axisCenterError(state) {
+  const expectedY = state.plotCenter?.y ?? (state.chart.y + state.chart.height / 2);
   return Math.abs(
     (state.axisText.y + state.axisText.height / 2)
-      - (state.chart.y + state.chart.height / 2),
+      - expectedY,
   );
 }
 

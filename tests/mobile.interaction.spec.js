@@ -25,11 +25,23 @@ async function holdPointer(page, selector, pointerId, duration) {
     buttons: 1,
   };
   await locator.dispatchEvent("pointerdown", eventData);
+  const startedAt = await page.evaluate(() => performance.now());
   await page.waitForTimeout(duration);
-  const during = await snapshot(page);
-  await locator.dispatchEvent("pointerup", { ...eventData, buttons: 0 });
+  const during = await page.evaluate(({ selector, eventData }) => {
+    const button = document.querySelector(selector);
+    if (!button) throw new Error(`No hold target for ${selector}`);
+    const year = document.querySelector("#selectedYearLabel")?.textContent?.trim() || "";
+    button.dispatchEvent(new PointerEvent("pointerup", {
+      ...eventData,
+      bubbles: true,
+      cancelable: true,
+      buttons: 0,
+    }));
+    return { year };
+  }, { selector, eventData });
+  const elapsedMs = await page.evaluate((start) => performance.now() - start, startedAt);
   await page.waitForTimeout(60);
-  return { during, released: await snapshot(page) };
+  return { during, released: await snapshot(page), elapsedMs };
 }
 
 async function longPressChartPoint(page, selector, pointerId) {
@@ -160,7 +172,22 @@ async function assertAxisAndEmptySeriesMessage(page) {
   await page.locator("#viewDollars").click();
   await page.locator("#measurePerCapita").click();
   await page.locator("#basisReal").click();
-  expect(axisCenterError(await snapshot(page))).toBeLessThanOrEqual(8);
+  const perCapitaState = await snapshot(page);
+  const axisLabelState = await page.locator("#chartAxisLabelText").evaluate((element) => ({
+    text: element.textContent.trim(),
+    fullLabel: element.getAttribute("data-full-label"),
+    compact: element.getAttribute("data-compact") === "true",
+    insideSvg: element.ownerSVGElement?.id === "chartSvg",
+  }));
+  expect(axisCenterError(perCapitaState)).toBeLessThanOrEqual(8);
+  expect(axisLabelState.fullLabel).toBe("A$ per capita (real, 2024-25 dollars)");
+  expect(axisLabelState.insideSvg).toBe(true);
+  expect(axisLabelState.compact).toBe(perCapitaState.chart.height < 320);
+  expect(axisLabelState.text).toBe(
+    axisLabelState.compact
+      ? "A$ per capita (real)"
+      : "A$ per capita (real, 2024-25 dollars)",
+  );
   const axisAndMeasureGeometry = await page.evaluate(() => {
     const axis = document.querySelector("#chartAxisLabelText").getBoundingClientRect();
     const measures = document.querySelector("#measureRows").getBoundingClientRect();
@@ -429,8 +456,9 @@ async function assertYearInteractions(page) {
   const holdStart = await snapshot(page);
   const held = await holdPointer(page, "#previousYear", 201, 1_250);
   const heldYears = Number(holdStart.year.slice(0, 4)) - Number(held.during.year.slice(0, 4));
+  const expectedHeldYears = Math.max(0, Math.floor((held.elapsedMs - 500) / 50) + 1);
   expect(heldYears).toBeGreaterThanOrEqual(13);
-  expect(heldYears).toBeLessThanOrEqual(17);
+  expect(heldYears).toBeLessThanOrEqual(expectedHeldYears + 2);
   const releaseBoundaryYears = Number(held.during.year.slice(0, 4))
     - Number(held.released.year.slice(0, 4));
   expect(releaseBoundaryYears).toBeGreaterThanOrEqual(0);
