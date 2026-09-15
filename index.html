@@ -3286,7 +3286,7 @@
     function chartYearDomain(view = visibleRows()) {
       if (!view.length) return null;
       return {
-        start: view[0].year,
+        start: view[0].endYear,
         end: view[view.length - 1].endYear
       };
     }
@@ -4001,10 +4001,10 @@
       const labelEvery = view.length > 30 ? 5 : view.length > 15 ? 3 : 1;
       const minimumYearLabelGap = 28;
       const domain = chartYearDomain(view);
-      const firstTickYear = Math.ceil(domain.start / labelEvery) * labelEvery;
-      const tickYears = [];
+      const firstTickYear = Math.ceil((domain.start + 1) / labelEvery) * labelEvery;
+      const tickYears = [domain.start];
       for (let year = firstTickYear; year <= domain.end; year += labelEvery) {
-        tickYears.push(year);
+        if (year > domain.start) tickYears.push(year);
       }
       const lastTickYear = tickYears[tickYears.length - 1];
       if (
