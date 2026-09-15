@@ -3875,7 +3875,9 @@
         : chartAxisLabel;
       const axisTitlePixelSize = shortChart ? 10.88 : 14.4;
       const axisTitleFontSize = axisTitlePixelSize / svgScale;
-      const axisTitleX = margin.left / 2;
+      // Start the rotated title in its own left gutter; the rendered geometry
+      // below nudges it farther left when a narrow viewport needs more room.
+      const axisTitleX = 8;
       const axisTitleY = margin.top + innerHeight / 2;
       chart.setAttribute(
         "aria-label",
@@ -3926,14 +3928,14 @@
         const tickLabel = isPercentage
           ? `${formatNumber(value, tickDecimals)}%`
           : formatNumber(value, tickDecimals);
-        svg += svgText(margin.left - 10, y + 4, tickLabel, 'fill="#a9c0d1" text-anchor="end" font-size="11"');
+        svg += svgText(margin.left - 10, y + 4, tickLabel, 'class="chart-y-tick" fill="#a9c0d1" text-anchor="end" font-size="11"');
       }
 
       svg += svgText(
         axisTitleX,
         axisTitleY,
         visualChartAxisLabel,
-        `id="chartAxisLabelText" aria-hidden="true" data-full-label="${esc(chartAxisLabel)}" data-compact="${shortChart}" fill="#dce9f3" text-anchor="middle" dominant-baseline="middle" font-size="${axisTitleFontSize}" font-weight="700" transform="rotate(-90 ${axisTitleX} ${axisTitleY})"`
+        `id="chartAxisLabelText" aria-hidden="true" data-full-label="${esc(chartAxisLabel)}" data-compact="${shortChart}" fill="#dce9f3" text-anchor="middle" dominant-baseline="middle" font-size="${axisTitleFontSize}" font-weight="600" transform="rotate(-90 ${axisTitleX} ${axisTitleY})"`
       );
 
       if (state.showGovernment) {
@@ -4041,6 +4043,26 @@
       svg += "</g>";
 
       chart.innerHTML = svg;
+      const axisTitleElement = chart.querySelector("#chartAxisLabelText");
+      if (axisTitleElement && svgScale > 0) {
+        const axisRect = axisTitleElement.getBoundingClientRect();
+        const maximumOverlap = [...chart.querySelectorAll(".chart-y-tick")]
+          .reduce((overlap, tick) => {
+            const tickRect = tick.getBoundingClientRect();
+            if (axisRect.bottom <= tickRect.top || axisRect.top >= tickRect.bottom) {
+              return overlap;
+            }
+            return Math.max(overlap, axisRect.right - tickRect.left);
+          }, 0);
+        if (maximumOverlap > 0) {
+          const adjustedAxisTitleX = axisTitleX - (maximumOverlap + 2) / svgScale;
+          axisTitleElement.setAttribute("x", String(adjustedAxisTitleX));
+          axisTitleElement.setAttribute(
+            "transform",
+            `rotate(-90 ${adjustedAxisTitleX} ${axisTitleY})`
+          );
+        }
+      }
       const legend = chart.querySelector(".chart-inline-legend");
       if (legend) {
         const legendMeasureText = document.createElementNS("http://www.w3.org/2000/svg", "text");

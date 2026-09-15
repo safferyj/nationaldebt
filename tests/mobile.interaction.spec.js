@@ -177,10 +177,12 @@ async function assertAxisAndEmptySeriesMessage(page) {
     text: element.textContent.trim(),
     fullLabel: element.getAttribute("data-full-label"),
     compact: element.getAttribute("data-compact") === "true",
+    fontWeight: element.getAttribute("font-weight"),
     insideSvg: element.ownerSVGElement?.id === "chartSvg",
   }));
   expect(axisCenterError(perCapitaState)).toBeLessThanOrEqual(8);
   expect(axisLabelState.fullLabel).toBe("A$ per capita (real, 2024-25 dollars)");
+  expect(axisLabelState.fontWeight).toBe("600");
   expect(axisLabelState.insideSvg).toBe(true);
   expect(axisLabelState.compact).toBe(perCapitaState.chart.height < 320);
   expect(axisLabelState.text).toBe(
@@ -188,6 +190,30 @@ async function assertAxisAndEmptySeriesMessage(page) {
       ? "A$ per capita (real)"
       : "A$ per capita (real, 2024-25 dollars)",
   );
+  const assertNoAxisTickOverlap = async () => {
+    const axisAndTickGeometry = await page.evaluate(() => {
+      const axis = document.querySelector("#chartAxisLabelText").getBoundingClientRect();
+      const overlaps = [...document.querySelectorAll(".chart-y-tick")]
+        .filter((element) => {
+          const tick = element.getBoundingClientRect();
+          return !(
+            axis.right <= tick.left
+            || axis.left >= tick.right
+            || axis.bottom <= tick.top
+            || axis.top >= tick.bottom
+          );
+        })
+        .map((element) => element.textContent.trim());
+      return { overlaps };
+    });
+    expect(axisAndTickGeometry.overlaps).toEqual([]);
+  };
+  await assertNoAxisTickOverlap();
+  if (perCapitaState.kiosk) {
+    await page.locator("#fullscreenChart").click();
+    await page.waitForTimeout(40);
+    await assertNoAxisTickOverlap();
+  }
   const axisAndMeasureGeometry = await page.evaluate(() => {
     const axis = document.querySelector("#chartAxisLabelText").getBoundingClientRect();
     const measures = document.querySelector("#measureRows").getBoundingClientRect();
