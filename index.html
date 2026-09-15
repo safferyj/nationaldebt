@@ -4002,7 +4002,7 @@
       const minimumYearLabelGap = 28;
       const domain = chartYearDomain(view);
       const firstTickYear = Math.ceil((domain.start + 1) / labelEvery) * labelEvery;
-      const tickYears = [domain.start];
+      const tickYears = labelEvery === 5 ? [] : [domain.start];
       for (let year = firstTickYear; year <= domain.end; year += labelEvery) {
         if (year > domain.start) tickYears.push(year);
       }

@@ -45,18 +45,17 @@ test("renders a complete desktop chart without layout or axis collisions", async
       firstPointX: pointX(0),
       point1975X: pointX(4),
       lastPointX: pointX(54),
-      tick1970X: labelX(1970),
       tick1971X: labelX(1971),
       tick1975X: labelX(1975),
       tick2025X: labelX(2025),
     };
   });
   expect(xAxisAlignment.labels).toEqual([
-    "1971", "1975", "1980", "1985", "1990", "1995",
+    "1975", "1980", "1985", "1990", "1995",
     "2000", "2005", "2010", "2015", "2020", "2025",
   ]);
-  expect(xAxisAlignment.tick1970X).toBeUndefined();
-  expect(Math.abs(xAxisAlignment.firstPointX - xAxisAlignment.tick1971X)).toBeLessThanOrEqual(0.5);
+  expect(xAxisAlignment.tick1971X).toBeUndefined();
+  expect(xAxisAlignment.firstPointX).toBe(75);
   expect(Math.abs(xAxisAlignment.point1975X - xAxisAlignment.tick1975X)).toBeLessThanOrEqual(0.5);
   expect(Math.abs(xAxisAlignment.lastPointX - xAxisAlignment.tick2025X)).toBeLessThanOrEqual(0.5);
 
