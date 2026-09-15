@@ -5,8 +5,12 @@
   "scripts": {
     "test": "npm run test:mobile:smoke",
     "test:mobile": "npm run test:mobile:smoke && npm run test:mobile:interaction",
-    "test:mobile:smoke": "playwright test tests/mobile.smoke.spec.js",
-    "test:mobile:interaction": "playwright test tests/mobile.interaction.spec.js"
+    "test:mobile:smoke": "PLAYWRIGHT_TARGET=mobile playwright test tests/mobile.smoke.spec.js",
+    "test:mobile:interaction": "PLAYWRIGHT_TARGET=mobile playwright test tests/mobile.interaction.spec.js",
+    "test:desktop": "npm run test:desktop:smoke && npm run test:desktop:interaction",
+    "test:desktop:smoke": "PLAYWRIGHT_TARGET=desktop playwright test tests/desktop.smoke.spec.js",
+    "test:desktop:interaction": "PLAYWRIGHT_TARGET=desktop playwright test tests/desktop.interaction.spec.js",
+    "test:all": "npm run test:mobile && npm run test:desktop"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

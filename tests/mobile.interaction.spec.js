@@ -184,6 +184,12 @@ async function assertAxisAndEmptySeriesMessage(page) {
   expect(axisLabelState.fullLabel).toBe("A$ per capita (real, 2024-25 dollars)");
   expect(axisLabelState.fontWeight).toBe("600");
   expect(axisLabelState.insideSvg).toBe(true);
+  const chartSelectionState = await page.locator("#chartSvg").evaluate((element) => ({
+    svg: getComputedStyle(element).userSelect,
+    text: getComputedStyle(element.querySelector("text")).userSelect,
+  }));
+  expect(chartSelectionState.svg).toBe("none");
+  expect(chartSelectionState.text).toBe("none");
   expect(axisLabelState.compact).toBe(perCapitaState.chart.height < 320);
   expect(axisLabelState.text).toBe(
     axisLabelState.compact
@@ -308,7 +314,7 @@ async function assertTouchZoomGesture(page) {
   const zoomedYears = await chartYearEndpoints(page);
   expect(zoomedYears.count).toBeGreaterThan(1);
   expect(zoomedYears.first).not.toBe("1970");
-  expect(zoomedYears.last).not.toBe("2024");
+  expect(zoomedYears.last).not.toBe("2025");
   expect(await page.locator("#chartSvg").evaluate((chart) => chart.classList.contains("dragging"))).toBe(false);
 
   await page.keyboard.press("0");

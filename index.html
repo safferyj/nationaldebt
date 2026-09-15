@@ -721,6 +721,12 @@
       width: 100%;
     }
 
+    #chartSvg,
+    #chartSvg * {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
     .chart-card:fullscreen #chartSvg,
     .chart-card:-webkit-full-screen #chartSvg,
     .chart-card.is-kiosk #chartSvg {
@@ -2389,6 +2395,7 @@
         index,
         fy,
         year,
+        endYear: year + 1,
         population,
         gdp,
         gross,
@@ -3276,24 +3283,41 @@
       );
     }
 
+    function chartYearDomain(view = visibleRows()) {
+      if (!view.length) return null;
+      return {
+        start: view[0].year,
+        end: view[view.length - 1].endYear
+      };
+    }
+
+    function chartXForYear(year, view = visibleRows()) {
+      const domain = chartYearDomain(view);
+      if (!domain) return chartLayout.margin.left;
+      const plotWidth = chartLayout.width - chartLayout.margin.left - chartLayout.margin.right;
+      return chartLayout.margin.left + (
+        (year - domain.start) / Math.max(1, domain.end - domain.start)
+      ) * plotWidth;
+    }
+
     function rowIndexFromChartX(x, view = visibleRows()) {
       if (!view.length) return null;
-      if (view.length === 1) return view[0].index;
+      const domain = chartYearDomain(view);
+      if (!domain) return null;
       const plotWidth = chartLayout.width - chartLayout.margin.left - chartLayout.margin.right;
       const ratio = (x - chartLayout.margin.left) / plotWidth;
-      const viewIndex = Math.max(0, Math.min(view.length - 1, Math.round(ratio * (view.length - 1))));
+      const chartYear = domain.start + ratio * (domain.end - domain.start);
+      const viewIndex = Math.max(
+        0,
+        Math.min(view.length - 1, Math.round(chartYear - view[0].endYear))
+      );
       return view[viewIndex].index;
     }
 
     function chartXFromRowIndex(index, view = visibleRows()) {
       const viewIndex = view.findIndex((row) => row.index === index);
       if (viewIndex < 0) return null;
-      const plotWidth = chartLayout.width - chartLayout.margin.left - chartLayout.margin.right;
-      return chartLayout.margin.left + (
-        view.length === 1
-          ? plotWidth / 2
-          : viewIndex * plotWidth / (view.length - 1)
-      );
+      return chartXForYear(view[viewIndex].endYear, view);
     }
 
     function zoomViewport(zoomingIn, anchorIndex = state.selected) {
@@ -3350,6 +3374,11 @@
       chart.classList.remove("dragging");
     }
 
+    function snapChartXToYear(x, view = visibleRows()) {
+      const index = rowIndexFromChartX(x, view);
+      return index === null ? x : chartXFromRowIndex(index, view) ?? x;
+    }
+
     function captureTouchPointers(event, pointerIds = touchZoomState.activePointerIds) {
       if (!event.isTrusted || !chart.setPointerCapture) return;
       pointerIds.forEach((pointerId) => {
@@ -3379,10 +3408,7 @@
         .filter(Boolean);
       if (pointers.length !== 2) return;
       const view = visibleRows();
-      const snappedX = pointers.map((pointer) => {
-        const index = rowIndexFromChartX(pointer.currentX, view);
-        return chartXFromRowIndex(index, view) ?? pointer.currentX;
-      });
+      const snappedX = pointers.map((pointer) => snapChartXToYear(pointer.currentX, view));
       updateDragSelection(snappedX[0], snappedX[1]);
     }
 
@@ -3521,7 +3547,7 @@
       const viewLength = dragState.initialEnd - dragState.initialStart + 1;
       if (viewLength < 2) return;
       const plotWidth = chartLayout.width - chartLayout.margin.left - chartLayout.margin.right;
-      const pixelsPerYear = plotWidth / (viewLength - 1);
+      const pixelsPerYear = plotWidth / viewLength;
       const offset = Math.round((dragState.currentX - dragState.startX) / pixelsPerYear);
       const maxStart = rows.length - viewLength;
       const nextStart = Math.max(0, Math.min(maxStart, dragState.initialStart - offset));
@@ -3566,7 +3592,11 @@
       if (dragState.mode === "pan") {
         updatePanRange();
       } else {
-        updateDragSelection();
+        const view = visibleRows();
+        updateDragSelection(
+          snapChartXToYear(dragState.startX, view),
+          snapChartXToYear(dragState.currentX, view)
+        );
       }
     }
 
@@ -3581,8 +3611,14 @@
       const mode = dragState.mode;
       if (mode === "pan" && wasDrag) updatePanRange();
       const view = visibleRows();
-      const firstIndex = rowIndexFromChartX(Math.min(dragState.startX, dragState.currentX), view);
-      const lastIndex = rowIndexFromChartX(Math.max(dragState.startX, dragState.currentX), view);
+      const rangeStartX = mode === "zoom"
+        ? snapChartXToYear(dragState.startX, view)
+        : dragState.startX;
+      const rangeCurrentX = mode === "zoom"
+        ? snapChartXToYear(dragState.currentX, view)
+        : dragState.currentX;
+      const firstIndex = rowIndexFromChartX(Math.min(rangeStartX, rangeCurrentX), view);
+      const lastIndex = rowIndexFromChartX(Math.max(rangeStartX, rangeCurrentX), view);
       dragState.active = false;
       dragState.mode = null;
       dragState.pointerId = null;
@@ -3861,7 +3897,7 @@
       const bandY = height - 38;
       const plotBottom = state.showGovernment ? bandY - 7 : height - 24;
       const innerHeight = plotBottom - margin.top;
-      const xFor = (index) => margin.left + (view.length === 1 ? innerWidth / 2 : index * innerWidth / (view.length - 1));
+      const xFor = (index) => chartXForYear(view[index].endYear, view);
       const allValues = activeSeries.flatMap((series) => view.map((row) => series.get(row)))
         .filter((value) => value !== null && value !== undefined && !Number.isNaN(value));
       const chartAxisLabel = getChartAxisLabel(mode);
@@ -3960,25 +3996,26 @@
         }
       }
 
-      /* Year labels are thinned on wide ranges and follow a regular interval. */
+      /* Year labels use calendar years while each point represents the
+         financial year ending in that calendar year. */
       const labelEvery = view.length > 30 ? 5 : view.length > 15 ? 3 : 1;
       const minimumYearLabelGap = 28;
-      const labelIndexes = [];
-      view.forEach((row, index) => {
-        if (index % labelEvery === 0) labelIndexes.push(index);
-      });
-      const finalIndex = view.length - 1;
-      const previousLabelIndex = labelIndexes[labelIndexes.length - 1];
-      if (
-        finalIndex > 0
-        && finalIndex % labelEvery !== 0
-        && xFor(finalIndex) - xFor(previousLabelIndex) >= minimumYearLabelGap
-      ) {
-        labelIndexes.push(finalIndex);
+      const domain = chartYearDomain(view);
+      const firstTickYear = Math.ceil(domain.start / labelEvery) * labelEvery;
+      const tickYears = [];
+      for (let year = firstTickYear; year <= domain.end; year += labelEvery) {
+        tickYears.push(year);
       }
-      labelIndexes.forEach((index) => {
-        const row = view[index];
-        svg += svgText(xFor(index), height - 8, row.fy.slice(0, 4), 'fill="#a9c0d1" text-anchor="middle" font-size="11"');
+      const lastTickYear = tickYears[tickYears.length - 1];
+      if (
+        !Number.isFinite(lastTickYear)
+        || (lastTickYear !== domain.end
+          && chartXForYear(domain.end, view) - chartXForYear(lastTickYear, view) >= minimumYearLabelGap)
+      ) {
+        tickYears.push(domain.end);
+      }
+      tickYears.forEach((year) => {
+        svg += svgText(chartXForYear(year, view), height - 8, String(year), 'fill="#a9c0d1" text-anchor="middle" font-size="11"');
       });
 
       activeSeries.forEach((series) => {
