@@ -806,6 +806,25 @@
     }
 
     .measure-tooltip[hidden] { display: none; }
+    .measure-tooltip .measure-tooltip-label {
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .measure-tooltip .measure-tooltip-body p {
+      margin: 0;
+    }
+    .measure-tooltip .measure-tooltip-body p + p {
+      margin-top: 0.55rem;
+    }
+    .measure-tooltip .measure-tooltip-body code {
+      background: rgba(174, 205, 222, 0.16);
+      border-radius: 0.25rem;
+      padding: 0.08rem 0.25rem;
+    }
+    .measure-tooltip .measure-tooltip-body a {
+      color: #b9f2ff;
+      overflow-wrap: anywhere;
+    }
 
     .chart-note {
       border-top: 1px solid var(--line);
@@ -2600,20 +2619,58 @@
     const getShortGovernmentValue = (political) =>
       `${getGovernmentLabel(political)}: ${getSurname(political.pm)}, ${getSurname(political.treasurer)}`;
 
-    // These explanations are deliberately static so the term's meaning does
-    // not change when the selected year or chart lens changes.
+    // BEGIN GENERATED POPUP TEXT. Edit popup-text.md and run npm run build.
     const measureExplanations = {
-      gross: "Gross debt is the face value of Australian Government Securities (AGS) on issue. It is a debt amount measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory.",
-      net: "Net debt is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt amount measured at 30 June.",
-      ucb: "The underlying cash balance is the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt amount or change in debt amount.",
-      fiscal: "The fiscal balance is an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses and negative values are deficits. The embedded PBO series begins in 1996-97.",
-      grossChange: "Gross debt change is the difference between consecutive gross debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit.",
-      grossGrowth: "Gross debt growth versus prior debt is the derived percentage (current gross debt minus previous gross debt) divided by previous gross debt, multiplied by 100. It measures the percentage change in the gross debt amount, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only.",
-      netChange: "Net debt change is the difference between consecutive net debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit.",
-      agsInterest: "The PBO table calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP.",
-      interest: "Net interest payments are the PBO measure of interest paid minus interest receipts. Interest receipts can include receipts from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets. It is an annual flow and is shown as a share of nominal GDP in the percentage view.",
-      government: "Government shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the archived reference page or tooltips."
+      gross: {
+        html: "<p><strong>Gross debt</strong> is the face value of Australian Government Securities (AGS) on issue. It is a debt amount measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory.</p>",
+        text: "Gross debt is the face value of Australian Government Securities (AGS) on issue. It is a debt amount measured at 30 June. The PBO notes that total AGS on issue can include securities held on behalf of the states and the Northern Territory."
+      },
+      net: {
+        html: "<p><strong>Net debt</strong> is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt amount measured at 30 June.</p>",
+        text: "Net debt is interest-bearing liabilities less selected financial assets, as defined in the PBO historical workbook. It is a debt amount measured at 30 June."
+      },
+      ucb: {
+        html: "<p>The <strong>underlying cash balance</strong> is the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt amount or change in debt amount.</p>",
+        text: "The underlying cash balance is the Commonwealth's cash-based Budget result. The PBO defines it as receipts less payments, less net Future Fund earnings from 2005-06 to 2019-20; in other years it is receipts less payments. Positive values are surpluses and negative values are deficits. It is a flow measure, not a debt amount or change in debt amount."
+      },
+      fiscal: {
+        html: "<p>The <strong>fiscal balance</strong> is an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses and negative values are deficits. The embedded PBO series begins in 1996-97.</p>",
+        text: "The fiscal balance is an accrual-based Budget result calculated from revenue, expenses and net capital investment. It records economic activity when it arises, including some non-cash items and timing differences, so it can differ from the underlying cash balance. Positive values are surpluses and negative values are deficits. The embedded PBO series begins in 1996-97."
+      },
+      grossChange: {
+        html: "<p><strong>Gross debt change</strong> is the difference between consecutive gross debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit.</p>",
+        text: "Gross debt change is the difference between consecutive gross debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit."
+      },
+      grossGrowth: {
+        html: "<p><strong>Gross debt growth versus prior debt</strong> is the derived percentage (<code>(current gross debt - previous gross debt) / previous gross debt * 100</code>). It measures the percentage change in the gross debt amount, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only.</p>",
+        text: "Gross debt growth versus prior debt is the derived percentage ((current gross debt - previous gross debt) / previous gross debt * 100). It measures the percentage change in the gross debt amount, not the change in the debt-to-GDP ratio. It is available in the % of GDP view only."
+      },
+      netChange: {
+        html: "<p><strong>Net debt change</strong> is the difference between consecutive net debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit.</p>",
+        text: "Net debt change is the difference between consecutive net debt amounts. In the % of GDP view it is divided by current-year nominal GDP; in dollar views it is shown as a dollar difference between amounts or per-capita equivalent. It is not the Budget surplus or deficit."
+      },
+      agsInterest: {
+        html: "<p>The <a href=\"https://www.pbo.gov.au/publications-and-data/data-and-tools/data-portal/historical-fiscal-data\" target=\"_blank\" rel=\"noopener noreferrer\">PBO table</a> calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP.</p>",
+        text: "The PBO table calls this “Interest paid on AGS on issue”, but its note (g) defines it as all cash interest payments of the general government sector, including those relating to AGS on issue. It is not reduced by interest receipts. In the % of GDP view it is shown as a share of nominal GDP."
+      },
+      interest: {
+        html: "<p><strong>Net interest payments</strong> are the PBO measure of interest paid minus interest receipts. Interest receipts can include receipts from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets. It is an annual flow and is shown as a share of nominal GDP in the percentage view.</p>",
+        text: "Net interest payments are the PBO measure of interest paid minus interest receipts. Interest receipts can include receipts from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets. It is an annual flow and is shown as a share of nominal GDP in the percentage view."
+      },
+      government: {
+        html: "<p><strong>Government</strong> shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the archived reference page or tooltips.</p>",
+        text: "Government shows or hides the political-party band beneath the chart. It is a visual guide to the Commonwealth government in power at the end of each financial year; it does not remove the political information from the archived reference page or tooltips."
+      }
     };
+    // END GENERATED POPUP TEXT
+
+    function getMeasureExplanation(key) {
+      const explanation = measureExplanations[key];
+      if (!explanation || typeof explanation.html !== "string" || typeof explanation.text !== "string") {
+        throw new Error(`Missing generated popup explanation for ${key}`);
+      }
+      return explanation;
+    }
 
     // Keep the selector grouping stable across lenses; only each lozenge's value
     // and the inline SVG legend change with the active view.
@@ -3023,13 +3080,13 @@
                   if (key === "government") {
                     const selected = state.showGovernment;
                     const label = seriesSelectorLabels.government;
-                    const explanation = measureExplanations.government;
+                    const explanation = getMeasureExplanation("government");
                     const selectedClass = selected ? " is-selected" : "";
                     const political = row.political;
                     const governmentLabel = getGovernmentLabel(political);
                     const governmentValue = `${governmentLabel}: ${political.pm}, ${political.treasurer}`;
                     const governmentShortValue = getShortGovernmentValue(political);
-                    const ariaLabel = `${label}: ${governmentValue}. ${explanation}`;
+                    const ariaLabel = `${label}: ${governmentValue}. ${explanation.text}`;
                     return `
                       <button type="button"
                         class="measure-lozenge${selectedClass}"
@@ -3037,9 +3094,9 @@
                         data-toggle="government"
                         aria-pressed="${String(selected)}"
                         aria-label="${esc(ariaLabel)}"
-                        title="${esc(explanation)}">
+                        title="${esc(explanation.text)}">
                         <span class="measure-lozenge-content">
-                          <span class="measure-lozenge-name" title="${esc(explanation)}">${esc(label)}</span>
+                          <span class="measure-lozenge-name" title="${esc(explanation.text)}">${esc(label)}</span>
                           <span class="measure-lozenge-value measure-lozenge-government-value" data-full-value="${esc(governmentValue)}" data-short-value="${esc(governmentShortValue)}">${esc(governmentValue)}</span>
                         </span>
                       </button>
@@ -3064,11 +3121,11 @@
                     ? `<span class="measure-lozenge-value">${esc(value)}<span class="measure-lozenge-result ${ucbResultClass}">${ucbResult}</span></span>`
                     : `<span class="measure-lozenge-value">${esc(value)}</span>`;
                   const note = getMeasureSupportingText(key, row, available);
-                  const explanation = measureExplanations[key] || "This measure is defined in the detailed Definitions section below.";
+                  const explanation = getMeasureExplanation(key);
                   const selectedClass = selected ? " is-selected" : "";
                   const disabled = available ? "" : 'disabled aria-disabled="true"';
                   const ariaValue = key === "ucb" ? `${value}; ${ucbResult}` : value;
-                  const ariaLabel = `${label}: ${ariaValue}. ${note}. ${explanation}`;
+                  const ariaLabel = `${label}: ${ariaValue}. ${note}. ${explanation.text}`;
                   return `
                     <button type="button"
                       class="measure-lozenge${selectedClass}"
@@ -3076,10 +3133,10 @@
                       data-series="${esc(key)}"
                       aria-pressed="${String(selected)}"
                       aria-label="${esc(ariaLabel)}"
-                      title="${esc(explanation)}"
+                      title="${esc(explanation.text)}"
                       ${disabled}>
                       <span class="measure-lozenge-content">
-                        <span class="measure-lozenge-name"${labelAttributes} title="${esc(explanation)}">${esc(label)}</span>
+                        <span class="measure-lozenge-name"${labelAttributes} title="${esc(explanation.text)}">${esc(label)}</span>
                         ${valueMarkup}
                       </span>
                     </button>
@@ -3854,19 +3911,27 @@
     }
 
     function showMeasureTooltip(button) {
-      if (!button.title) return;
+      const key = button.dataset.series || button.dataset.toggle;
+      if (!key) return;
+      const explanation = getMeasureExplanation(key);
+      if (!explanation.text) return;
       if (activeMeasureTooltipButton && activeMeasureTooltipButton !== button) {
         activeMeasureTooltipButton.removeAttribute("aria-describedby");
       }
       activeMeasureTooltipButton = button;
       button.setAttribute("aria-describedby", "measureTooltip");
       const label = button.querySelector(".measure-lozenge-name")?.textContent?.trim();
-      measureTooltip.textContent = label ? `${label}: ${button.title}` : button.title;
+      measureTooltip.innerHTML = `
+        ${label ? `<strong class="measure-tooltip-label">${esc(label)}:</strong>` : ""}
+        <div class="measure-tooltip-body">${explanation.html}</div>
+      `;
       measureTooltip.hidden = false;
       positionMeasureTooltip(button);
     }
 
     function dismissMeasureTooltip(event) {
+      const target = event.target instanceof Element ? event.target.closest("a") : null;
+      if (target && measureTooltip.contains(target)) return;
       hideMeasureTooltip();
       dismissedMeasureTooltipPointerId = event.pointerId ?? null;
       event.preventDefault();

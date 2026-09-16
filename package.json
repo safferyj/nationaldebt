@@ -3,6 +3,7 @@
   "private": true,
   "description": "Self-contained Australian Commonwealth debt data story",
   "scripts": {
+    "build": "node scripts/build.js",
     "test": "npm run test:mobile:smoke",
     "test:mobile": "npm run test:mobile:smoke && npm run test:mobile:interaction",
     "test:mobile:smoke": "PLAYWRIGHT_TARGET=mobile playwright test tests/mobile.smoke.spec.js",
@@ -13,6 +14,7 @@
     "test:all": "npm run test:mobile && npm run test:desktop"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "markdown-it": "14.1.0"
   }
 }
