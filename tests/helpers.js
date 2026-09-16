@@ -12,8 +12,10 @@ function captureBrowserErrors(page) {
   return errors;
 }
 
-async function loadApp(page) {
-  await page.goto(appUrl, { waitUntil: "load" });
+async function loadApp(page, search = "") {
+  const url = new URL(appUrl);
+  if (search) url.search = search.startsWith("?") ? search.slice(1) : search;
+  await page.goto(url.href, { waitUntil: "load" });
   await page.waitForFunction(() => {
     const isVisible = (element) => {
       if (!element) return false;
@@ -28,6 +30,12 @@ async function loadApp(page) {
     document.querySelectorAll("#measureRows .measure-lozenge").length === 10
   ));
   await page.waitForTimeout(50);
+}
+
+async function loadAppAtYear(page, year) {
+  const url = new URL(appUrl);
+  url.searchParams.set("selected", year);
+  await loadApp(page, url.search);
 }
 
 async function snapshot(page) {
@@ -158,15 +166,6 @@ async function tapCenter(page, selector, count = 1, delay = 0) {
   }
 }
 
-async function clickMany(page, selector, count) {
-  await page.evaluate(({ selector, count }) => {
-    const button = document.querySelector(selector);
-    if (!button) throw new Error(`Missing ${selector}`);
-    for (let index = 0; index < count; index += 1) button.click();
-  }, { selector, count });
-  await page.waitForTimeout(50);
-}
-
 async function longPress(page, selector, pointerId) {
   const locator = page.locator(selector);
   const box = await locator.boundingBox();
@@ -203,8 +202,8 @@ module.exports = {
   appUrl,
   axisCenterError,
   captureBrowserErrors,
-  clickMany,
   loadApp,
+  loadAppAtYear,
   longPress,
   snapshot,
   tapCenter,

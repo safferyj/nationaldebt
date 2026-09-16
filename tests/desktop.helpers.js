@@ -1,6 +1,7 @@
 const {
   captureBrowserErrors,
   loadApp,
+  loadAppAtYear,
   snapshot,
 } = require("./helpers");
 
@@ -151,6 +152,7 @@ module.exports = {
   chartYearPositions,
   finishMouseDrag,
   loadApp,
+  loadAppAtYear,
   mouseDrag,
   rangesOverlap,
   snappedSelection,

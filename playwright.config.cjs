@@ -73,7 +73,7 @@ module.exports = defineConfig({
     timeout: 5_000,
   },
   fullyParallel: false,
-  workers: Number(process.env.PW_WORKERS || (process.env.CI ? 2 : 4)),
+  workers: Number(process.env.PW_WORKERS || (process.env.CI ? 2 : 6)),
   reporter: process.env.CI ? "line" : "list",
   outputDir: "test-results",
   use: {
