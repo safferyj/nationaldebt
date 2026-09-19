@@ -197,6 +197,46 @@ test("covers desktop point selection, hover tooltips, granular mouse zoom, pan, 
   expect(browserErrors, `${testInfo.project.name} browser errors`).toEqual([]);
 });
 
+test("covers desktop keyboard zoom-box selection and application", async ({ page }, testInfo) => {
+  const browserErrors = captureBrowserErrors(page);
+  await loadAppAtYear(page, "2000-01");
+
+  const fullHistory = await chartYearEndpoints(page);
+  await page.keyboard.down("Shift");
+  await page.keyboard.press("ArrowLeft");
+  const leftBox = await page.locator("#dragSelection").evaluate((element) => ({
+    display: getComputedStyle(element).display,
+    x: Number(element.getAttribute("x")),
+    width: Number(element.getAttribute("width")),
+  }));
+  expect(leftBox.display).toBe("block");
+  expect(leftBox.width).toBeGreaterThan(0);
+
+  await page.keyboard.press("ArrowRight");
+  const bothSidesBox = await page.locator("#dragSelection").evaluate((element) => ({
+    x: Number(element.getAttribute("x")),
+    width: Number(element.getAttribute("width")),
+  }));
+  expect(Math.abs(bothSidesBox.x - leftBox.x)).toBeLessThanOrEqual(0.5);
+  expect(bothSidesBox.width).toBeGreaterThan(leftBox.width);
+  expect(await chartYearEndpoints(page)).toEqual(fullHistory);
+
+  await page.keyboard.up("Shift");
+  const applied = await chartYearEndpoints(page);
+  expect(applied.count).toBeLessThan(fullHistory.count);
+  expect(await page.locator("#dragSelection").getAttribute("display")).toBe("none");
+
+  await loadApp(page);
+  const reset = await chartYearEndpoints(page);
+  await page.keyboard.down("Shift");
+  await page.keyboard.press("ArrowRight");
+  expect(await page.locator("#dragSelection").getAttribute("display")).toBe("none");
+  await page.keyboard.up("Shift");
+  expect(await chartYearEndpoints(page)).toEqual(reset);
+
+  expect(browserErrors, `${testInfo.project.name} browser errors`).toEqual([]);
+});
+
 test("covers desktop sharing, selectable fallback links, fullscreen stability, and CSV download", async ({ page }, testInfo) => {
   const browserErrors = captureBrowserErrors(page);
   await loadApp(page);
