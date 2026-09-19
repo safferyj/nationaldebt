@@ -197,11 +197,12 @@ test("covers desktop point selection, hover tooltips, granular mouse zoom, pan, 
   expect(browserErrors, `${testInfo.project.name} browser errors`).toEqual([]);
 });
 
-test("covers desktop keyboard zoom-box selection and application", async ({ page }, testInfo) => {
+test("covers desktop single-edge keyboard zoom-box selection and application", async ({ page }, testInfo) => {
   const browserErrors = captureBrowserErrors(page);
   await loadAppAtYear(page, "2000-01");
 
   const fullHistory = await chartYearEndpoints(page);
+  const selectedX = Number(await page.locator('#chartSvg line[stroke="#fff"]').getAttribute("x1"));
   await page.keyboard.down("Shift");
   await page.keyboard.press("ArrowLeft");
   const leftBox = await page.locator("#dragSelection").evaluate((element) => ({
@@ -211,14 +212,42 @@ test("covers desktop keyboard zoom-box selection and application", async ({ page
   }));
   expect(leftBox.display).toBe("block");
   expect(leftBox.width).toBeGreaterThan(0);
+  expect(Math.abs(leftBox.x + leftBox.width - selectedX)).toBeLessThanOrEqual(0.5);
 
-  await page.keyboard.press("ArrowRight");
-  const bothSidesBox = await page.locator("#dragSelection").evaluate((element) => ({
+  await page.keyboard.press("ArrowLeft");
+  const widerLeftBox = await page.locator("#dragSelection").evaluate((element) => ({
     x: Number(element.getAttribute("x")),
     width: Number(element.getAttribute("width")),
   }));
-  expect(Math.abs(bothSidesBox.x - leftBox.x)).toBeLessThanOrEqual(0.5);
-  expect(bothSidesBox.width).toBeGreaterThan(leftBox.width);
+  expect(widerLeftBox.width).toBeGreaterThan(leftBox.width);
+  expect(Math.abs(widerLeftBox.x + widerLeftBox.width - selectedX)).toBeLessThanOrEqual(0.5);
+
+  await page.keyboard.press("ArrowRight");
+  const narrowerLeftBox = await page.locator("#dragSelection").evaluate((element) => ({
+    x: Number(element.getAttribute("x")),
+    width: Number(element.getAttribute("width")),
+  }));
+  expect(narrowerLeftBox.width).toBeLessThan(widerLeftBox.width);
+  expect(Math.abs(narrowerLeftBox.x + narrowerLeftBox.width - selectedX)).toBeLessThanOrEqual(0.5);
+
+  await page.keyboard.press("ArrowRight");
+  expect(await page.locator("#dragSelection").getAttribute("display")).toBe("none");
+
+  await page.keyboard.press("ArrowRight");
+  const rightBox = await page.locator("#dragSelection").evaluate((element) => ({
+    x: Number(element.getAttribute("x")),
+    width: Number(element.getAttribute("width")),
+  }));
+  expect(rightBox.width).toBeGreaterThan(0);
+  expect(Math.abs(rightBox.x - selectedX)).toBeLessThanOrEqual(0.5);
+
+  await page.keyboard.press("ArrowRight");
+  const widerRightBox = await page.locator("#dragSelection").evaluate((element) => ({
+    x: Number(element.getAttribute("x")),
+    width: Number(element.getAttribute("width")),
+  }));
+  expect(widerRightBox.width).toBeGreaterThan(rightBox.width);
+  expect(Math.abs(widerRightBox.x - selectedX)).toBeLessThanOrEqual(0.5);
   expect(await chartYearEndpoints(page)).toEqual(fullHistory);
 
   await page.keyboard.up("Shift");

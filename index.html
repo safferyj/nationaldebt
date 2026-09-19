@@ -1845,7 +1845,7 @@
         </div>
         <div id="measureRows" class="measure-rows" aria-label="Chart measures" aria-live="polite"></div>
         <div class="chart-wrap" id="chartWrap">
-          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, hold Shift and use Left or Right Arrow on desktop to extend a zoom box from the selected year, then release Shift to apply it, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
+          <svg id="chartSvg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive historical fiscal chart. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, hold Shift and use Left or Right Arrow on desktop to move one zoom-box edge from the selected year, then release Shift to apply it, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen."></svg>
           <div id="chartTooltip" class="chart-tooltip" role="status" hidden></div>
         </div>
       </div>
@@ -1860,7 +1860,7 @@
           <li><strong>Change the year:</strong> click or tap the arrows around the selected year. Press and hold either arrow to move through the years faster.</li>
           <li><strong>Choose a view:</strong> switch between percentages and dollar amounts. In the dollar view, you can choose absolute amounts or amounts per person, and current dollars or 2024-25 dollars.</li>
           <li><strong>Show or hide measures:</strong> use the measure buttons around the chart to choose which measures are displayed. Press and hold a measure button on a touch screen to read a short explanation.</li>
-          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. On a touch screen, briefly press and hold a data point to show its details, then tap the popup or elsewhere to dismiss it. Drag one finger to move the selected year as you go, or place two fingers on the plot and move them to set the two edges of a zoom range; the fingers can cross before both are released. With a mouse, drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year. On desktop, hold Shift and use the Left or Right Arrow keys to extend a zoom box from the selected year, then release Shift to apply it; a collapsed box does nothing.</li>
+          <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. On a touch screen, briefly press and hold a data point to show its details, then tap the popup or elsewhere to dismiss it. Drag one finger to move the selected year as you go, or place two fingers on the plot and move them to set the two edges of a zoom range; the fingers can cross before both are released. With a mouse, drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year. On desktop, hold Shift and use the Left or Right Arrow keys to move the one zoom-box edge from the selected year, then release Shift to apply it. Each arrow moves that same edge by one year: Left, Left, Right, Right collapses the box, and continuing Right rebuilds it on the right side; a collapsed box does nothing.</li>
           <li><strong>Reset the view:</strong> choose <em>Reset zoom</em> to return to the full history.</li>
           <li><strong>Share or enlarge:</strong> choose <em>Share view</em> to copy a link to the current chart, or <em>Full screen</em> to give the chart more room.</li>
           <li><strong>Download the data:</strong> open the Download section below and choose the CSV button to save the complete embedded dataset.</li>
@@ -1897,8 +1897,8 @@
             <div><dt><kbd>Control + Right Arrow</kbd></dt><dd>Pan the chart right</dd></div>
             <div><dt><kbd>Control + Up Arrow</kbd></dt><dd>Zoom in around the selected year</dd></div>
             <div><dt><kbd>Control + Down Arrow</kbd></dt><dd>Zoom out around the selected year</dd></div>
-            <div><dt><kbd>Hold Shift + Left Arrow</kbd></dt><dd>Extend the desktop zoom box to the left</dd></div>
-            <div><dt><kbd>Hold Shift + Right Arrow</kbd></dt><dd>Extend the desktop zoom box to the right</dd></div>
+            <div><dt><kbd>Hold Shift + Left Arrow</kbd></dt><dd>Move the single desktop zoom-box edge left</dd></div>
+            <div><dt><kbd>Hold Shift + Right Arrow</kbd></dt><dd>Move the single desktop zoom-box edge right</dd></div>
             <div><dt><kbd>Release Shift</kbd></dt><dd>Apply the desktop zoom box</dd></div>
           </dl>
           <dl class="keyboard-shortcuts" aria-label="Other shortcuts">
@@ -2757,8 +2757,7 @@
     const keyboardZoomState = {
       active: false,
       anchor: null,
-      start: null,
-      end: null
+      edge: null
     };
     const chartPointLongPressState = {
       pointerId: null,
@@ -3444,8 +3443,7 @@
     function clearKeyboardZoomSelection() {
       keyboardZoomState.active = false;
       keyboardZoomState.anchor = null;
-      keyboardZoomState.start = null;
-      keyboardZoomState.end = null;
+      keyboardZoomState.edge = null;
       const selection = chart.querySelector("#dragSelection");
       if (selection) {
         selection.setAttribute("display", "none");
@@ -3458,23 +3456,15 @@
       if (!keyboardZoomState.active) {
         keyboardZoomState.active = true;
         keyboardZoomState.anchor = state.selected;
-        keyboardZoomState.start = state.selected;
-        keyboardZoomState.end = state.selected;
+        keyboardZoomState.edge = state.selected;
       }
 
-      const previousStart = keyboardZoomState.start;
-      const previousEnd = keyboardZoomState.end;
-      if (offset < 0) {
-        keyboardZoomState.start = Math.max(state.start, keyboardZoomState.start - 1);
-      } else {
-        keyboardZoomState.end = Math.min(state.end, keyboardZoomState.end + 1);
-      }
-      if (
-        keyboardZoomState.start !== previousStart
-        || keyboardZoomState.end !== previousEnd
-      ) {
-        hideTooltip();
-      }
+      const previousEdge = keyboardZoomState.edge;
+      keyboardZoomState.edge = Math.max(
+        state.start,
+        Math.min(state.end, keyboardZoomState.edge + offset)
+      );
+      if (keyboardZoomState.edge !== previousEdge) hideTooltip();
       renderChart();
       return true;
     }
@@ -3482,13 +3472,13 @@
     function getKeyboardZoomBox(view = visibleRows()) {
       if (
         !keyboardZoomState.active
-        || keyboardZoomState.start === null
-        || keyboardZoomState.end === null
-        || keyboardZoomState.start >= keyboardZoomState.end
+        || keyboardZoomState.anchor === null
+        || keyboardZoomState.edge === null
+        || keyboardZoomState.anchor === keyboardZoomState.edge
       ) return null;
 
-      const firstIndex = Math.max(state.start, keyboardZoomState.start);
-      const lastIndex = Math.min(state.end, keyboardZoomState.end);
+      const firstIndex = Math.min(keyboardZoomState.anchor, keyboardZoomState.edge);
+      const lastIndex = Math.max(keyboardZoomState.anchor, keyboardZoomState.edge);
       const firstX = chartXFromRowIndex(firstIndex, view);
       const lastX = chartXFromRowIndex(lastIndex, view);
       if (firstX === null || lastX === null) return null;
@@ -3502,13 +3492,13 @@
       if (
         isMobileChartViewport()
         || !keyboardZoomState.active
-        || keyboardZoomState.start === null
-        || keyboardZoomState.end === null
-        || keyboardZoomState.start >= keyboardZoomState.end
+        || keyboardZoomState.anchor === null
+        || keyboardZoomState.edge === null
+        || keyboardZoomState.anchor === keyboardZoomState.edge
       ) return false;
 
-      state.start = keyboardZoomState.start;
-      state.end = keyboardZoomState.end;
+      state.start = Math.min(keyboardZoomState.anchor, keyboardZoomState.edge);
+      state.end = Math.max(keyboardZoomState.anchor, keyboardZoomState.edge);
       state.selected = Math.max(state.start, Math.min(state.end, keyboardZoomState.anchor));
       clearKeyboardZoomSelection();
       hideTooltip();
@@ -4069,7 +4059,7 @@
       const axisTitleY = margin.top + innerHeight / 2;
       chart.setAttribute(
         "aria-label",
-        `Interactive historical fiscal chart. Current vertical axis: ${chartAxisLabel}. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, hold Shift and use Left or Right Arrow on desktop to extend a zoom box from the selected year, then release Shift to apply it, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.`
+        `Interactive historical fiscal chart. Current vertical axis: ${chartAxisLabel}. Click or drag with one finger to select the nearest year on a touch screen, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set a touch zoom range, drag with the left mouse button to zoom, right-drag or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, hold Shift and use Left or Right Arrow on desktop to move one zoom-box edge from the selected year, then release Shift to apply it, use keys 1 through 5 to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.`
       );
       const fullHistoryShown = state.start === 0 && state.end === rows.length - 1;
       resetView.disabled = fullHistoryShown;
@@ -4102,7 +4092,7 @@
       const tickCount = Math.round((max - min) / tickStep);
       const tickDecimals = decimalPlacesForStep(tickStep);
       let svg = `
-        <desc>Interactive line chart. The vertical axis shows ${esc(chartAxisLabel)}. Click or drag with one finger on a touch screen to inspect the nearest financial year, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, hold Shift and use Left or Right Arrow on desktop to extend a zoom box from the selected year, then release Shift to apply it, use keys 1 through 5 and Tab and Shift plus Tab to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
+        <desc>Interactive line chart. The vertical axis shows ${esc(chartAxisLabel)}. Click or drag with one finger on a touch screen to inspect the nearest financial year, briefly press and hold a data point to show its details, tap the popup or elsewhere to dismiss it, use two fingers to set the two edges of a zoom range, drag with the left mouse button to zoom, drag with the right mouse button or use Control plus Left or Right Arrow to pan, use Control plus Up or Down Arrow to zoom around the selected year, hold Shift and use Left or Right Arrow on desktop to move one zoom-box edge from the selected year, then release Shift to apply it, use keys 1 through 5 and Tab and Shift plus Tab to choose a lens, use Q through T and A through G to toggle the top and bottom row measures, press L to share the view, 0 to reset zoom, or Control plus Enter to toggle full screen.</desc>
         <rect x="0" y="0" width="${width}" height="${height}" fill="#0c1d2f"></rect>
       `;
 
