@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A data-first, source-checked review of nationaldebt.au and its repository, 25 September 2026.">
+  <title>Data-first review of nationaldebt.au | 25 September 2026</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17283a;
+      --muted: #4d6170;
+      --paper: #f5f7f8;
+      --card: #fff;
+      --line: #d5e1e6;
+      --navy: #10293c;
+      --teal: #006c72;
+      --pale: #e9f5f3;
+      --amber: #f4bc54;
+      --high: #872b30;
+      --medium: #7a4500;
+      --low: #305a69;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: #075e72; text-underline-offset: 0.18em; }
+    a:hover { color: #023c4c; }
+    a:focus-visible, summary:focus-visible {
+      outline: 3px solid #d37608;
+      outline-offset: 3px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { line-height: 1.2; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); margin-bottom: 1rem; }
+    h3 { font-size: 1.18rem; }
+    p, li { max-width: 82ch; }
+    code, kbd { font: 0.91em/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; background: #eff4f5; border-radius: 9px; }
+    pre code { overflow-wrap: normal; }
+    .wrap { width: min(1160px, calc(100% - 2rem)); margin-inline: auto; }
+
+    .skip {
+      position: absolute;
+      left: -10000px;
+      top: 1rem;
+      z-index: 10;
+      background: white;
+      padding: 0.7rem;
+    }
+    .skip:focus { left: 1rem; }
+
+    .masthead {
+      background: var(--navy);
+      color: #f4f9fa;
+      padding: clamp(2rem, 5vw, 4rem) 0 2rem;
+    }
+    .eyebrow {
+      color: var(--amber);
+      font-size: 0.79rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .masthead h1 {
+      font-size: clamp(2.1rem, 5vw, 4.2rem);
+      letter-spacing: -0.04em;
+      max-width: 18ch;
+      margin: 0.55rem 0 1rem;
+    }
+    .masthead .lead { color: #d8eaed; font-size: 1.13rem; max-width: 72ch; }
+    .masthead .meta { color: #b8d1d6; font-size: 0.89rem; }
+    .masthead .meta a { color: #f9d585; }
+    .metrics {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 2rem;
+    }
+    .metric {
+      background: #1a3b4d;
+      border: 1px solid #3f6574;
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+    }
+    .metric strong {
+      color: #ffcf75;
+      display: block;
+      font-size: 1.65rem;
+      line-height: 1.2;
+    }
+    .metric span { color: #d7e6e9; font-size: 0.84rem; }
+
+    nav {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+    nav .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.2rem 1.3rem;
+      padding-block: 0.75rem;
+    }
+    nav a { font-size: 0.93rem; font-weight: 700; }
+    main { padding-block: 2rem 4rem; }
+    main > section { scroll-margin-top: 1rem; margin-bottom: 2.3rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(20, 45, 62, 0.045);
+      padding: clamp(1.15rem, 3vw, 2rem);
+    }
+    .card + .card { margin-top: 1rem; }
+    .note {
+      background: var(--pale);
+      border-left: 4px solid var(--teal);
+      border-radius: 0 10px 10px 0;
+      padding: 0.85rem 1rem;
+    }
+    .note p:last-child, .finding p:last-child { margin-bottom: 0; }
+    .caption, figcaption { color: var(--muted); font-size: 0.86rem; }
+    .tag {
+      display: inline-block;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.035em;
+      padding: 0.2rem 0.55rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .tag.high { background: #f9e7e5; color: var(--high); }
+    .tag.medium { background: #fff0d6; color: var(--medium); }
+    .tag.low { background: #e6f0f3; color: var(--low); }
+    .tag.verified { background: #dcefe7; color: #185538; }
+    .finding { border-top: 1px solid var(--line); padding-top: 1.2rem; margin-top: 1.2rem; }
+    .finding h3 { margin: 0.4rem 0 0.65rem; }
+    .finding .id { color: var(--muted); font: 0.82rem ui-monospace, monospace; }
+    .finding p { margin-bottom: 0.65rem; }
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    table { border-collapse: collapse; width: 100%; min-width: 680px; font-size: 0.91rem; }
+    caption { caption-side: top; text-align: left; font-weight: 700; padding: 0.6rem 0; }
+    th, td { padding: 0.65rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { background: #e9f0f2; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    td code.hash { font-size: 0.76rem; overflow-wrap: anywhere; }
+    .source-list { padding-left: 1.35rem; }
+    .source-list li { margin: 0.6rem 0; }
+    .small { font-size: 0.88rem; color: var(--muted); }
+    footer {
+      background: var(--navy);
+      color: #d4e4e8;
+      padding: 1.6rem 0;
+      font-size: 0.87rem;
+    }
+    footer p { margin-bottom: 0.25rem; }
+
+    @media (max-width: 760px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { padding: 0.75rem; }
+      .metric strong { font-size: 1.4rem; }
+      table { min-width: 620px; }
+    }
+
+    @media (max-width: 420px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric span { font-size: 0.78rem; }
+    }
+
+    @media print {
+      :root { color-scheme: light; }
+      html { scroll-behavior: auto; }
+      body { background: white; color: #111; font-size: 10pt; }
+      .masthead, footer { background: white; color: #111; padding: 0.5rem 0; }
+      .masthead .lead, .masthead .meta, .metric span { color: #333; }
+      .masthead h1 { font-size: 25pt; }
+      .eyebrow, .metric strong { color: #111; }
+      .metrics { gap: 0.2rem; margin-top: 0.7rem; }
+      .metric, .card, .table-wrap { box-shadow: none; border-color: #aaa; }
+      .metric { background: white; }
+      .card { padding: 0.8rem; }
+      nav, .skip { display: none; }
+      main { padding: 0; }
+      main > section { margin-bottom: 0.8rem; }
+      .finding, tr, li { break-inside: avoid; }
+      .table-wrap { overflow: visible; }
+      table { min-width: 0; font-size: 8pt; }
+      th, td { padding: 0.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#review">Skip to the review</a>
+  <header class="masthead">
+    <div class="wrap">
+      <div class="eyebrow">Independent review / 25 September 2026 / AEST</div>
+      <h1>nationaldebt.au: a data-first review</h1>
+      <p class="lead">The published Commonwealth series reconciles with its cited source vintages. The principal risks are <strong>provenance and export completeness</strong> for readers, and a <strong>keyboard accessibility blocker</strong> for visitors.</p>
+      <p class="meta">Reviewed <a href="https://nationaldebt.au/">nationaldebt.au</a> and repository commit <code>8e0a1cd5fa444938ab8786cfb2314367354d7320</code>. The deployed and tracked <code>index.html</code> had the same SHA-256: <code>cc299cc0cd8a1f270e72a7eac7f5986b7e810b0c8865ae4960d66c05e4d0f6c9</code>.</p>
+      <div class="metrics" aria-label="Review at a glance">
+        <div class="metric"><strong>55 years</strong><span>Fiscal, CPI and population inputs checked</span></div>
+        <div class="metric"><strong>0</strong><span>Unexplained site-to-source differences</span></div>
+        <div class="metric"><strong>1 year</strong><span>ERP revised by a newer ABS release</span></div>
+        <div class="metric"><strong>High</strong><span>Keyboard-only access blocked by Tab interception</span></div>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="Report sections">
+    <div class="wrap">
+      <a href="#data">Data and citations</a>
+      <a href="#findings">Findings register</a>
+      <a href="#experience">User experience</a>
+      <a href="#engineering">Code and tests</a>
+      <a href="#method">Methods and sources</a>
+    </div>
+  </nav>
+
+  <main id="review" class="wrap">
+    <section id="data" class="card" aria-labelledby="data-title">
+      <div class="eyebrow" style="color:#006c72">A / Highest-weighted area</div>
+      <h2 id="data-title">Correctness of data and citations</h2>
+      <div class="note">
+        <p><strong>Result:</strong> the embedded historical values match the exact PBO and ABS publications identified on the site. The two 2002&ndash;03 debt/GDP exceptions are justified corrections to inconsistent PBO cells, not transcription mistakes. Agreement with a cited workbook is <em>not</em> proof that the underlying official series is error-free or up to date.</p>
+      </div>
+      <p>The audit compared <strong>661 numeric PBO cells</strong> and <strong>52 unavailable fiscal-balance cells</strong> across 55 financial years; independently recalculated 54 gross-debt growth percentages and <strong>249 non-null GDP ratios</strong>; checked <strong>55 June CPI readings and 55 four-quarter CPI averages</strong>; and matched <strong>55 population denominators</strong>. There were zero unexplained site-to-source differences. The downloaded live CSV independently matched <strong>1,316 numeric values and 59 intentional blanks</strong> across 55 rows and 25 numeric columns. No full browser test suite was run.</p>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Examples independently read from the official workbooks (source units preserved)</caption>
+          <thead><tr><th>Year / input</th><th>Official cell</th><th>Embedded value</th><th>What appears on site</th></tr></thead>
+          <tbody>
+            <tr><td>2024&ndash;25 nominal GDP</td><td>PBO Table 1 <code>BH6</code>: $2,778,897m</td><td>$2,778,897m</td><td>Denominator for debt/GDP and flow/GDP</td></tr>
+            <tr><td>2024&ndash;25 gross AGS</td><td>PBO Table 2 <code>BH12</code>: $928,639m</td><td>$928,639m</td><td>33.4% of GDP; $928.6b nominal</td></tr>
+            <tr><td>2024&ndash;25 net debt / underlying cash / fiscal balance</td><td>Table 2 <code>BH6</code>: $532,346m; Table 1 <code>BH23</code>: &minus;$9,990m; Table 3 <code>AH24</code>: &minus;$44,806m</td><td>All three agree</td><td>19.2% debt/GDP; &minus;0.4% cash/GDP; &minus;1.6% fiscal/GDP</td></tr>
+            <tr><td>2024&ndash;25 CPI base</td><td>ABS Table 17 <code>J318</code>: 98.43; <code>(J315+J316+J317+J318)/4</code>: 97.39</td><td>Debt 98.43; flow 97.39</td><td>Debt uses June CPI; annual flows use FY average</td></tr>
+            <tr><td>1970&ndash;71 real-dollar spot check</td><td>Gross $10,887m; June CPI 7.11; cash $901m; FY-average CPI 6.9575</td><td>Base ratios 98.43/7.11 and 97.39/6.9575</td><td>$150.7b gross debt and $12.6b cash surplus in 2024&ndash;25 dollars</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">PBO amounts are millions of Australian dollars, and the site's percentages are numerical percentage values. The workbook marks 2025&ndash;26 and later as estimates; ending the published history at 2024&ndash;25 is a defensible actual-data boundary, not a missing historical column.</p>
+
+      <h3>Verified source exceptions and definitions</h3>
+      <p>The PBO workbook repeats its <em>2000&ndash;01</em> debt/GDP ratios in two <em>2002&ndash;03</em> cells even though the 2002&ndash;03 GDP and debt amounts differ. The site documents and recalculates exactly these cells:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>2002&ndash;03 measure</th><th>PBO ratio cell</th><th>Recomputed from PBO amounts</th><th>Site</th></tr></thead>
+          <tbody>
+            <tr><td>Gross AGS / GDP</td><td>Table 2 <code>AL13</code>: 9.3688%</td><td>66,403 / 804,444 &times; 100 = <strong>8.2545%</strong></td><td>8.2545%</td></tr>
+            <tr><td>Net debt / GDP</td><td>Table 2 <code>AL7</code>: 6.6033%</td><td>46,802 / 804,444 &times; 100 = <strong>5.8179%</strong></td><td>5.8179%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>PBO Table 2 notes confirm that gross debt is AGS on issue, including some securities held on behalf of states and the Northern Territory; the site's definition says so. Table 1 note (d) confirms the special treatment of Future Fund earnings in the underlying cash balance. Table 2 note (g) calls the &ldquo;interest paid on AGS&rdquo; line <em>all general-government cash interest payments, including AGS</em>; the site correctly avoids claiming it is AGS-only interest. Debt change, growth against prior debt, debt/GDP burden change, cash balance and fiscal balance are kept distinct. Fiscal balances before 1996&ndash;97 remain unavailable rather than invented.</p>
+      <p>The 20 embedded political segments cover all 55 year-end dates. All <strong>55 Treasurer assignments</strong> reconcile with Treasury ministerial terms at 30 June, after normalising honorifics/name spelling and using the contemporaneous Treasury archive for 2012&ndash;13. That 28 June 2013 snapshot explicitly names Chris Bowen Treasurer from <strong>27 June</strong> and Wayne Swan through 27 June; today's Treasury list instead says Bowen began <strong>27 July</strong>. The site explicitly records this conflict and chooses the contemporary evidence. Prime-minister succession was checked against the National Archives overview; individual party and ministerial appointments were not exhaustively re-proven against every historical instrument.</p>
+
+      <article id="erp" class="finding">
+        <span class="id">D1 / source freshness</span> <span class="tag low">Low impact, confirmed</span>
+        <h3>The 2024&ndash;25 per-person denominator uses a superseded, explicitly identified ABS vintage</h3>
+        <p>The site cites ABS <em>December 2025</em> population Table 1. It correctly embeds 30 June 2025 ERP <code>L187 = 27,611.0</code> thousand (27,611,000 people). ABS published the <a href="https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/mar-2026">March 2026 release on 17 September 2026</a>; its corresponding cell is <code>27,601.7</code> thousand. Of the site's 45 annual denominators from 1981 to 2025, <strong>only 2025 changed</strong> between these two releases.</p>
+        <p>For example, the 2024&ndash;25 gross-debt-per-person result moves from <strong>A$33,632.94</strong> (site vintage) to <strong>A$33,644.27</strong> (newer vintage), a difference of A$11.33/person or approximately 0.034%. Other 2024&ndash;25 per-person views are affected too; debt/GDP is not. This is a <em>dated-vintage choice, not a transcription error</em>. Rebase the 2025 denominator when updating the snapshot, and display an &ldquo;as of&rdquo; date beside per-capita views.</p>
+      </article>
+
+      <article id="export" class="finding">
+        <span class="id">D2 / exported data</span> <span class="tag medium">Medium impact, confirmed</span>
+        <h3>&ldquo;Complete dataset, including all derived fields&rdquo; overstates what the CSV contains</h3>
+        <p>The live <code>Download all data (CSV)</code> file has <strong>55 records and 29 columns</strong>. Its 25 numeric columns reconcile with the site, but there are <strong>no CPI indexes or conversion factors, no inflation-adjusted dollar series, and no real per-capita or real-flow results</strong>. A user cannot reproduce the page's 2024&ndash;25-dollar charts from the download alone, despite the visible <a href="https://github.com/safferyj/nationaldebt/blob/8e0a1cd5fa444938ab8786cfb2314367354d7320/index.html#L1950-L1959">download description</a>. It also emits unrounded floating-point artifacts, for example <code>gross_debt_burden_change_pp = -0.42320000000000135</code> for 2024&ndash;25; this is a presentation defect, not a different calculation.</p>
+        <p><strong>Recommendation:</strong> either narrow the claim to &ldquo;all years and selected nominal/percentage measures&rdquo; or export the two CPI inputs, the reference bases, source vintages, and the real and per-person measures actually plotted. Give derived CSV values a documented, sensible precision without rounding the underlying chart calculations.</p>
+      </article>
+
+      <article id="citations" class="finding">
+        <span class="id">D3 / citation durability</span> <span class="tag medium">Medium impact, confirmed</span>
+        <h3>The CPI citation can silently change, and neither chart values nor CSV rows carry specific provenance</h3>
+        <p>PBO and population inputs link to exact downloadable vintages. The CPI card instead points to ABS <a href="https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release"><code>latest-release</code></a>, which currently leads to July 2026. The actual verified series is <code>A2325846C</code> in <code>6401017.xlsx</code> inside that release's <a href="https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jul-2026/CPI-Quarterly.zip">CPI-Quarterly.zip</a>. A later release will change the target without changing the frozen values embedded in the page. All 12 source cards are inside a closed Sources disclosure, and the CSV has no source/vintage or sheet-column metadata.</p>
+        <p><strong>Recommendation:</strong> link the frozen CPI archive and identify its workbook/series directly; preserve the general ABS landing page as contextual information. Add a compact provenance map for fiscal, CPI and population fields, and include source IDs, dates and units with the CSV or a companion header. The <a href="#method">cell map below</a> is a ready-made starting point.</p>
+      </article>
+
+      <article id="cash-residual" class="finding">
+        <span class="id">D4 / official-source residual</span> <span class="tag low">Low impact, source caveat</span>
+        <h3>1996&ndash;97 PBO cash balances have a $2m source-internal subtotal difference</h3>
+        <p>PBO Table 1 reports receipts <code>AF8 = 133,592</code> and payments <code>AF17 = 139,689</code> ($m): their difference is &minus;6,097, versus the reported underlying cash balance <code>AF23 = &minus;6,099</code>. Adding policy-purpose cash flows <code>AF26 = 7,241</code> gives a headline subtotal of 1,144 versus the reported <code>AF29 = 1,142</code>. All 55 underlying-cash and 55 headline-cash identities and 29 historical fiscal-balance identities were inspected: elsewhere the residual is at most $1m, consistent with publication in rounded $m. The reason for the two $2m residuals in 1996&ndash;97 was not established.</p>
+        <p>The site correctly transcribes the <em>published balances</em>; this is not a site-to-source discrepancy. Document the source caveat when automating reconciliation, and consult the original Budget papers before substituting calculated subtotals for the published series.</p>
+      </article>
+    </section>
+
+    <section id="findings" class="card" aria-labelledby="findings-title">
+      <h2 id="findings-title">Findings register and priorities</h2>
+      <p>Severity reflects user impact, not certainty. &ldquo;High&rdquo; blocks an essential path; &ldquo;Medium&rdquo; materially weakens usability, reproducibility or safe maintenance; &ldquo;Low&rdquo; is a bounded, disclosed vintage difference. The absence of an unexplained numerical error is itself the main data finding.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Action</th><th>Confidence</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#keyboard">U1</a></td><td><span class="tag high">High</span></td><td>UX / access</td><td>Stop consuming Tab and Space globally; restore visible keyboard focus.</td><td>High; reproduced</td></tr>
+            <tr><td><a href="#export">D2</a></td><td><span class="tag medium">Medium</span></td><td>Data export</td><td>Make CSV/claim consistent; include CPI and real derived results or narrow the description.</td><td>High; 55-row export checked</td></tr>
+            <tr><td><a href="#citations">D3</a></td><td><span class="tag medium">Medium</span></td><td>Citations</td><td>Pin CPI vintage and expose field/row-level provenance.</td><td>High; verified links</td></tr>
+            <tr><td><a href="#scope">U2</a></td><td><span class="tag medium">Medium</span></td><td>Interpretation</td><td>State Commonwealth/AGS scope visibly alongside the chart.</td><td>High for absence; interpretation risk inferred</td></tr>
+            <tr><td><a href="#printing">U3</a></td><td><span class="tag medium">Medium</span></td><td>Print</td><td>Replace obsolete print selectors so printing yields useful content.</td><td>High; reproduced</td></tr>
+            <tr><td><a href="#landscape">U4</a></td><td><span class="tag medium">Medium</span></td><td>Mobile</td><td>Keep sources/download readable in narrow touch landscape.</td><td>High; reproduced in emulation</td></tr>
+            <tr><td><a href="#maintainability">M1</a></td><td><span class="tag medium">Medium</span></td><td>Agents / code</td><td>Correct stale architecture instructions and retire unused UI styles.</td><td>High; code/DOM compared</td></tr>
+            <tr><td><a href="#data-tests">T1</a></td><td><span class="tag medium">Medium</span></td><td>Tests</td><td>Add deterministic source, formula, CSV-shape and keyboard assertions.</td><td>High; test inventory checked</td></tr>
+            <tr><td><a href="#erp">D1</a></td><td><span class="tag low">Low</span></td><td>Data vintage</td><td>Incorporate one newer ABS ERP observation on next update.</td><td>High; workbook cells compared</td></tr>
+            <tr><td><a href="#cash-residual">D4</a></td><td><span class="tag low">Low</span></td><td>Source caveat</td><td>Record PBO's bounded 1996&ndash;97 cash-identity residual.</td><td>High for residual; cause unconfirmed</td></tr>
+            <tr><td><a href="#automation">T2</a></td><td><span class="tag low">Low</span></td><td>Delivery</td><td>Add CI and a non-mutating generated-content check.</td><td>High; no tracked workflow</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="experience" class="card" aria-labelledby="experience-title">
+      <div class="eyebrow" style="color:#006c72">B / Live website</div>
+      <h2 id="experience-title">User experience and accessibility</h2>
+      <p><span class="tag verified">Working in sampled browsers</span> The deployed page loaded with ten measure controls, a populated chart, working year/view selection, a deep-linked 2002&ndash;03 real-per-capita view, share feedback and a 55-row download. Desktop Chromium and portrait iPhone WebKit / Pixel Chromium emulations had no initial page or console errors and no horizontal overflow. These are <em>sampled observations</em>, not a full device or accessibility certification.</p>
+
+      <article id="keyboard" class="finding">
+        <span class="id">U1 / keyboard blocker</span> <span class="tag high">High impact, confirmed</span>
+        <h3>Tab is intercepted before the first focusable element; Space cannot activate a focused button</h3>
+        <p>The document-level shortcut listener calls <code>preventDefault()</code> for <kbd>Tab</kbd> to cycle chart lenses and for <kbd>Space</kbd> to move the legend, regardless of focus. On the live desktop page, the first Tab left <code>document.activeElement</code> on <code>BODY</code> and switched to Dollars; a second Tab still did not move focus. After focusing the previous-year button programmatically, Space left the year unchanged and moved the legend instead. The stylesheet also applies <code>outline: none !important</code> to all focused elements, with no replacement focus ring; the skip link has no visible-on-focus positioning rule.</p>
+        <p><strong>Impact:</strong> keyboard-only visitors cannot reach normal page navigation, Sources, Download or chart controls by Tab, and lose native Space-to-activate behaviour. This conflicts with basic keyboard and visible-focus accessibility. <strong>Recommendation:</strong> reserve Tab and Space for the browser, scope non-native shortcuts to an appropriate chart context, ignore editable fields, add <code>:focus-visible</code> indicators and show the skip link on focus. Test the actual focus order and native button activation, not only the custom shortcut effect. See <a href="https://github.com/safferyj/nationaldebt/blob/8e0a1cd5fa444938ab8786cfb2314367354d7320/index.html#L91-L104">focus CSS</a> and <a href="https://github.com/safferyj/nationaldebt/blob/8e0a1cd5fa444938ab8786cfb2314367354d7320/index.html#L4502-L4550">shortcut handler</a>.</p>
+      </article>
+
+      <article id="scope" class="finding">
+        <span class="id">U2 / fiscal scope</span> <span class="tag medium">Medium impact, interpretation risk</span>
+        <h3>The first visible screen does not say this is Commonwealth debt, not all Australian public debt</h3>
+        <p>At the top of the live page a sighted visitor sees the <code>nationaldebt.au</code> wordmark and the debt chart, with no visible page heading or Commonwealth-scope caption. The accurate explanation is in collapsed Definitions/Usage content and the chart's non-visual ARIA label. A national-sounding domain plus a single gross-debt figure can reasonably be mistaken for debt of <em>all</em> Australian governments. Add a visible heading/caption such as &ldquo;Commonwealth gross AGS on issue (including AGS held on behalf of states/NT); not total state and local debt&rdquo; immediately adjacent to the chart, with a short link to Definitions. Do not broaden the dataset silently.</p>
+      </article>
+
+      <article id="printing" class="finding">
+        <span class="id">U3 / print</span> <span class="tag medium">Medium impact, confirmed</span>
+        <h3>Printing suppresses every meaningful section</h3>
+        <p>The <a href="https://github.com/safferyj/nationaldebt/blob/8e0a1cd5fa444938ab8786cfb2314367354d7320/index.html#L1757-L1774">print CSS</a> hides the chart, Definitions, Sources, Usage, Download and About while expecting retired hero/detail/table content to remain. The current page has none of those retired elements. With print media enabled on the deployed desktop page, no visible main section remained; only the offscreen skip-link text was exposed to text extraction. Provide a printable data summary or table and keep definitions/source provenance visible, or explicitly offer a dedicated print view.</p>
+      </article>
+
+      <article id="landscape" class="finding">
+        <span class="id">U4 / narrow touch landscape</span> <span class="tag medium">Medium impact, confirmed</span>
+        <h3>The rotate notice hides sources and CSV as well as the chart</h3>
+        <p>At 851 &times; 393 CSS pixels with a coarse pointer, <a href="https://github.com/safferyj/nationaldebt/blob/8e0a1cd5fa444938ab8786cfb2314367354d7320/index.html#L1619-L1654">the landscape media rule</a> applies <code>body &gt; *:not(.landscape-warning) { display: none !important; }</code>. The chart, navigation, definitions, sources and export become inaccessible until rotation. The chart may genuinely need height, but a read-only fallback should preserve definitions, citations and download for users who cannot rotate a device. This was browser emulation, not a physical-device measurement.</p>
+      </article>
+    </section>
+
+    <section id="engineering" class="card" aria-labelledby="engineering-title">
+      <div class="eyebrow" style="color:#006c72">C + D / Repository</div>
+      <h2 id="engineering-title">Maintainability by coding agents and test framework</h2>
+      <p><strong>Strengths:</strong> no application framework, chart library or runtime data fetch; the site works offline. Fiscal, CPI, population and political snapshots are clearly grouped; missing CPI/population throws rather than silently filling values; source cards distinguish direct data from context. <code>popup-text.md</code> is the editable source for generated popup copy, and <code>scripts/build.js</code> validates sections and links. Browser suites exercise substantial touch/mouse interaction, layouts and error handling.</p>
+
+      <article id="maintainability" class="finding">
+        <span class="id">M1 / agent handoff</span> <span class="tag medium">Medium impact, confirmed</span>
+        <h3>The canonical agent instructions and legacy styles describe UI that no longer exists</h3>
+        <p><code>AGENTS.md</code> and <code>.github/copilot-instructions.md</code> say the body has selected-year details, insights and a table, and that <code>renderAll()</code> refreshes them. In this commit, <code>renderAll()</code> only refreshes controls/measure rows/year/chart/label fitting; there is <strong>no table, hero, detail or insight DOM</strong>. The instructions also refer to <code>sourceLink()</code>, which is absent from the current page. The stylesheet still contains rules for those absent components, contributing to the blank print view. The 4,926-line single-file application also requires agents to coordinate positional 16-element fiscal arrays (15 documented fields plus an ignored legacy <code>false</code>), labels, CSV, definitions, chart series, generated popups and hard-coded year copy.</p>
+        <p><strong>Recommendation:</strong> update both instruction files to describe the current chart-only UI; remove retired CSS after confirming the archive stays untouched. Keep the delivered page offline and framework-free, but consider a build-time schema/provenance manifest that generates or validates the embedded arrays and year text. Keep <code>index.html</code> as the deployable artifact; do not introduce runtime fetching just to ease editing.</p>
+      </article>
+
+      <article id="data-tests" class="finding">
+        <span class="id">T1 / missing data gates</span> <span class="tag medium">Medium impact, confirmed</span>
+        <h3>Browser tests do not protect the figures, citations, CSV fields or native keyboard access</h3>
+        <p>With Playwright 1.63.0, <code>playwright.config.cjs</code> enumerates <strong>200 installed mobile descriptors</strong> in this environment (90 Apple/WebKit; 110 other/Chromium) and four desktop profiles. Smoke and interaction specs cover rendering, layout, gestures, shares and CSV <em>filename</em>. There is no committed reconciliation of fiscal cells/CPI averages/ERP vintages, derived ratios, 2002&ndash;03 exception, political transition or CSV header/record values. The shortcut test asserts lens cycling with Tab but never asserts that Tab moves focus or that Space activates a focused button.</p>
+        <p><strong>Recommendation:</strong> add a quick, offline data-contract check using pinned official snapshots/fixtures with documented hashes, column maps, tolerance and an explicit two-cell exception; assert representative real/nominal chart outputs, all CSV headers and numeric formulas, plus keyboard tab order and Space/Enter activation. Run this small check on every change; reserve the 200-device interaction matrix for release/nightly coverage. A copied external workbook alone is not a replacement for a clearly versioned provenance manifest.</p>
+      </article>
+
+      <article id="automation" class="finding">
+        <span class="id">T2 / delivery checks</span> <span class="tag low">Low impact, confirmed</span>
+        <h3>No tracked CI workflow or non-mutating generated-copy check</h3>
+        <p>There is no tracked <code>.github/workflows/</code> job. The <code>npm test</code> default runs mobile smoke only; <code>npm run test:all</code> opts into the full matrices. <code>npm run build</code> rewrites <code>index.html</code> if <code>popup-text.md</code> is newer, rather than offering a separate <code>--check</code> mode to fail on stale generated copy. Add a fast CI job for data contracts, HTML/build consistency and targeted browser checks, with a separately scheduled/full device matrix. This is a process gap, not evidence that the current page fails its existing suites.</p>
+      </article>
+    </section>
+
+    <section id="method" class="card" aria-labelledby="method-title">
+      <h2 id="method-title">Method, source fingerprints and limits</h2>
+      <p>Review date: <strong>25 September 2026, Australia/Sydney</strong>. The live document and tracked <code>index.html</code> matched byte for byte. Public official workbooks were downloaded directly from the URLs below and read from their XLSX cells. Fiscal $m values had to match exactly; published four-decimal percentages and the independently derived growth series were checked within 0.000051 percentage points. All 249 populated GDP percentages were independently checked against their dollar amounts. The only intentional deviations from PBO ratios were the two 2002&ndash;03 cells recorded above. Source-internal cash and fiscal subtotals were also inspected separately from site-to-source transcription. Official ABS population was converted from thousands to people; June-quarter CPI was used for debt and the average of September, December, March and June for flows. The live CSV was parsed separately and 25 numeric columns were recalculated using the embedded source inputs, allowing only normal binary floating-point tolerances.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Source-to-field map: enough detail to repeat the audit without this report's tooling</caption>
+          <thead><tr><th>Inputs</th><th>Workbook location / method</th></tr></thead>
+          <tbody>
+            <tr><td>PBO 1970&ndash;71 to 2024&ndash;25</td><td>Financial years in row 3. Table 1: GDP row 6, underlying cash rows 23&ndash;24, headline cash rows 29&ndash;30. Table 2: net debt rows 6&ndash;7, net interest row 9, AGS rows 12&ndash;13, gross interest row 15. Table 3: fiscal balance rows 24&ndash;25, from 1996&ndash;97. Growth = year-on-year change in Table 2 row 12 divided by prior year's row 12.</td></tr>
+            <tr><td>ABS CPI</td><td>Inside <code>CPI-Quarterly.zip</code>, open <code>6401017.xlsx</code>, <code>Data1</code>; <code>J10</code> is series <code>A2325846C</code> (All Groups, Australia), date in column A, index in J. June of the year ending the FY is the debt index; average of preceding September/December and current March/June is the annual-flow index.</td></tr>
+            <tr><td>ABS population</td><td>1971&ndash;1980: <code>HPDC1.xlsx</code>, Table 2, row 5 year headings, row 32 <em>Person / Australia</em>. 1981&ndash;2025: December 2025 <code>310101.xlsx</code>, <code>Data1</code>, column A quarter date, column L ERP in thousands, select 30 June and multiply by 1,000.</td></tr>
+            <tr><td>Political / displayed</td><td>Compare each financial year's 30 June to Treasury ministerial terms and National Archives PM tenure; for 2012&ndash;13 use the 28 June 2013 archived Treasury page rather than the current Treasury page's conflicting July date.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Official source versions read</h3>
+      <p class="small">SHA-256 fingerprints identify the downloaded evidence as seen on the review date, not files required to open this report. Links are optional; no network connection is needed to read the report itself.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Primary source</th><th>SHA-256 of downloaded file</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://www.pbo.gov.au/sites/default/files/2026-07/PBO%20-%20Historical%20Fiscal%20Data%20-%202026-27%20Budget.xlsx">PBO, Historical Fiscal Data, 2026&ndash;27 Budget (XLSX)</a></td><td><code class="hash">a6391394b9464c5e48650806ab8c3260d81cbed579e368423469e7af27888f01</code></td></tr>
+            <tr><td><a href="https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jul-2026/CPI-Quarterly.zip">ABS CPI, July 2026 quarterly archive (ZIP)</a></td><td><code class="hash">67a940470f9c9ff5268eca91ad412a0b47f0ba3107a56e72e101a559c884c514</code></td></tr>
+            <tr><td><a href="https://www.abs.gov.au/statistics/people/population/historical-population/2021/HPDC1.xlsx">ABS Historical Population 2021, Table 2 (XLSX)</a></td><td><code class="hash">af4a92267da1f8a2728ce626fa03d671f1d070e1c327ffaa07fbadb829ef0ba1</code></td></tr>
+            <tr><td><a href="https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/dec-2025/310101.xlsx">ABS population, December 2025, Table 1 (XLSX; site vintage)</a></td><td><code class="hash">d9dc98db88af14b4a822620ccebed62f966f86eb46f1ca303b90347d7ffaa6d8</code></td></tr>
+            <tr><td><a href="https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/mar-2026/310101.xlsx">ABS population, March 2026, Table 1 (XLSX; newer comparator)</a></td><td><code class="hash">79eb16006d54bb0f0dbb1e71bdcb2fcb0e098ecb3ae2f29d6e9418a3e5a48a74</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Political cross-checks used the <a href="https://www.naa.gov.au/explore-collection/australias-prime-ministers">National Archives PM overview</a>, <a href="https://ministers.treasury.gov.au/ministers#previous">current Treasury ministerial history</a> and the <a href="https://webarchive.nla.gov.au/awa/20130628052212id_/http://pandora.nla.gov.au/pan/36695/20130628-1520/www.treasurer.gov.au/Default.html">28 June 2013 Treasury web-archive snapshot</a>. The latter archive's captured page, not merely its viewer landing page, was inspected. The 2002&ndash;03 PBO AGS amounts were also cross-checked against its separately presented Table 9 historical-debt series in the same workbook.</p>
+      <p><strong>Limitations:</strong> browser observations used installed headless Playwright Chromium and WebKit (including simulated phone viewports), not physical devices. The repository prohibits running its lengthy Playwright smoke and interaction suites without an explicit request; none were run. The Playwright MCP server's configured Chrome executable was unavailable, so direct installed browsers were used with a test-environment HTTPS certificate bypass; that is <em>not</em> a finding about the public site's TLS. No independent re-derivation of the PBO's entire historical data from every annual Budget paper, formal accessibility conformance audit, or production monitoring review was performed. Source agreement, contemporaneous-source discrepancies and data-vintage changes are identified separately throughout.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Standalone, offline-readable review. No scripts, images, fonts or stylesheets are loaded from elsewhere; external evidence links are optional.</p>
+      <p>Prepared for branch <code>sol-6-review</code>. This is a review, not a change to the live page or its embedded data.</p>
+    </div>
+  </footer>
+</body>
+</html>
