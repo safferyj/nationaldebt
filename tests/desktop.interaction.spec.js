@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const fs = require("node:fs/promises");
 const {
   axisGeometry,
   captureBrowserErrors,
@@ -45,6 +46,21 @@ async function assertNoAxisTickOverlap(page) {
   expect(ticks.some((tick) => rangesOverlap(axis, tick))).toBe(false);
 }
 
+function parseCsvLine(line) {
+  return Array.from(
+    line.matchAll(/"((?:""|[^"])*)"/g),
+    ([, value]) => value.replaceAll('""', '"'),
+  );
+}
+
+function csvRecord(csv, financialYear) {
+  const lines = csv.trim().split("\n");
+  const headers = parseCsvLine(lines[0]);
+  const values = lines.slice(1).map(parseCsvLine).find(([year]) => year === financialYear);
+  if (!values) throw new Error(`CSV does not contain ${financialYear}`);
+  return Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+}
+
 test("covers desktop controls, keyboard shortcuts, legend movement, and year navigation", async ({ page }, testInfo) => {
   const browserErrors = captureBrowserErrors(page);
   await loadApp(page);
@@ -60,25 +76,25 @@ test("covers desktop controls, keyboard shortcuts, legend movement, and year nav
   let state = await snapshot(page);
   expect(state.controls.dollarMeasure).toBe(true);
   expect(state.controls.dollarBasis).toBe(true);
-  expect((await axisGeometry(page)).fullLabel).toBe("A$ per capita (real, 2024-25 dollars)");
+  expect((await axisGeometry(page)).fullLabel).toBe("A$ per capita (real, 2025-26 dollars)");
   await assertNoAxisTickOverlap(page);
 
   await page.locator("#viewPctGdp").click();
   expect(await page.locator("#viewPctGdp").getAttribute("aria-pressed")).toBe("true");
 
-  expect((await snapshot(page)).year).toBe("2024-25");
+  expect((await snapshot(page)).year).toBe("2025-26");
   expect(await page.locator("#nextYear").isDisabled()).toBe(true);
   const held = await holdMouse(page, "#previousYear", 1_200);
-  const heldYears = Number("2024") - Number(held.during.year.slice(0, 4));
+  const heldYears = Number("2025") - Number(held.during.year.slice(0, 4));
   expect(heldYears).toBeGreaterThan(0);
   expect(Number(held.released.year.slice(0, 4))).toBeLessThanOrEqual(Number(held.during.year.slice(0, 4)) + 2);
-  await loadAppAtYear(page, "2024-25");
-  expect((await snapshot(page)).year).toBe("2024-25");
+  await loadAppAtYear(page, "2025-26");
+  expect((await snapshot(page)).year).toBe("2025-26");
 
   await page.keyboard.press("ArrowLeft");
-  expect((await snapshot(page)).year).toBe("2023-24");
-  await page.keyboard.press("ArrowRight");
   expect((await snapshot(page)).year).toBe("2024-25");
+  await page.keyboard.press("ArrowRight");
+  expect((await snapshot(page)).year).toBe("2025-26");
 
   await page.keyboard.press("5");
   state = await snapshot(page);
@@ -128,7 +144,7 @@ test("covers desktop point selection, hover tooltips, granular mouse zoom, pan, 
   expect(pointPositions.length).toBeGreaterThan(10);
 
   await page.mouse.click(plot.left + (plot.right - plot.left) * 0.5, plot.centerY);
-  expect((await snapshot(page)).year).not.toBe("2024-25");
+  expect((await snapshot(page)).year).not.toBe("2025-26");
 
   const firstPoint = page.locator(".chart-point").first();
   await firstPoint.hover();
@@ -311,7 +327,24 @@ test("covers desktop sharing, selectable fallback links, fullscreen stability, a
   const downloadPromise = page.waitForEvent("download");
   await page.locator("#downloadCsv").click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toMatch(/^australian-national-debt-1970-71-2024-25\.csv$/);
+  expect(download.suggestedFilename()).toMatch(/^australian-national-debt-1970-71-2025-26\.csv$/);
+  const csv = await fs.readFile(await download.path(), "utf8");
+  expect(csv.trim().split("\n")).toHaveLength(57);
+  expect(csvRecord(csv, "2024-25")).toMatchObject({
+    nominal_gdp_m: "2777012",
+  });
+  expect(csvRecord(csv, "2025-26")).toMatchObject({
+    population_persons: "28019400",
+    nominal_gdp_m: "2927146",
+    gross_debt_m: "971447",
+    gross_debt_pct_gdp: "33.1875",
+    net_debt_m: "549969",
+    underlying_cash_balance_m: "-22254",
+    headline_cash_balance_m: "-36087",
+    fiscal_balance_m: "-44101",
+    net_interest_payments_m: "17615",
+    interest_paid_pbo_series_m: "26971",
+  });
 
   expect(browserErrors, `${testInfo.project.name} browser errors`).toEqual([]);
 });

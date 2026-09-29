@@ -24,6 +24,27 @@ test("renders a complete desktop chart without layout or axis collisions", async
   expect(initial.chart?.height).toBeGreaterThan(0);
   expect(initial.controlOverflow, "Chart controls must remain inside the chart card").toEqual([]);
   expect(initial.horizontalOverflow).toBe(false);
+  const definitionsText = await page.locator("#definitions").textContent();
+  expect(definitionsText).toContain("2025-26 data-vintage update");
+  expect(definitionsText).toContain("28,019,400-person proxy");
+  expect(await page.locator("#sources").textContent()).toContain("Final Budget Outcome 2025-26");
+  expect(await page.locator(
+    '#sourceGrid a[href="https://archive.budget.gov.au/2025-26/index.htm#fbo"]',
+  ).count()).toBe(1);
+  expect(await page.locator(
+    '#sourceGrid a[href="https://archive.budget.gov.au/2025-26/fbo/download/06_appendix_b.pdf"]',
+  ).count()).toBe(1);
+  const gdpSource = page.locator(
+    '#sourceGrid a[href="https://www.abs.gov.au/statistics/economy/national-accounts/australian-national-accounts-national-income-expenditure-and-product/jun-2026"]',
+  );
+  expect(await gdpSource.count()).toBe(1);
+  expect(await gdpSource.evaluate((link) => {
+    let sibling = link.closest(".source").previousElementSibling;
+    while (sibling && !sibling.classList.contains("source-group-heading")) {
+      sibling = sibling.previousElementSibling;
+    }
+    return sibling?.querySelector("h3")?.textContent.trim();
+  })).toBe("Direct data inputs");
 
   const plot = await chartPlotGeometry(page);
   expect(plot.right).toBeGreaterThan(plot.left);
@@ -44,10 +65,11 @@ test("renders a complete desktop chart without layout or axis collisions", async
       labels: labels.map(({ year }) => year),
       firstPointX: pointX(0),
       point1975X: pointX(4),
-      lastPointX: pointX(54),
+      lastPointX: pointX(55),
       tick1971X: labelX(1971),
       tick1975X: labelX(1975),
       tick2025X: labelX(2025),
+      plotRightX: document.querySelector("#chartSvg").viewBox.baseVal.width - 22,
     };
   });
   expect(xAxisAlignment.labels).toEqual([
@@ -57,7 +79,7 @@ test("renders a complete desktop chart without layout or axis collisions", async
   expect(xAxisAlignment.tick1971X).toBeUndefined();
   expect(xAxisAlignment.firstPointX).toBe(75);
   expect(Math.abs(xAxisAlignment.point1975X - xAxisAlignment.tick1975X)).toBeLessThanOrEqual(0.5);
-  expect(Math.abs(xAxisAlignment.lastPointX - xAxisAlignment.tick2025X)).toBeLessThanOrEqual(0.5);
+  expect(Math.abs(xAxisAlignment.lastPointX - xAxisAlignment.plotRightX)).toBeLessThanOrEqual(0.5);
 
   const legendSizing = await page.evaluate(() => {
     const legend = document.querySelector(".chart-inline-legend");
@@ -91,7 +113,7 @@ test("renders a complete desktop chart without layout or axis collisions", async
   await page.locator("#measurePerCapita").click();
   await page.locator("#basisReal").click();
   await page.waitForTimeout(50);
-  await assertAxisLayout("A$ per capita (real, 2024-25 dollars)");
+  await assertAxisLayout("A$ per capita (real, 2025-26 dollars)");
 
   const chartSelection = await page.locator("#chartSvg").evaluate((element) => ({
     svg: getComputedStyle(element).userSelect,

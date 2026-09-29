@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An interactive, source-linked history of Australian Commonwealth gross debt, budget balances, GDP, governments, prime ministers and treasurers from 1970-71 to 2024-25.">
+  <meta name="description" content="An interactive, source-linked history of Australian Commonwealth gross debt, budget balances, GDP, governments, prime ministers and treasurers from 1970-71 to 2025-26.">
   <title>nationaldebt.au</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
 
@@ -1820,20 +1820,20 @@
             <div id="dollarBasisControl" class="dollar-basis-control" hidden>
               <div class="dollar-basis-switch" role="group" aria-label="Choose dollar basis">
                 <button id="basisNominal" type="button" data-basis="nominal" aria-pressed="true">Nominal</button>
-                <button id="basisReal" type="button" data-basis="real" aria-pressed="false" aria-label="Real, 2024-25 dollars" title="Real, 2024-25 dollars">Real</button>
+                <button id="basisReal" type="button" data-basis="real" aria-pressed="false" aria-label="Real, 2025-26 dollars" title="Real, 2025-26 dollars">Real</button>
               </div>
             </div>
           </div>
           <div class="chart-year-picker" aria-label="Selected financial year">
             <div class="chart-year-row">
               <button id="previousYear" type="button" aria-label="Select previous financial year" title="Select previous financial year; press and hold to repeat"><span class="year-arrow year-arrow-left" aria-hidden="true"></span></button>
-              <output id="selectedYearLabel" aria-live="polite">2024-25</output>
+              <output id="selectedYearLabel" aria-live="polite">2025-26</output>
               <button id="nextYear" type="button" aria-label="Select next financial year" title="Select next financial year; press and hold to repeat"><span class="year-arrow year-arrow-right" aria-hidden="true"></span></button>
             </div>
           </div>
           <div class="chart-end-actions">
             <button id="fullscreenChart" class="chart-fullscreen-button" type="button" aria-pressed="false" aria-label="Open chart full screen" title="Open chart full screen" aria-keyshortcuts="Control+Enter">Full screen</button>
-            <button id="resetView" type="button" title="Reset chart zoom to show the full 1970-71 to 2024-25 range" aria-keyshortcuts="0">Reset zoom</button>
+            <button id="resetView" type="button" title="Reset chart zoom to show the full 1970-71 to 2025-26 range" aria-keyshortcuts="0">Reset zoom</button>
             <button id="shareView" type="button" title="Copy a shareable link to this chart view" aria-label="Copy a shareable link to this chart view" aria-keyshortcuts="L">Share view</button>
           </div>
         </div>
@@ -1855,10 +1855,10 @@
     <section id="usage" class="usage-card" aria-label="Usage">
       <details class="usage-details">
         <summary>Usage</summary>
-        <p>Use the chart to explore Commonwealth fiscal data from 1970-71 to 2024-25.</p>
+        <p>Use the chart to explore Commonwealth fiscal data from 1970-71 to 2025-26.</p>
         <ul>
           <li><strong>Change the year:</strong> click or tap the arrows around the selected year. Press and hold either arrow to move through the years faster.</li>
-          <li><strong>Choose a view:</strong> switch between percentages and dollar amounts. In the dollar view, you can choose absolute amounts or amounts per person, and current dollars or 2024-25 dollars.</li>
+          <li><strong>Choose a view:</strong> switch between percentages and dollar amounts. In the dollar view, you can choose absolute amounts or amounts per person, and current dollars or 2025-26 dollars.</li>
           <li><strong>Show or hide measures:</strong> use the measure buttons around the chart to choose which measures are displayed. Press and hold a measure button on a touch screen to read a short explanation.</li>
           <li><strong>Explore the chart:</strong> click or tap the plot to select the nearest year. On a touch screen, briefly press and hold a data point to show its details, then tap the popup or elsewhere to dismiss it. Drag one finger to move the selected year as you go, or place two fingers on the plot and move them to set the two edges of a zoom range; the fingers can cross before both are released. With a mouse, drag across the plot to zoom in. Drag with the right mouse button, or use Control with the Left or Right Arrow keys, to move across the chart. Use Control with the Up or Down Arrow keys to zoom around the selected year. On desktop, the selected year is the fixed edge of a pending zoom box. Hold Shift and press Left or Right Arrow to move the other edge one year at a time, then release Shift to apply it. Reversing direction moves that same edge back through the selected year, so Left, Left, Right, Right collapses the box; continuing Right builds it on the right side. A collapsed box does nothing.</li>
           <li><strong>Reset the view:</strong> choose <em>Reset zoom</em> to return to the full history.</li>
@@ -1870,9 +1870,9 @@
           <dl class="keyboard-shortcuts" aria-label="View shortcuts">
             <div><dt><kbd>1</kbd></dt><dd>Percentage of GDP view</dd></div>
             <div><dt><kbd>2</kbd></dt><dd>Dollar view: absolute, current dollars</dd></div>
-            <div><dt><kbd>3</kbd></dt><dd>Dollar view: absolute, 2024-25 dollars</dd></div>
+            <div><dt><kbd>3</kbd></dt><dd>Dollar view: absolute, 2025-26 dollars</dd></div>
             <div><dt><kbd>4</kbd></dt><dd>Dollar view: per person, current dollars</dd></div>
-            <div><dt><kbd>5</kbd></dt><dd>Dollar view: per person, 2024-25 dollars</dd></div>
+            <div><dt><kbd>5</kbd></dt><dd>Dollar view: per person, 2025-26 dollars</dd></div>
             <div><dt><kbd>Tab</kbd></dt><dd>Move to the next chart view</dd></div>
             <div><dt><kbd>Shift + Tab</kbd></dt><dd>Move to the previous chart view</dd></div>
           </dl>
@@ -1924,11 +1924,12 @@
           <li><strong>Net interest payments:</strong> the PBO measure equal to interest paid minus interest receipts. Interest receipts can come from cash and deposits, advances and loans, investments and placements, and other interest-earning financial assets; they are not limited to income from debt-backed assets. This is a net measure after interest receipts, whereas the PBO interest-paid series is a gross cash-interest measure; both are shown as shares of nominal GDP in the chart's percentage view.</li>
           <li><strong>Gross debt growth vs prior debt:</strong> a derived percentage: <code>(current gross debt - previous gross debt) / previous gross debt * 100</code>. This measure includes the 82.4% increase in 2008-09.</li>
           <li><strong>Change in debt amount as a share of GDP:</strong> the difference between consecutive debt amounts divided by the current financial year's nominal GDP, expressed as a percentage: <code>(current debt amount - previous debt amount) / current-year GDP * 100</code>. It is a normalized measure of debt change, not the Budget surplus or deficit and not the same as a year-on-year change in the debt-to-GDP ratio.</li>
-          <li><strong>Dollar debt change:</strong> the current debt amount minus the previous year's debt amount. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode the nominal change is converted to 2024-25 dollars using the current year's June-quarter CPI factor. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
+          <li><strong>Dollar debt change:</strong> the current debt amount minus the previous year's debt amount. In Per capita mode it is the change in debt per capita; in inflation-adjusted mode the nominal change is converted to 2025-26 dollars using the current year's June-quarter CPI factor. It is not a separate official Budget aggregate and does not equal the Budget surplus or deficit.</li>
           <li><strong>Nominal dollars:</strong> amounts are expressed in the Australian-dollar values recorded in each period, without adjusting for inflation. Comparing dollar levels across decades therefore reflects both economic growth and changes in prices.</li>
-          <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2024-25 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
-          <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2024-25 dollars; it does not inflate the population count.</li>
+          <li><strong>Inflation-adjusted dollars:</strong> the dollar charts can convert amounts to 2025-26 purchasing power using the ABS All Groups Consumer Price Index. End-of-year debt uses the June-quarter CPI; annual cash and interest flows use the average CPI for the financial year.</li>
+          <li><strong>Debt per capita:</strong> gross and net debt measured at 30 June divided by the ABS estimated resident population at 30 June. The dollar-basis switch changes the debt numerator to nominal or 2025-26 dollars; it does not inflate the population count.</li>
           <li><strong>Source-audit exception:</strong> the PBO workbook's 2002-03 gross-debt and net-debt percentage-of-GDP cells repeat the 2000-01 ratios and do not reconcile with that workbook's own dollar and GDP cells. This page recalculates those two ratios from the reported amounts: 66,403 / 804,444 = 8.2545% and 46,802 / 804,444 = 5.8179%.</li>
+          <li><strong>2025-26 data-vintage update:</strong> the latest PBO workbook was checked against the embedded historical fiscal amounts, with no integer fiscal amount changes through 2024-25. The ABS June 2026 National Accounts release revises 2024-25 nominal GDP from $2,778,897 million to $2,777,012 million and supplies actual 2025-26 GDP of $2,927,146 million; the endpoint percentage fields are recalculated from those values. The 2025-26 dollar outcomes come from the Final Budget Outcome. ABS March 2026 revises the 2024-25 population denominator to 27,601,700; 2025-26 per-capita values use a provisional 28,019,400-person proxy based on the March 2026 ERP and the preceding four-quarter average increase, pending the official 30 June 2026 release.</li>
           <li><strong>2012-13 political transition:</strong> the end-of-year political fields use Kevin Rudd and Chris Bowen because they took office on 27 June 2013. The official archived Treasury portal linked below records that transition; the current Treasury history page displays a conflicting 27 July date for Chris Bowen.</li>
           <li><strong>Year convention:</strong> debt and office-holders are aligned to 30 June. For a year with a change of government, this shows the PM, government and Treasurer in office at the end of the financial year.</li>
         </ul>
@@ -1981,8 +1982,11 @@
        fiscal balance ($m), fiscal balance / GDP (%), net interest payments ($m),
        PBO “interest paid on AGS on issue” series ($m)]
 
-      The values below were transcribed from the official PBO workbook linked
-      in the Sources section. One source-audit exception is documented inline:
+      The historical values below were transcribed from the official PBO
+      workbook linked in the Sources section. The 2025-26 outcome row uses the
+      released Final Budget Outcome instead of the workbook's Budget estimate,
+      and the 2024-25 and 2025-26 GDP values use the latest ABS National
+      Accounts vintage. One source-audit exception is documented inline:
       the workbook's 2002-03 gross-debt and net-debt percentage-of-GDP cells
       repeat the 2000-01 ratios, so those two fields are recalculated from the
       workbook's own reported dollar and GDP values. Keeping the source values
@@ -2051,22 +2055,23 @@
       ["2021-22",2336902,895253,38.3094,9.5793,515650,22.0655,-31962,-1.3677,-33302,-1.425,-35061,-1.5003,14977,17423,false],
       ["2022-23",2577013,889790,34.528,-0.6102,491013,19.0536,22064,0.8562,14103,0.5473,21926,0.8508,11852,18862,false],
       ["2023-24",2680025,906939,33.8407,1.9273,491469,18.3382,15779,0.5888,13963,0.521,11996,0.4476,12264,22774,false],
-      ["2024-25",2778897,928639,33.4175,2.3927,532346,19.1567,-9990,-0.3595,-21765,-0.7832,-44806,-1.6124,13725,24270,false],
+      ["2024-25",2777012,928639,33.4402,2.3927,532346,19.1697,-9990,-0.3597,-21765,-0.7838,-44806,-1.6135,13725,24270,false],
+      ["2025-26",2927146,971447,33.1875,4.6098,549969,18.7886,-22254,-0.7603,-36087,-1.2328,-44101,-1.5066,17615,26971,false],
     ];
 
     /*
       DATA UPDATE POINT 1B: cpiDeflators
       ---------------------------------
       These are the official ABS All Groups CPI index values for Australia
-      (Table 17, series A2325846C in the linked CPI release). The first value
+      (Table 18, series A2325846C in the linked CPI release). The first value
       for each financial year is the June-quarter index used for debt amounts
       measured at 30 June. The second value is the average of the September,
       December, March and June quarter indexes used for annual cash and
       interest flows.
 
       Both CPI indexes are expressed on the ABS reference scale; only their
-      ratios are used. The base values below are therefore the 2024-25 June
-      quarter and 2024-25 financial-year average. To update this page for a
+      ratios are used. The base values below are therefore the 2025-26 June
+      quarter and 2025-26 financial-year average. To update this page for a
       new reference year, update those two base values and this table together.
     */
     const cpiDeflators = [
@@ -2124,14 +2129,15 @@
       ["2021-22", 87.5900, 85.2600],
       ["2022-23", 92.8700, 91.2500],
       ["2023-24", 96.4100, 95.0725],
-      ["2024-25", 98.4300, 97.3900]
+      ["2024-25", 98.4300, 97.3900],
+      ["2025-26", 102.3100, 101.0150]
     ];
 
     const cpiByFinancialYear = new Map(
       cpiDeflators.map(([fy, debtIndex, flowIndex]) => ({ fy, debtIndex, flowIndex }))
         .map((item) => [item.fy, item])
     );
-    const cpiBase = { debtIndex: 98.43, flowIndex: 97.39 };
+    const cpiBase = { debtIndex: 102.31, flowIndex: 101.015 };
 
     /*
       DATA UPDATE POINT 1C: populationByFinancialYear
@@ -2143,11 +2149,15 @@
 
       The 1971-80 observations come from ABS Historical Population, 2021,
       Table 2. The 1981-2025 observations come from the ABS National, state
-      and territory population, December 2025, Table 1 / ERP Australia series.
+      and territory population, March 2026, Table 1 / ERP Australia series.
       The latter source reports population in thousands, so those values have
-      been multiplied by 1,000 before embedding here. Keeping the denominator
-      in a separate array makes the per-capita calculation easy to audit and
-      update alongside the fiscal and CPI arrays.
+      been multiplied by 1,000 before embedding here. The 2025-26 denominator
+      is a provisional estimate because the official 30 June 2026 observation
+      is not scheduled for release until 17 December 2026: it adds the average
+      quarter-on-quarter increase across the four quarters ending March 2026
+      to the ABS March 2026 ERP. Keeping the denominator in a separate array
+      makes the per-capita calculation easy to audit and update alongside the
+      fiscal and CPI arrays.
     */
     const populationByFinancialYear = new Map([
       ["1970-71", 13067265],
@@ -2204,7 +2214,8 @@
       ["2021-22", 26018700],
       ["2022-23", 26659900],
       ["2023-24", 27194300],
-      ["2024-25", 27611000]
+      ["2024-25", 27601700],
+      ["2025-26", 28019400]
     ]);
 
     /*
@@ -2237,7 +2248,7 @@
       { from: 2014, to: 2014, government: "Liberal-National Coalition", party: "coalition", pm: "Tony Abbott", treasurer: "Joe Hockey", startDate: "2013-09-18" },
       { from: 2015, to: 2017, government: "Liberal-National Coalition", party: "coalition", pm: "Malcolm Turnbull", treasurer: "Scott Morrison", startDate: "2015-09-15" },
       { from: 2018, to: 2020, government: "Liberal-National Coalition", party: "coalition", pm: "Scott Morrison", treasurer: "Josh Frydenberg", startDate: "2018-08-24" },
-      { from: 2021, to: 2024, government: "Australian Labor Party", party: "labor", pm: "Anthony Albanese", treasurer: "Jim Chalmers", startDate: "2022-05-23" }
+      { from: 2021, to: 2025, government: "Australian Labor Party", party: "labor", pm: "Anthony Albanese", treasurer: "Jim Chalmers", startDate: "2022-05-23" }
     ];
 
     /*
@@ -2258,24 +2269,40 @@
         id: "pboWorkbook",
         group: "data",
         title: "PBO (Parliamentary Budget Office) workbook - Historical Fiscal Data: 2026-27 Budget",
-        text: "The exact workbook vintage used for the values embedded in this file.",
+        text: "The exact workbook vintage used for the historical fiscal series through 2024-25. Its 2025-26 Budget estimates are superseded here by the released Final Budget Outcome actuals.",
         url: "https://www.pbo.gov.au/sites/default/files/2026-07/PBO%20-%20Historical%20Fiscal%20Data%20-%202026-27%20Budget.xlsx",
         linkText: "Download the source workbook"
       },
       {
+        id: "fbo",
+        group: "data",
+        title: "Australian Government Final Budget Outcome 2025-26",
+        text: "The official Final Budget Outcome released on 28 September 2026. The 2025-26 row uses its actual underlying cash balance, headline cash balance, fiscal balance, net debt, gross debt and interest values rather than the PBO workbook's Budget estimates.",
+        url: "https://archive.budget.gov.au/2025-26/index.htm#fbo",
+        linkText: "Open the 2025-26 FBO archive"
+      },
+      {
+        id: "fboAppendixB",
+        group: "data",
+        title: "Final Budget Outcome 2025-26 - Appendix B",
+        text: "Appendix B supplies the detailed 2025-26 actual aggregates, including total AGS on issue, net debt, cash balances, fiscal balance and interest measures.",
+        url: "https://archive.budget.gov.au/2025-26/fbo/download/06_appendix_b.pdf",
+        linkText: "Open FBO Appendix B"
+      },
+      {
         id: "abs",
-        group: "context",
+        group: "data",
         title: "Australian Bureau of Statistics - National Accounts",
-        text: "The PBO workbook identifies ABS National Accounts as the historical nominal GDP source used for the long series.",
-        url: "https://www.abs.gov.au/statistics/economy/national-accounts/australian-national-accounts-national-income-expenditure-and-product/latest-release",
+        text: "The PBO workbook identifies ABS National Accounts as the historical nominal GDP source used for the long series. The June 2026 release supplies the revised 2024-25 GDP and the actual 2025-26 GDP used here.",
+        url: "https://www.abs.gov.au/statistics/economy/national-accounts/australian-national-accounts-national-income-expenditure-and-product/jun-2026",
         linkText: "Open ABS National Accounts"
       },
       {
         id: "absCpi",
         group: "data",
         title: "Australian Bureau of Statistics - Consumer Price Index, Australia",
-        text: "Official All Groups CPI for Australia (Table 17, series A2325846C), used to express dollar values in 2024-25 purchasing power.",
-        url: "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+        text: "Official All Groups CPI for Australia (Table 18, series A2325846C), used to express dollar values in 2025-26 purchasing power. The June 2026 quarter and the four-quarter financial-year average are embedded.",
+        url: "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jul-2026",
         linkText: "Open the ABS CPI release"
       },
       {
@@ -2289,9 +2316,9 @@
       {
         id: "absPopulationCurrent",
         group: "data",
-        title: "Australian Bureau of Statistics - National, state and territory population, December 2025, Table 1",
-        text: "Official estimated resident population at 30 June from the December 2025 release, used for the 1980-81 to 2024-25 per-capita denominators.",
-        url: "https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/dec-2025/310101.xlsx",
+        title: "Australian Bureau of Statistics - National, state and territory population, March 2026, Table 1",
+        text: "Official estimated resident population at 30 June from the March 2026 release, used for the 1980-81 to 2024-25 per-capita denominators. The 2025-26 denominator is a clearly labelled provisional proxy because the official 30 June 2026 release is scheduled for 17 December 2026.",
+        url: "https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/mar-2026/310101.xlsx",
         linkText: "Download ABS population Table 1"
       },
       {
@@ -2543,15 +2570,15 @@
       }
       if (state.mode === "debt" && state.dollarMeasure === "perCapita") {
         return state.dollarBasis === "real"
-          ? "A$ per capita (real, 2024-25 dollars)"
+          ? "A$ per capita (real, 2025-26 dollars)"
           : "A$ per capita (nominal)";
       }
       return state.dollarBasis === "real"
-        ? "A$ billions (real, 2024-25 dollars)"
+        ? "A$ billions (real, 2025-26 dollars)"
         : "A$ billions (nominal)";
     };
     const getCompactChartAxisLabel = (label) => label
-      .replace(" (real, 2024-25 dollars)", " (real)")
+      .replace(" (real, 2025-26 dollars)", " (real)")
       .replace(" / gross debt growth %", " / debt growth %");
 
     const chartModes = {
@@ -4065,8 +4092,8 @@
       resetView.disabled = fullHistoryShown;
       resetView.textContent = "Reset zoom";
       resetView.title = fullHistoryShown
-        ? "The chart is already showing the full 1970-71 to 2024-25 history"
-        : "Reset chart zoom to show the full 1970-71 to 2024-25 range";
+        ? "The chart is already showing the full 1970-71 to 2025-26 history"
+        : "Reset chart zoom to show the full 1970-71 to 2025-26 range";
       resetView.setAttribute("aria-label", fullHistoryShown
         ? "The chart is already showing the full history; reset zoom is unavailable"
         : "Reset chart zoom to show the full history");

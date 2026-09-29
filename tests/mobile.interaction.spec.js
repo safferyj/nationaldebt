@@ -181,7 +181,7 @@ async function assertAxisAndEmptySeriesMessage(page) {
     insideSvg: element.ownerSVGElement?.id === "chartSvg",
   }));
   expect(axisCenterError(perCapitaState)).toBeLessThanOrEqual(8);
-  expect(axisLabelState.fullLabel).toBe("A$ per capita (real, 2024-25 dollars)");
+  expect(axisLabelState.fullLabel).toBe("A$ per capita (real, 2025-26 dollars)");
   expect(axisLabelState.fontWeight).toBe("600");
   expect(axisLabelState.insideSvg).toBe(true);
   const chartSelectionState = await page.locator("#chartSvg").evaluate((element) => ({
@@ -194,7 +194,7 @@ async function assertAxisAndEmptySeriesMessage(page) {
   expect(axisLabelState.text).toBe(
     axisLabelState.compact
       ? "A$ per capita (real)"
-      : "A$ per capita (real, 2024-25 dollars)",
+      : "A$ per capita (real, 2025-26 dollars)",
   );
   const assertNoAxisTickOverlap = async () => {
     const axisAndTickGeometry = await page.evaluate(() => {
@@ -457,18 +457,18 @@ async function assertFullscreenBehavior(page, initial) {
 
 async function assertYearInteractions(page) {
   let state = await snapshot(page);
-  expect(state.year).toBe("2024-25");
+  expect(state.year).toBe("2025-26");
   expect(await page.locator("#nextYear").isDisabled()).toBe(true);
   const latestScale = state.visualScale;
 
   await tapCenter(page, "#nextYear", 4);
   state = await snapshot(page);
-  expect(state.year).toBe("2024-25");
+  expect(state.year).toBe("2025-26");
   expect(Math.abs(state.visualScale - latestScale)).toBeLessThanOrEqual(0.01);
 
   await tapCenter(page, "#previousYear");
   state = await snapshot(page);
-  expect(state.year).toBe("2023-24");
+  expect(state.year).toBe("2024-25");
   expect(Math.abs(state.visualScale - latestScale)).toBeLessThanOrEqual(0.01);
 
   await loadAppAtYear(page, "1970-71");
@@ -482,9 +482,9 @@ async function assertYearInteractions(page) {
   expect(state.year).toBe("1970-71");
   expect(Math.abs(state.visualScale - oldestScale)).toBeLessThanOrEqual(0.01);
 
-  await loadAppAtYear(page, "2024-25");
+  await loadAppAtYear(page, "2025-26");
   state = await snapshot(page);
-  expect(state.year).toBe("2024-25");
+  expect(state.year).toBe("2025-26");
 
   const holdStart = await snapshot(page);
   const held = await holdPointer(page, "#previousYear", 201, 1_250);
@@ -512,7 +512,7 @@ async function assertYearInteractions(page) {
 }
 
 async function assertTooltipInteractions(page, initial) {
-  await loadAppAtYear(page, "2024-25");
+  await loadAppAtYear(page, "2025-26");
   const beforeInteraction = await snapshot(page);
   const target = page.locator("#measureRows .measure-lozenge:not(:disabled)").first();
   const targetSelector = await target.evaluate((button) => (
@@ -545,7 +545,7 @@ async function assertTooltipInteractions(page, initial) {
 
   await tapCenter(page, "#previousYear");
   const blocked = await snapshot(page);
-  expect(blocked.year).toBe("2024-25");
+  expect(blocked.year).toBe("2025-26");
   expect(blocked.kiosk).toBe(beforeInteraction.kiosk);
   expect(await page.locator(targetSelector).getAttribute("aria-pressed")).toBe(beforePressed);
   expect(await page.locator("#measureTooltip").evaluate((element) => element.hidden)).toBe(true);
