@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Prototype comparison of general government gross debt as a percentage of GDP for G20 countries, selected AAA-rated countries, New Zealand and Taiwan.">
+  <title>International gross debt prototype | nationaldebt.au</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+
+  <style>
+    :root {
+      --ink: #182230;
+      --muted: #617083;
+      --paper: #f3f6f8;
+      --card: #ffffff;
+      --line: #dfe5eb;
+      --navy: #0c1d2f;
+      --navy-2: #17324c;
+      --amber: #e3a633;
+      --amber-dark: #9b6710;
+      --shadow: 0 14px 40px rgba(12, 29, 47, 0.09);
+      --radius: 18px;
+      --max: 1320px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    a {
+      color: #0b6280;
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    a:hover { color: #08455a; }
+
+    .page {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--amber-dark);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 860px;
+      margin-bottom: 14px;
+      color: var(--navy);
+      font-size: clamp(2.1rem, 5vw, 4.4rem);
+      letter-spacing: -0.045em;
+      line-height: 0.98;
+    }
+
+    .intro {
+      max-width: 820px;
+      margin-bottom: 10px;
+      color: #455669;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .meta {
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .card {
+      margin-top: 22px;
+      padding: clamp(18px, 3vw, 32px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .chart-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .chart-heading h2 {
+      margin-bottom: 4px;
+      color: var(--navy);
+      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+      letter-spacing: -0.025em;
+    }
+
+    .chart-heading p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .australia-key {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid #ecd6a2;
+      border-radius: 999px;
+      background: #fff9ec;
+      color: #80550f;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .australia-key::before {
+      width: 26px;
+      height: 4px;
+      border-radius: 99px;
+      background: var(--amber);
+      content: "";
+    }
+
+    figure {
+      margin: 0;
+    }
+
+    .chart-frame {
+      position: relative;
+      overflow-x: auto;
+      border: 1px solid #e5ebef;
+      border-radius: 12px;
+      background: #fbfcfd;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      z-index: 2;
+      max-width: 180px;
+      padding: 6px 9px;
+      border: 1px solid #cbd7e0;
+      border-radius: 7px;
+      background: rgba(12, 29, 47, 0.96);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 1.2;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(10px, 10px);
+      transition: opacity 100ms ease;
+      white-space: nowrap;
+    }
+
+    .chart-tooltip.is-visible {
+      opacity: 1;
+    }
+
+    .figure-caption {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 8px 14px;
+      margin-top: 22px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 8px;
+      color: #526273;
+      font-size: 0.88rem;
+    }
+
+    .legend-item.is-australia {
+      color: #80550f;
+      font-weight: 800;
+    }
+
+    .legend-swatch {
+      flex: 0 0 auto;
+      width: 22px;
+      height: 3px;
+      border-radius: 99px;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .notes h2 {
+      margin-bottom: 8px;
+      color: var(--navy);
+      font-size: 1.05rem;
+    }
+
+    .notes p {
+      margin-bottom: 0;
+      color: #526273;
+      font-size: 0.92rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 26px;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(calc(100% - 22px), var(--max));
+        padding-top: 28px;
+      }
+
+      .chart-heading,
+      .notes {
+        display: block;
+      }
+
+      .australia-key {
+        margin-top: 14px;
+      }
+
+      .notes > div + div {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <p class="eyebrow">Prototype · international comparison</p>
+      <h1>General government gross debt</h1>
+      <p class="intro">
+        Gross public debt as a percentage of GDP for the G20 countries, additional
+        AAA-rated countries, New Zealand and Taiwan. Australia is highlighted.
+      </p>
+      <p class="meta">
+        IMF World Economic Outlook · 1990–2025 · future projections omitted
+      </p>
+    </header>
+
+    <section class="card" aria-labelledby="chart-title">
+      <div class="chart-heading">
+        <div>
+          <h2 id="chart-title">Debt burden by country</h2>
+          <p>General government gross debt (% of GDP)</p>
+        </div>
+        <span class="australia-key">Australia</span>
+      </div>
+
+      <figure>
+        <div class="chart-frame">
+          <svg id="chart" viewBox="0 0 1200 720" role="img"
+            aria-labelledby="chart-title chart-description"></svg>
+          <div class="chart-tooltip" id="chart-tooltip" role="tooltip" aria-hidden="true"></div>
+        </div>
+        <figcaption class="figure-caption" id="chart-description">
+          The x-axis begins in 1990. Lines begin when the IMF WEO first reports
+          an observation for each country; an absent line before that point is a
+          data gap, not a zero value.
+        </figcaption>
+      </figure>
+
+      <div class="legend" id="legend" aria-label="Countries shown in the chart"></div>
+    </section>
+
+    <section class="card notes" aria-label="Definitions and sources">
+      <div>
+        <h2>Definition</h2>
+        <p>
+          “General government” is the IMF’s internationally comparable government
+          perimeter. It is broader than the Commonwealth-only gross-debt measure
+          on the main Australian chart and may include central, state, local and
+          social-security government entities, subject to each country’s reporting
+          framework.
+        </p>
+      </div>
+      <div>
+        <h2>Source and scope</h2>
+        <p>
+          Embedded data use the April 2026
+          <a href="https://data.imf.org/en/datasets/IMF.RES:WEO" rel="noopener">IMF World Economic Outlook</a>
+          vintage and indicator
+          <a href="https://www.imf.org/external/datamapper/GGXWDG_NGDP@WEO" rel="noopener"><code>GGXWDG_NGDP</code></a>.
+          WEO periods retain country-specific annual and fiscal-year conventions.
+          Values from 2026 onward are excluded because they are projections in
+          this vintage. Taiwan is displayed using a shorter label than the IMF
+          source naming convention.
+        </p>
+      </div>
+    </section>
+
+    <a class="back-link" href="index.html">Back to the Commonwealth debt story</a>
+  </main>
+
+  <script>
+    const firstYear = 1990;
+    const lastYear = 2025;
+
+    const countries = [
+      {code: 'ARG', name: 'Argentina', start: 1992, values: [25,26.9,28.4,30.7,32.6,31.7,34.1,38.9,40.8,48,147.2,125.2,117.9,80.3,70.8,62.1,53.8,55.4,43.5,38.9,40.4,43.5,44.7,52.6,53.1,57,85.2,89.8,103.8,81,84.3,154.6,84.7,80.3]},
+      {code: 'AUS', name: 'Australia', start: 1989, values: [17,16.4,21.6,27.6,30.6,31.7,31.1,29.3,25.9,23.7,22.5,19.5,17.1,15,13.2,11.9,10.8,9.9,9.6,11.7,16.6,20.3,24,27.4,30.3,33.9,37.6,40.5,41,41.6,46.5,56.9,55.4,50,49.4,50.6,51]},
+      {code: 'BRA', name: 'Brazil', start: 2000, values: [62.2,67.3,76.1,71.5,68,67,64.6,63,61.4,64.7,62.4,60.6,61.6,59.6,61.6,71.7,77.4,82.7,84.8,87.1,96,88.9,83.9,84,87,93.3]},
+      {code: 'CAN', name: 'Canada', start: 1980, values: [44.6,46.1,51.7,57.2,60.2,65.2,69.3,69.8,69.7,71,73.7,81.7,88.2,94.7,97.5,100.1,100.2,95.3,93.3,89,80.4,81.5,79.6,75.9,71.9,70.6,69.9,67.2,70.4,81.8,84,84.3,87,87.7,85.8,92.3,92.5,91,90.8,90.1,118.1,112.6,103.5,105.1,110,113.5]},
+      {code: 'CHN', name: 'China', start: 1995, values: [21.4,21.2,20.4,20.4,21.6,22.7,24.3,25.6,26.4,26,25.9,25.2,28.7,26.7,34,33.3,33.2,33.8,36.4,39.3,40.8,50,53.9,55.9,59.8,70.1,72.1,77.3,84.1,90.4,99.2]},
+      {code: 'FRA', name: 'France', start: 1980, values: [21.3,22.6,26.2,27.7,30.2,31.9,32.4,34.8,34.7,35.5,36.8,37.8,41.7,48.2,51.6,57.8,60.6,62,62.1,61.4,59.7,59.3,61.3,65.4,66.9,68.2,65.4,65.5,69.8,84.1,86.3,88.7,91.7,94.6,96.2,97,98.1,98.8,98.5,98.2,114.9,112.8,111.4,109.6,113.2,116]},
+      {code: 'DEU', name: 'Germany', start: 1991, values: [39,41.4,45.1,47.5,54.9,57.7,58.8,59.4,60.3,59.2,58.1,59.8,63.3,65,67.1,66.4,63.7,65.2,72.4,81,78.5,79.8,77.5,74.5,71.2,68.3,64,60.8,58.7,68,67.9,64.4,62.3,62.2,62.9]},
+      {code: 'IND', name: 'India', start: 1991, values: [76.7,78.8,78.3,74.8,70.9,67.1,69,69.3,71.3,74.9,80.1,84.3,85.9,84.9,82.4,77.9,75.4,74.3,72.7,67.7,68.7,68.1,68,67.6,69.8,69.8,70.8,71.7,76.7,90.6,85.7,84.6,85,84.8,84.1]},
+      {code: 'IDN', name: 'Indonesia', start: 2000, values: [87.4,73.7,62.3,55.6,51.3,42.6,35.8,38.1,30.3,26.5,26.4,23.1,23,24.9,24.6,27,28,29.4,30.4,30.6,39.7,41.1,40.1,39.6,40.2,41]},
+      {code: 'ITA', name: 'Italy', start: 1988, values: [95.7,98.4,101.7,105.3,113,124.1,130.8,119.1,118.9,116.5,113.9,113.1,108.7,108.5,105.9,105.1,104.7,106.2,106.3,103.5,105.8,116.1,118.8,119.1,125.9,131.9,134.8,134.8,134.2,133.7,134.2,133.9,154.4,145.8,138.4,133.9,134.7,137.1]},
+      {code: 'JPN', name: 'Japan', start: 1980, values: [41.4,45.8,50.1,55.1,56.9,59.2,64.2,65.7,62.4,56.9,54.8,54.1,57.9,63.2,73.3,80.7,85.3,91.3,101.6,113.5,118.5,126.8,134.6,140.2,148.8,153.4,152.1,150.4,153.6,172.9,178.6,190.6,197.1,201.2,203.6,200.1,202.1,203.1,203.7,206.3,228.8,222.7,227.8,220.3,214.5,206.5]},
+      {code: 'MEX', name: 'Mexico', start: 1996, values: [42.5,39.1,39.7,41.7,38.5,37.3,39.9,42.1,38.9,36.8,35.8,35.5,40.6,41.7,40.2,41.2,40.8,44.1,47.1,51,55,52.5,52.2,51.9,58.5,56.7,53.8,52.8,59.1,61.8]},
+      {code: 'RUS', name: 'Russia', start: 1997, values: [51.5,135.2,92.4,55.9,44.4,37.6,28.3,20.8,14.9,9.8,8,7.4,9.9,10.1,10.3,11.2,12.3,15.1,15.3,14.8,14.3,13.6,13.7,19.2,16.5,15.1,15.2,14.8,17.2]},
+      {code: 'SAU', name: 'Saudi Arabia', start: 1991, values: [39.4,47.8,58.6,67.9,74.2,75.2,76.7,101.5,103,86.7,93.1,96.4,81.6,62.9,37.3,25.8,17.1,12.1,14,8.4,5.3,3,2.1,1.5,5.5,12.2,15.9,16.8,20.3,29.7,25.5,21.3,23,25.9,31.7]},
+      {code: 'ZAF', name: 'South Africa', start: 2000, values: [37.9,38,31.8,31.5,30.7,29.6,28,24.3,24,27,31.2,34.7,37.4,40.4,43.3,45.2,47.1,48.6,51.5,56.1,68.9,68.8,70.7,73.2,76,78.6]},
+      {code: 'KOR', name: 'South Korea', start: 1990, values: [12.8,11.9,11.6,10.9,9.6,8.5,7.8,9.7,13.8,15.8,16.1,16.6,16.4,19.1,21.6,24.9,27,26.3,25.9,28.8,28.3,31.7,33.5,36,37.9,38.8,39.1,38,37.9,39.7,45.9,48,49.8,50.5,49.7,52.3]},
+      {code: 'TUR', name: 'Turkey', start: 2000, values: [51.2,75.6,71.2,63.6,57,50.2,44.2,37.1,37,42.4,38.6,34.8,30.8,29.5,27.4,26.5,27,26.9,28.8,31.2,38.3,38.9,29.4,28.2,23.6,23.5]},
+      {code: 'GBR', name: 'United Kingdom', start: 1980, values: [42.5,44.7,42.9,41.8,42.1,41.2,41.2,39.2,37,32.4,28.4,28.4,33.1,37.8,40.6,43.5,43.5,43.9,41.8,40.3,37.5,34.8,35.3,36.6,39.7,40.9,41.9,43,50.6,64.5,75.5,81.1,84.1,84.9,86.5,87.3,87.3,86.1,85.6,84.9,104.8,103.4,97.5,98.9,99.9,102.3]},
+      {code: 'USA', name: 'United States', start: 2001, values: [53.5,55.9,59,66.4,65.8,64.5,64.9,73.8,87.1,95.7,100,103.7,105,104.9,105.4,107.4,106.4,107.7,108.8,132.6,125,119.1,120,122.3,123.9]},
+      {code: 'DNK', name: 'Denmark', start: 1992, values: [66.7,78.7,75.3,71.5,68.3,64.4,60.3,56.8,53.6,50.1,50.3,48.2,46.2,39.4,33.2,29.5,35.5,43,46.1,50,48.7,47.8,48.7,44.6,41.7,40.2,38.5,38.3,45.2,39.6,33.3,33,30.5,27.5]},
+      {code: 'LIE', name: 'Liechtenstein', start: 2011, values: [0.4,0.5,0.4,0.5,0.5,0.4,0.6,0.5,0.6,0.5,0.5,0.5,0.5,0.5,0.5]},
+      {code: 'LUX', name: 'Luxembourg', start: 1995, values: [10.3,10.2,10.1,9.5,8.4,7.5,7.6,7.4,7.4,7.8,8,8.2,8.1,14.6,15.3,19.1,18.5,20.8,22.4,21.9,21.1,19.6,21.8,20.9,22.3,24.5,24.2,24.9,24.7,26.3,27]},
+      {code: 'NLD', name: 'Netherlands', start: 1980, values: [43.6,46.9,52.4,58.4,61.9,67.1,68.9,71.3,73.7,73.7,75,74.8,75.6,76.7,73.5,73,71.2,65.7,62.7,58.6,52.2,49.4,48.7,49.8,50.1,49.6,45,42.7,54.4,56.3,58.9,61.2,65.7,67.2,67.2,63.8,60.9,56,51.6,47.7,53.4,50.5,48.4,45.8,43.7,43.3]},
+      {code: 'NOR', name: 'Norway', start: 1980, values: [47.9,43.5,38.6,35.5,35.3,37,46.1,38.6,32.6,32.5,29.1,39.5,45.3,54,51,32.9,28.6,26,23.8,25.1,28.8,27.3,34,43.1,43.8,42.1,52.2,48.9,46.8,41.7,42.1,28.9,30.2,30.6,28.8,33.2,36.7,36.9,38.1,39,44.3,40.1,34.8,42.4,52.8,45]},
+      {code: 'SGP', name: 'Singapore', start: 1990, values: [73.5,76.4,79,71.2,70.7,69.8,71.3,70.8,84.6,85.3,82.3,94.5,96.3,99.1,95.7,92.7,86.5,87.8,97.9,101.7,98.7,103.1,106.7,98.2,97.7,102.1,105.9,107.3,109.2,127.7,147.1,139.9,153.3,170.4,166,171.3]},
+      {code: 'SWE', name: 'Sweden', start: 1993, values: [66.1,68.6,68.7,68.9,67.7,65.4,60.3,50.4,52,49.9,49.5,48.7,48.9,43.8,39.2,37.9,41.2,38.6,37.7,38,40.8,45.7,44.5,42.9,41.6,39.9,35.8,40.4,37.3,34.2,32.1,33.9,34.9]},
+      {code: 'CHE', name: 'Switzerland', start: 1990, values: [32.8,34.6,38.9,43.7,46.4,49.3,50.6,52.9,55.3,52,51.7,50.5,56.9,56.2,57.1,54.1,47.7,44,44.2,42.4,40.7,41.2,41.9,41.2,41.2,41.4,40.3,41.1,39,38.8,42.4,39.7,35.9,37.3,40.5,39.4]},
+      {code: 'NZL', name: 'New Zealand', start: 1985, values: [64.1,68.5,62.9,54.7,54.9,55.5,58,58.7,54.6,48.9,43.5,37.3,34.6,34.5,32,30,28.2,26.4,24.7,22.5,20.8,18.4,16.3,19,24.3,29.6,34.7,35.7,34.6,34.2,34.2,33.4,31.1,28.1,31.8,43.2,47.5,46.9,47.3,51.4,54.7]},
+      {code: 'TWN', name: 'Taiwan', start: 1997, values: [25,23.7,23.7,26.2,30.1,29.8,32.1,33.4,34.1,33.3,32.2,33.4,36.7,36.9,38.3,39.2,38.9,37.5,35.9,35.4,34.5,33.8,32.6,32,30.1,29.5,29,26.8,22.4]},
+    ];
+
+    const palette = [
+      "#64829a", "#7d8ca0", "#6f9a9c", "#8a799c", "#6f8fae", "#9b7b70",
+      "#668e7e", "#8d829f", "#7890a9", "#9a806c", "#658d91", "#8a8ba8",
+      "#7e967b", "#967c91", "#6b8ca0", "#9a8a72", "#708f83", "#8c7d9d",
+      "#748ba1", "#9a8475", "#6e958e", "#8c83a0", "#7f927b", "#98816e",
+      "#6d899d", "#8e8395", "#75958a", "#8b809f", "#70889c"
+    ];
+    const australiaColour = "#d99a26";
+    const svg = document.getElementById("chart");
+    const chartFrame = document.querySelector(".chart-frame");
+    const chartTooltip = document.getElementById("chart-tooltip");
+    const legend = document.getElementById("legend");
+    const width = 1200;
+    const height = 720;
+    const margin = {top: 34, right: 28, bottom: 76, left: 82};
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    const plotRight = width - margin.right;
+    const plotBottom = height - margin.bottom;
+
+    const values = countries.flatMap(country => country.values).filter(Number.isFinite);
+    const maximum = Math.max(...values);
+    const yStep = maximum > 200 ? 50 : maximum > 100 ? 25 : 20;
+    const yMaximum = Math.ceil(maximum / yStep) * yStep;
+
+    function svgElement(name, attributes = {}, text) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function xPosition(year) {
+      return margin.left + ((year - firstYear) / (lastYear - firstYear)) * plotWidth;
+    }
+
+    function yPosition(value) {
+      return margin.top + plotHeight - (value / yMaximum) * plotHeight;
+    }
+
+    function valueFor(country, year) {
+      if (country.start === null || year < country.start) return null;
+      return country.values[year - country.start] ?? null;
+    }
+
+    function pathFor(country) {
+      let path = "";
+      let drawing = false;
+      for (let year = firstYear; year <= lastYear; year += 1) {
+        const value = valueFor(country, year);
+        if (!Number.isFinite(value)) {
+          drawing = false;
+          continue;
+        }
+        path += `${drawing ? "L" : "M"}${xPosition(year).toFixed(2)},${yPosition(value).toFixed(2)} `;
+        drawing = true;
+      }
+      return path.trim();
+    }
+
+    function positionTooltip(event) {
+      const frameBounds = chartFrame.getBoundingClientRect();
+      const left = Math.min(
+        Math.max(event.clientX - frameBounds.left, 8),
+        frameBounds.width - chartTooltip.offsetWidth - 8
+      );
+      const top = Math.min(
+        Math.max(event.clientY - frameBounds.top, 8),
+        frameBounds.height - chartTooltip.offsetHeight - 8
+      );
+      chartTooltip.style.left = `${left}px`;
+      chartTooltip.style.top = `${top}px`;
+    }
+
+    function showTooltip(country, event) {
+      chartTooltip.textContent = country.name;
+      chartTooltip.setAttribute("aria-hidden", "false");
+      chartTooltip.classList.add("is-visible");
+      positionTooltip(event);
+    }
+
+    function hideTooltip() {
+      chartTooltip.classList.remove("is-visible");
+      chartTooltip.setAttribute("aria-hidden", "true");
+    }
+
+    function renderChart() {
+      svg.replaceChildren();
+      svg.append(
+        svgElement("title", {}, "General government gross debt as a percentage of GDP"),
+        svgElement("desc", {}, "Static IMF World Economic Outlook comparison for 29 countries from 1990 to 2025. Australia is highlighted in amber. Hover over a plot line to identify its country.")
+      );
+
+      const background = svgElement("rect", {
+        x: 0, y: 0, width, height, fill: "#fbfcfd"
+      });
+      svg.append(background);
+
+      const grid = svgElement("g", {"aria-hidden": "true"});
+      for (let value = 0; value <= yMaximum; value += yStep) {
+        const y = yPosition(value);
+        grid.append(
+          svgElement("line", {
+            x1: margin.left, x2: plotRight, y1: y, y2: y,
+            stroke: value === 0 ? "#aab8c5" : "#e2e8ed",
+            "stroke-width": value === 0 ? 1.5 : 1
+          }),
+          svgElement("text", {
+            x: margin.left - 12, y: y + 5, "text-anchor": "end",
+            fill: "#617083", "font-size": 13
+          }, String(value))
+        );
+      }
+      svg.append(grid);
+
+      const xAxis = svgElement("g", {"aria-hidden": "true"});
+      const xTicks = [];
+      for (let year = firstYear; year <= 2020; year += 10) xTicks.push(year);
+      xTicks.push(lastYear);
+      xTicks.forEach(year => {
+        const x = xPosition(year);
+        xAxis.append(
+          svgElement("line", {
+            x1: x, x2: x, y1: margin.top, y2: plotBottom,
+            stroke: "#edf1f4", "stroke-width": 1
+          }),
+          svgElement("text", {
+            x, y: plotBottom + 25, "text-anchor": "middle",
+            fill: "#617083", "font-size": 13
+          }, String(year))
+        );
+      });
+      svg.append(xAxis);
+
+      svg.append(
+        svgElement("text", {
+          x: margin.left + plotWidth / 2, y: height - 18,
+          "text-anchor": "middle", fill: "#526273", "font-size": 14,
+          "font-weight": 700
+        }, "Year (IMF WEO annual period)"),
+        svgElement("text", {
+          x: 20, y: margin.top + plotHeight / 2,
+          "text-anchor": "middle", fill: "#526273", "font-size": 14,
+          "font-weight": 700,
+          transform: `rotate(-90 20 ${margin.top + plotHeight / 2})`
+        }, "Gross debt (% of GDP)")
+      );
+
+      const lines = svgElement("g", {"aria-hidden": "true"});
+      countries.forEach((country, index) => {
+        const isAustralia = country.code === "AUS";
+        const path = pathFor(country);
+        const lineGroup = svgElement("g");
+        const visibleLine = svgElement("path", {
+          d: path,
+          fill: "none",
+          stroke: isAustralia ? australiaColour : palette[index],
+          "stroke-width": isAustralia ? 4 : 1.7,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
+          opacity: isAustralia ? 1 : 0.72
+        });
+        const hitArea = svgElement("path", {
+          d: path,
+          fill: "none",
+          stroke: "transparent",
+          "stroke-width": isAustralia ? 16 : 14,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
+          "pointer-events": "stroke",
+          "aria-label": country.name
+        });
+        hitArea.append(svgElement("title", {}, country.name));
+        hitArea.addEventListener("pointerenter", event => showTooltip(country, event));
+        hitArea.addEventListener("pointermove", event => positionTooltip(event));
+        hitArea.addEventListener("pointerleave", hideTooltip);
+        hitArea.addEventListener("pointercancel", hideTooltip);
+        lineGroup.append(visibleLine, hitArea);
+        lines.append(lineGroup);
+      });
+      svg.append(lines);
+
+      const australia = countries.find(country => country.code === "AUS");
+      const latestAustralia = valueFor(australia, lastYear);
+      if (Number.isFinite(latestAustralia)) {
+        svg.append(
+          svgElement("circle", {
+            cx: xPosition(lastYear), cy: yPosition(latestAustralia), r: 4.5,
+            fill: australiaColour, stroke: "#fff", "stroke-width": 2
+          }),
+          svgElement("text", {
+            x: xPosition(lastYear) - 9, y: yPosition(latestAustralia) - 10,
+            "text-anchor": "end", fill: "#9b6710", "font-size": 13,
+            "font-weight": 800
+          }, "Australia")
+        );
+      }
+    }
+
+    function renderLegend() {
+      countries.forEach((country, index) => {
+        const isAustralia = country.code === "AUS";
+        const item = document.createElement("div");
+        item.className = `legend-item${isAustralia ? " is-australia" : ""}`;
+        const swatch = document.createElement("span");
+        swatch.className = "legend-swatch";
+        swatch.style.background = isAustralia ? australiaColour : palette[index];
+        const label = document.createElement("span");
+        label.textContent = country.name;
+        item.append(swatch, label);
+        legend.append(item);
+      });
+    }
+
+    renderChart();
+    renderLegend();
+  </script>
+</body>
+</html>
